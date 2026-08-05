@@ -1,0 +1,98 @@
+generated: '2026-08-05'
+method: derived
+source: openapi/terabase-energy-plantpredict-openapi-original.yaml
+docs: https://docs.plantpredict.com/api-reference
+format: vendor
+format_note: >-
+  NOT RFC 9457. PlantPredict returns no `application/problem+json` anywhere in the spec. Errors arrive in one of three
+  shapes and clients are told explicitly to branch on Content-Type: an ASP.NET Web API model-state JSON envelope, a
+  free-form `text/plain` message, or an empty body where the status code is the only signal.
+envelopes:
+- name: ModelStateError
+  media_type: application/json
+  schema: '#/components/schemas/ModelStateError'
+  shape: '{ message: string, modelState: { <field>: [string, ...] } }'
+  used_by: [400]
+  example: '{"message":"The request is invalid.","modelState":{"latitude":["The field Latitude must be between -90 and 90."]}}'
+- name: Error
+  media_type: application/json
+  schema: '#/components/schemas/Error'
+  shape: '{ message: string }'
+  note: Minimal free-form envelope; many responses use text/plain instead.
+- name: PlainText
+  media_type: text/plain
+  shape: free-form string
+  used_by: [400, 404, 409, 500]
+- name: Empty
+  media_type: null
+  shape: no body, no Content-Type
+  used_by: [401, 403, 429]
+problems:
+- status: 400
+  name: BadRequest
+  title: The request was rejected
+  media_types: [application/json, text/plain]
+  description: >-
+    Two shapes. application/json with {message, modelState} for input validation errors (ASP.NET Web API model state,
+    mapping field names to lists of human-readable messages); text/plain with a free-form message for runtime or
+    database errors that surface before validation completes.
+  remediation: Branch on the Content-Type header; read modelState keys to locate the offending fields.
+  occurrences: 52
+- status: 401
+  name: Unauthorized
+  title: Missing or invalid bearer token
+  media_types: []
+  description: >-
+    The response body is empty and no Content-Type header is set; the 401 status code is the only signal.
+  remediation: Fetch a fresh token from the Cognito token endpoint and retry.
+  occurrences: 110
+- status: 403
+  name: Forbidden
+  title: Token valid but lacks the required scope or role
+  media_types: []
+  description: >-
+    The bearer token is valid but lacks the OAuth2 scope or role required for this operation — e.g. status-change
+    endpoints require elevated privileges not granted to every API client. Body typically empty.
+  remediation: Request `transactions/post` in addition to `transactions/get`; ask a company admin about role elevation.
+  occurrences: 3
+- status: 404
+  name: NotFound
+  title: Resource does not exist or is not accessible
+  media_types: [text/plain]
+  description: The referenced resource does not exist or is not accessible to the caller.
+  example: Project not found.
+  occurrences: 71
+- status: 409
+  name: Conflict
+  title: Request conflicts with current resource state
+  media_types: [text/plain]
+  description: >-
+    E.g. deleting an entity that has dependents, or a status change rejected by lifecycle rules.
+  example: Cannot delete project; it has 3 predictions.
+  occurrences: 0
+  note: Declared in components.responses but not referenced by any operation in the published spec.
+- status: 429
+  name: TooManyRequests
+  title: Per-account rate limit exceeded
+  media_types: []
+  description: >-
+    The caller has exceeded the per-account rate limit for this operation. PlantPredict does not currently emit a
+    Retry-After header. Body typically empty.
+  remediation: Back off with an exponential schedule starting at 30 seconds.
+  occurrences: 4
+- status: 500
+  name: ServerError
+  title: Unexpected server-side error
+  media_types: [text/plain]
+  description: >-
+    Body is usually a plain-text message but its structure is not guaranteed — treat it as opaque diagnostic text.
+    Common causes are database constraint violations, downstream service timeouts and internal exceptions.
+  remediation: >-
+    Retry-safe for idempotent requests; for non-idempotent requests verify state before retrying.
+  example: An error has occurred.
+  occurrences: 113
+non_blocking_signals:
+- header: X-Message
+  description: >-
+    Successful responses may carry an X-Message header with a non-blocking warning, e.g. a duplicate project name on
+    createProject. Not an error; do not treat as failure.

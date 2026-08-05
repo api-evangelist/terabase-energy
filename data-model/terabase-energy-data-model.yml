@@ -1,0 +1,107 @@
+generated: '2026-08-05'
+method: derived
+source: openapi/terabase-energy-plantpredict-openapi-original.yaml
+docs: https://docs.plantpredict.com/api-docs/intro
+api: PlantPredict Performance API
+basis: >-
+  Derived from components.schemas $ref edges and id-reference fields, cross-checked against the domain model Terabase
+  publishes in the API description and in its own Agent Skill entity table.
+id_style: integer surrogate keys; every entity exposes `id`; no prefixed string ids.
+entities:
+- name: Company
+  description: Tenant that owns the shared libraries (weather, modules, inverters) and the API credentials.
+  key: companyId
+  schema: null
+  note: Not modelled as a standalone schema; referenced by companyId on Project, WeatherFile and Inverter.
+- name: Project
+  description: A named site at a lat/lon that acts as a container for one or more Predictions.
+  schema: Project
+  key: id
+  operations: [listProjects, createProject, getProject, deleteProject, getProjectOverview, exportProject,
+    searchProjects, listProjectsByStatus, changeProjectStatus, getMyProjects]
+- name: Prediction
+  description: >-
+    The simulation configuration nested under a Project — period, model selections (transposition, air mass,
+    degradation, soiling, shading, spectral shift), uncertainty error terms, and the weather reference.
+  schema: Prediction
+  key: id
+  status_enum: {0: Draft, 1: Active, 2: Issued, 3: Archived}
+  operations: [listPredictions, createPrediction, getPrediction, updatePrediction, deletePrediction, runPrediction,
+    cancelPrediction, getPredictionOverview, exportPrediction]
+- name: PowerPlant
+  description: The physical plant design attached to a Prediction — the electrical topology plus transformers,
+    transmission lines, energy storage and LGIA export limits.
+  schema: PowerPlant
+  operations: [getPowerPlant, createPowerPlant, updatePowerPlant]
+- name: Block
+  schema: Block
+  description: Top level of the plant topology.
+- name: PowerPlantArray
+  schema: PowerPlantArray
+  description: Array within a Block.
+- name: PowerPlantInverter
+  schema: PowerPlantInverter
+  description: Inverter instance within an Array; references a library Inverter by inverterId.
+- name: DCField
+  schema: DCField
+  description: Strings of modules under an inverter; references a library Module by moduleId. 92 properties — the
+    widest schema in the contract.
+- name: WeatherFile
+  schema: WeatherFile
+  description: Hourly meteorological data for a location, held in a company-wide library.
+  operations: [createWeather, getWeather, searchWeather, downloadWeather, parseWeather, qualityCheckWeather,
+    finalizeWeatherImport, getWeatherDetails, exportWeather]
+- name: Module
+  schema: Module
+  description: PV module definition (STC power, temperature coefficients, single-diode parameters, IAM curves).
+  operations: [listModules, createModule, getModule, updateModule, deleteModule, importPANFile, exportModule]
+- name: Inverter
+  schema: Inverter
+  description: Inverter definition with efficiency curves and voltage/power ratings.
+  operations: [listInverters, createInverter, getInverter, updateInverter, deleteInverter, parseONDFile]
+- name: ShadeScene
+  schema: ShadeSceneProperties
+  description: Optional 3D shading model (PVJ format) attached to a Prediction's DC Fields.
+- name: TimeSeries
+  schema: TimeSeriesMeta
+  description: Custom time-series inputs bound to a Prediction (derate, set point, tracking angle, surface temp).
+- name: ResultSummary
+  schema: ResultSummary
+  description: Summary output of a completed Prediction run.
+- name: Note
+  schema: Note
+  description: Free-text annotation attached to a Project, Prediction, Module or Inverter via entityID.
+- name: Country
+  schema: Country
+  description: Reference data.
+- name: ASHRAEStation
+  schema: ASHRAEStation
+  description: Reference climate station, looked up by coordinates or name.
+- name: APICredentials
+  schema: APICredentials
+  description: Client ID + secret pair generated per user; the secret is returned only once.
+relationships:
+- {from: Project, to: Prediction, type: has_many, via: projectId}
+- {from: Prediction, to: Project, type: belongs_to, via: projectId}
+- {from: Prediction, to: PowerPlant, type: has_one, via: powerPlantId}
+- {from: Prediction, to: WeatherFile, type: belongs_to, via: weatherId}
+- {from: Prediction, to: MonthlyFactor, type: has_many, via: monthlyFactors}
+- {from: Prediction, to: TimeSeries, type: has_many, via: predictionId}
+- {from: Prediction, to: ShadeScene, type: has_one, via: nested path}
+- {from: Prediction, to: ResultSummary, type: has_one, via: nested path}
+- {from: PowerPlant, to: Block, type: has_many, via: blocks}
+- {from: Block, to: PowerPlantArray, type: has_many, via: arrays}
+- {from: PowerPlantArray, to: PowerPlantInverter, type: has_many, via: inverters}
+- {from: PowerPlantInverter, to: DCField, type: has_many, via: dcFields}
+- {from: PowerPlantInverter, to: Inverter, type: belongs_to, via: inverterId}
+- {from: DCField, to: Module, type: belongs_to, via: moduleId}
+- {from: DCField, to: TimeSeries, type: belongs_to, via: moduleSurfaceTemperatureTimeSeriesId}
+- {from: DCField, to: TimeSeries, type: belongs_to, via: trackingAngleTimeSeriesId}
+- {from: PowerPlantInverter, to: TimeSeries, type: belongs_to, via: derateTimeSeriesId}
+- {from: PowerPlantInverter, to: TimeSeries, type: belongs_to, via: setPointTimeSeriesId}
+- {from: PowerPlant, to: TimeSeries, type: belongs_to, via: lgiaLimitTimeSeriesId}
+- {from: Company, to: Project, type: has_many, via: companyId}
+- {from: Company, to: WeatherFile, type: has_many, via: companyId}
+- {from: Company, to: Inverter, type: has_many, via: companyId}
+- {from: Project, to: Note, type: has_many, via: entityID}
+hierarchy: Project > Prediction > PowerPlant > Block > Array > Inverter > DCField > Module

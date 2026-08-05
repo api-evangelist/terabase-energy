@@ -1,0 +1,120 @@
+generated: '2026-08-05'
+method: derived
+source: mcp/terabase-energy-mcp.yml, openapi/terabase-energy-plantpredict-openapi-original.yaml
+basis: >-
+  Terabase's MCP tools/list is OAuth-gated (401), so no tool NAMES are known. This crosswalk therefore binds the five
+  capabilities Terabase publishes for the connector to the OpenAPI operations that must back them, rather than
+  inventing tool identifiers. Every operationId below was verified verbatim in the spec. Confidence is capped at
+  medium throughout because the tool-to-operation mapping is inferred from documented capability, not observed.
+surfaces:
+  openapi:
+    file: openapi/terabase-energy-plantpredict-openapi-original.yaml
+    version: 3.1.0
+    operations: 113
+    gated: false
+  mcp:
+    url: https://mcp.plantpredict.terabase.energy
+    tools_list: gated
+    auth: OAuth 2.0 authorization_code + PKCE
+  graphql: null
+crosswalk:
+- tool: null
+  capability: Create and run energy predictions
+  category: predictions
+  rest:
+  - createProject
+  - createPrediction
+  - createPowerPlant
+  - runPrediction
+  - getPredictionOverview
+  - cancelPrediction
+  binding: rest
+  confidence: medium
+  note: >-
+    The documented capability maps to the provider's own published happy path (create project -> create prediction ->
+    attach power plant -> run -> poll overview until status 2). Tool names unknown.
+- tool: null
+  capability: Import weather files
+  category: weather
+  rest:
+  - searchWeather
+  - downloadWeather
+  - validateWeatherDownload
+  - parseWeather
+  - qualityCheckWeather
+  - finalizeWeatherImport
+  - finalizeGeneratedWeather
+  - getWeather
+  binding: rest
+  confidence: medium
+- tool: null
+  capability: Import shade scenes
+  category: shade
+  rest:
+  - convertPVCtoPVJ
+  - convertSHDtoPVJ
+  - createShadeScene
+  - runShadeCalculations
+  - getShadeProcessingStatus
+  - getShadeResults
+  binding: rest
+  confidence: medium
+- tool: null
+  capability: Browse projects
+  category: projects
+  rest:
+  - listProjects
+  - getMyProjects
+  - getMyProjectsAndPredictions
+  - searchProjects
+  - listProjectsByStatus
+  - getProject
+  - getProjectOverview
+  binding: rest
+  confidence: medium
+- tool: null
+  capability: Read prediction results
+  category: results
+  rest:
+  - getResultSummary
+  - getResultDetails
+  - getAverageEnergy
+  - getNodalJson
+  - getPlantBlockDetails
+  binding: rest
+  confidence: medium
+mcp_only: []
+mcp_only_note: >-
+  Cannot be determined without an authenticated tools/list. Recorded as unknown rather than empty-by-evidence.
+rest_only:
+- capability: Module library and single-diode parameter generation
+  operations: [listModules, createModule, getModule, updateModule, deleteModule, importPANFile, createPANFileModule,
+    generateSingleDiodeDefault, generateSingleDiodeAdvanced, optimizeSeriesResistance,
+    calculateEffectiveIrradianceResponse, generateIVCurve, processIVCurves, processKeyIVPoints, getDefaultIAM,
+    exportModule, getModuleOverview, getModuleNotes, deleteModuleNote]
+- capability: Inverter library
+  operations: [listInverters, createInverter, getInverter, updateInverter, deleteInverter, parseONDFile,
+    calculateInverterkVA, getInverterkVA, changeInverterStatus, getInverterOverview]
+- capability: Financial model and cashflow
+  operations: [getFinancialModelParameters, saveFinancialModelParameters, calculateCashflowResults]
+- capability: Time-series inputs
+  operations: [listTimeSeries, createTimeSeries, uploadTimeSeriesCSV, getTimeSeriesTemplate, getTimeSeriesDetails,
+    downloadTimeSeriesCSV, deleteTimeSeries]
+- capability: Terrain-aware backtracking (TABT)
+  operations: [runTABT, getTABTProcessingStatus]
+- capability: PVsyst import
+  operations: [importPVsystProject, getPVsystImportStatus]
+- capability: Reports and exports
+  operations: [generateReports, getReportURL, cancelReportGeneration, exportProject, exportPrediction,
+    exportPredictionComparison, exportWeather, updateExportOptions]
+- capability: Company administration and API credentials
+  operations: [getCompanyDefaultSettings, updateCompanyDefaultSettings, addCompanyUser, generateAPICredentials]
+- capability: Reference data and system status
+  operations: [getDefinitions, listCountries, getASHRAE, getASHRAEStation, getVersion, getMaintenanceStatus]
+coverage:
+  tools_named: 0
+  capabilities_documented: 5
+  capabilities_bound: 5
+  rest_operations_total: 113
+  rest_operations_reachable_via_documented_capabilities: 30
+  mcp_only: unknown

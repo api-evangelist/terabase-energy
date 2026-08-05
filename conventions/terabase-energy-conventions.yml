@@ -1,0 +1,91 @@
+generated: '2026-08-05'
+method: searched
+source: https://docs.plantpredict.com/api-docs/intro
+derived_from: openapi/terabase-energy-plantpredict-openapi-original.yaml
+api: PlantPredict Performance API
+authentication:
+  style: OAuth 2.0 client credentials (AWS Cognito) exchanged for a JWT bearer token
+  header: 'Authorization: Bearer <token>'
+  token_url: https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token
+  client_auth: HTTP Basic (client_id:client_secret)
+  scopes: [transactions/get, transactions/post]
+  see: authentication/terabase-energy-authentication.yml
+statelessness:
+  stateless: true
+  detail: >-
+    "The API is stateless — every request must supply complete inputs; there is no session." Provider's own wording.
+idempotency:
+  supported: false
+  idempotency_key_header: null
+  detail: >-
+    PlantPredict publishes NO idempotency key mechanism. The only idempotency language in the documentation is
+    advisory, in the 500 response description: "Retry-safe for idempotent requests; for non-idempotent ones, verify
+    state before retrying." Creates are not de-duplicated by the server — a repeated POST /Project produces a second
+    project and returns an X-Message header warning about the duplicate name rather than returning the first project.
+    No `type: Idempotency` pointer is emitted for this provider, because there is no idempotency contract to point at.
+pagination:
+  style: offset
+  parameters:
+  - name: skip
+    in: query
+    description: Number of records to skip.
+  - name: top
+    in: query
+    description: Maximum number of records to return.
+  applies_to: [listProjects, listProjectsByStatus]
+  cursor: false
+  response_envelope: bare array (no pagination metadata block)
+async_operations:
+  model: queue-and-poll
+  detail: >-
+    Long-running operations (prediction Run, shade-scene calculations, TABT, PVsyst import, report generation) are
+    asynchronous. Submit, then poll the matching status endpoint.
+  poll_endpoints:
+  - {submit: runPrediction, poll: getPredictionOverview, complete_when: 'status == 2'}
+  - {submit: runShadeCalculations, poll: getShadeProcessingStatus}
+  - {submit: runTABT, poll: getTABTProcessingStatus}
+  - {submit: importPVsystProject, poll: getPVsystImportStatus, cadence: 'every 10 seconds (provider guidance)'}
+  - {submit: generateReports, poll: getReportURL}
+create_semantics:
+  detail: 'POST operations that create entities return {"id": <integer>}.'
+  schema: '#/components/schemas/IdResponse'
+enums:
+  runtime_catalog: getDefinitions
+  detail: >-
+    Many integer fields (model types, status codes) map to named enums. GET /Definitions returns the full enum catalog
+    at runtime rather than freezing it into the spec.
+  examples:
+    prediction_status: {0: Draft, 1: Active, 2: Issued, 3: Archived}
+content_type:
+  request: application/json
+  response: application/json
+  exceptions: [text/plain error bodies, text/csv time-series and nodal exports]
+tracing:
+  request_id_header: null
+  detail: No request-id / correlation header is documented or present in the spec.
+warnings:
+  header: X-Message
+  detail: Non-blocking warnings are returned on success responses via the X-Message header.
+versioning:
+  scheme: platform release (MAJOR.MINOR.PATCH), not URI or header versioned
+  current: 12.30.0
+  api_path_versioning: false
+  detail: >-
+    The API is unversioned in the URL. The OpenAPI info.version tracks the PlantPredict platform release (12.13.0 in
+    the published document) and GET /System/Version returns the running version.
+  see: lifecycle/terabase-energy-lifecycle.yml
+rate_limiting:
+  documented: true
+  status: 429
+  retry_after_header: false
+  guidance: exponential backoff starting at 30 seconds
+  scope: per account, per operation
+  published_limits: null
+  see: rate-limits/terabase-energy-rate-limits.yml
+errors:
+  see: errors/terabase-energy-problem-types.yml
+  rfc9457: false
+maintenance:
+  endpoint: getMaintenanceStatus
+  path: /System/MaintenanceMode
+  detail: The API exposes its own maintenance-mode flag; there is no separate hosted status page.

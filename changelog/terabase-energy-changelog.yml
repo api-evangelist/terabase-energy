@@ -1,0 +1,59 @@
+generated: '2026-08-05'
+method: searched
+source: https://docs.plantpredict.com/release-notes/Current-Version
+docs: https://docs.plantpredict.com/release-notes/Current-Version
+scheme: MAJOR.MINOR.PATCH platform release, dated
+current_version: 12.30.0
+current_date: '2026-07-30'
+history_depth: 'full archive published: releases 03.00.0 through 12.30.0 (~200 dated entries)'
+entries:
+- version: 12.30.0
+  date: '2026-07-30'
+  breaking: false
+  highlights:
+  - PVsyst ZIP import reworked — missing modules/inverters/weather files no longer fail the import outright; the
+    review page offers library matching, inline upload, and project-wide resolution.
+  - All variant validation now runs before the review page, so the review reflects exactly what will be created.
+  - Single-voltage OND files accepted on both inverter upload and PVsyst import.
+  fixes:
+  - Relative humidity imported as a 0-1 ratio instead of a percentage (values 100x too low).
+  - macOS-created ZIP folder structures failing with unresolved file references.
+  - '"Fixed tilted" plane variants now import as Fixed Tilt; pitch derived from company default GCR.'
+  - Imported predictions now get Timeframe Start/End stamped from the weather file.
+- version: 12.29.0
+  date: '2026-07-09'
+  breaking: false
+  highlights:
+  - PlantPredict MCP Server released.
+  - SunSolve integration — time-series bifacial factors (V13) covering structural shading, transmission gain, and
+    combined front/back mismatch.
+  fixes:
+  - NSRDB PSM model version field mapping.
+  - Bulk delete predictions always leaving one prediction undeleted.
+  - PVsyst import inverter set point imported at nominal kVA instead of rated AC power.
+- version: 12.28.0
+  date: '2026-06-25'
+  breaking: true
+  breaking_detail: 3D (Deprecated) shading algorithm retired for new predictions.
+  highlights:
+  - PVsyst project import (beta).
+  - Import PVsyst .MET weather files.
+  - Terrain-Aware Backtracking V2 (V13 beta).
+  - Subscription self-management expansion.
+  - Dark mode.
+- version: 12.27.0
+  date: '2026-06-04'
+  breaking: true
+  breaking_detail: Map Builder slope design and advanced layout retired.
+  highlights:
+  - Results charts — more variables and smarter grouping.
+  - Faster prediction engine scaling.
+- version: 12.26.0
+  date: '2026-05-11'
+  breaking: false
+- version: 12.25.0
+  date: '2026-04-23'
+  breaking: false
+notes: >-
+  Release notes are platform-wide (UI + engine + API), not an API-only changelog; API-affecting changes are not
+  separately flagged and the OpenAPI info.version (12.13.0) trails the current platform release (12.30.0).

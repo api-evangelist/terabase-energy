@@ -1,0 +1,35 @@
+generated: '2026-08-05'
+method: searched
+source: https://docs.plantpredict.com/api-docs/intro
+docs: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+note: >-
+  The OpenAPI declares only a `bearerAuth` HTTP bearer scheme, so a purely spec-derived pass finds no OAuth surface.
+  The scopes below are taken from the provider's own written authentication section and the published Agent Skill,
+  which both name the Cognito token endpoint and the two scopes explicitly.
+schemes:
+- name: PlantPredict OAuth 2.0
+  provider: AWS Cognito (terabase-prd)
+  source: https://docs.plantpredict.com/api-docs/intro
+  flows:
+  - flow: clientCredentials
+    tokenUrl: https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token
+    client_auth: basic
+scopes:
+- scope: transactions/get
+  description: Read access to the PlantPredict API surface.
+  flows: [clientCredentials]
+  sources: [https://docs.plantpredict.com/api-docs/intro]
+- scope: transactions/post
+  description: Write access to the PlantPredict API surface.
+  flows: [clientCredentials]
+  sources: [https://docs.plantpredict.com/api-docs/intro]
+guidance: >-
+  Terabase instructs callers to request both scopes to access the entire surface. Scopes are coarse — read vs write
+  across the whole API — with no per-resource granularity. Role, not scope, gates the elevated operations: the spec's
+  403 Forbidden description notes that status-change endpoints "require elevated privileges that not every API client
+  is granted".
+mcp_scopes:
+  server: https://mcp.plantpredict.terabase.energy
+  scopes_supported: []
+  source: well-known/terabase-energy-mcp-oauth-protected-resource.json
+  note: The MCP protected-resource metadata advertises an empty scopes_supported array.

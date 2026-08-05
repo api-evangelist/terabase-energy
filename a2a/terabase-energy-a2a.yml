@@ -1,0 +1,58 @@
+generated: '2026-08-05'
+method: probed
+source: https://docs.plantpredict.com/.well-known/agent-card.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: docs.plantpredict.com
+  note: >-
+    Probed on every Terabase/PlantPredict host. Only the PlantPredict documentation host serves a card; the API host
+    (api.plantpredict.terabase.energy), the MCP host (mcp.plantpredict.terabase.energy), the corporate site
+    (www.terabase.energy) and the marketing site (www.plantpredict.com) all return 404 for both the canonical and the
+    legacy /.well-known/agent.json path.
+conformance:
+  spec: A2A 1.0.0
+  grade: near-conformant
+  protocol_version: '0.3'
+  preferred_transport: HTTP+JSON
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  deviations:
+  - supportedInterfaces-instead-of-additionalInterfaces
+  - protocolVersion-not-full-semver
+card:
+  name: PlantPredict
+  url: https://docs.plantpredict.com/
+  version: 1.0.0
+  documentation_url: https://docs.plantpredict.com/
+  provider_organization: PlantPredict
+  capabilities:
+    streaming: false
+    pushNotifications: false
+  default_input_modes: [text/plain]
+  default_output_modes: [text/plain]
+  skills: 1
+  file: terabase-energy-agent-card.json
+skills:
+- id: terabaseenergy
+  name: Terabaseenergy
+  url: https://docs.plantpredict.com/.well-known/agent-skills/terabaseenergy/skill.md
+  saved_as: skills/terabase-energy-plantpredict-agent-skill.md
+notes: >-
+  The card is served by the Mintlify-hosted documentation site under Terabase Energy's own PlantPredict domain. It is a
+  documentation-agent card, not an interface to the PlantPredict Performance API or the MCP connector: the advertised
+  interface URL is the docs site itself, and both capabilities are false. The real agent surface for PlantPredict is
+  the OAuth-protected MCP connector at https://mcp.plantpredict.terabase.energy (see mcp/terabase-energy-mcp.yml).
+x-evidence:
+  fetched: '2026-08-05'
+  url: https://docs.plantpredict.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+  misses:
+  - {url: 'https://docs.plantpredict.com/.well-known/agent.json', http_status: 404}
+  - {url: 'https://api.plantpredict.terabase.energy/.well-known/agent-card.json', http_status: 404}
+  - {url: 'https://mcp.plantpredict.terabase.energy/.well-known/agent-card.json', http_status: 404}
+  - {url: 'https://www.terabase.energy/.well-known/agent-card.json', http_status: 404}
+  - {url: 'https://www.plantpredict.com/.well-known/agent-card.json', http_status: 404}

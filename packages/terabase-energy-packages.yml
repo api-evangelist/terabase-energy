@@ -1,0 +1,49 @@
+generated: '2026-08-05'
+method: searched
+source: https://pypi.org/project/plantpredict/, https://github.com/plantpredict/python-sdk, https://docs.plantpredict.com/api-docs/python-sdk
+packages:
+- language: python
+  registry: pypi
+  name: plantpredict
+  version: 1.0.24
+  url: https://pypi.org/project/plantpredict/
+  repository: https://github.com/plantpredict/python-sdk
+  install: pip install plantpredict
+  license: MIT
+  official: true
+  summary: Official Python SDK for the PlantPredict Performance API.
+  docs: https://docs.plantpredict.com/api-docs/sdk_quick_start_guide
+  maintainer_contact: support@plantpredict.com
+registries_probed:
+- registry: pypi
+  found: true
+- registry: npm
+  found: false
+  note: no `plantpredict` or `terabase` package published (registry.npmjs.org/plantpredict -> 404)
+- registry: maven-central
+  found: false
+- registry: nuget
+  found: false
+- registry: rubygems
+  found: false
+- registry: packagist
+  found: false
+- registry: crates.io
+  found: false
+- registry: pkg.go.dev
+  found: false
+code_generation:
+  note: >-
+    Terabase publishes the OpenAPI 3.1 document specifically so clients can be generated where no first-party SDK
+    exists; the Postman page names openapi-generator and oapi-codegen as supported routes.
+  spec: openapi/terabase-energy-plantpredict-openapi-original.yaml
+official_org:
+  github:
+  - https://github.com/plantpredict
+  - https://github.com/terabase-energy
+x-evidence:
+  fetched: '2026-08-05'
+  urls:
+  - {url: 'https://pypi.org/pypi/plantpredict/json', http_status: 200}
+  - {url: 'https://api.github.com/repos/plantpredict/python-sdk', http_status: 200}
+  - {url: 'https://registry.npmjs.org/plantpredict', http_status: 404}

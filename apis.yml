@@ -1,23 +1,212 @@
 aid: terabase-energy
 name: Terabase Energy
-description: 'Terabase Energy is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Terabase Energy builds digital and automation technology for the full lifecycle of utility-scale solar power
+  plants — engineering and energy modeling, robotic field construction, and plant operations. Its software portfolio
+  includes PlantPredict, an industry-standard bankable performance-modeling platform for utility-scale PV that
+  predicts energy yield from early-stage prospecting through operational monitoring; Terrain Pro, a terrain analysis,
+  grading and pile-layout engine for site design; Construct, a construction management platform; and Terafab, an
+  automated field-factory system for solar module installation. PlantPredict exposes its entire modeling engine as a
+  documented REST API (OpenAPI 3.1, OAuth 2.0 client-credentials via AWS Cognito), an official Python SDK, a Postman
+  collection, and a hosted, OAuth-protected Model Context Protocol (MCP) connector for Claude, ChatGPT and Cursor.
 url: https://raw.githubusercontent.com/api-evangelist/terabase-energy/refs/heads/main/apis.yml
+image: https://www.terabase.energy/wp-content/uploads/cropped-favicon-192x192.png
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-05'
 modified: '2026-08-05'
 tags:
-- Company
-apis: []
+- solar
+- renewable-energy
+- energy-modeling
+- utility-scale-solar
+- simulation
+- photovoltaics
+- construction-technology
+- geospatial
+- terrain-analysis
+- climate-tech
+- mcp
+- energy-storage
+apis:
+- name: PlantPredict Performance API
+  description: >-
+    The REST API behind PlantPredict, Terabase Energy's utility-scale solar performance-modeling platform. It exposes
+    the full modeling engine — projects, predictions, power plant designs (blocks/arrays/inverters/DC fields), weather
+    files, module and inverter libraries, 3D shade scenes, terrain-aware backtracking, time-series inputs, financial
+    models and results — over 113 documented operations. Authentication is OAuth 2.0 client credentials against AWS
+    Cognito, presented on the wire as a JWT bearer token.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - solar
+  - energy-modeling
+  - simulation
+  - photovoltaics
+  - utility-scale-solar
+  - energy-storage
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-plantpredict-openapi-original.yaml
+  - type: OpenAPI
+    url: openapi/terabase-energy-plantpredict-swagger-v1-original.json
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: Overlay
+    url: overlays/terabase-energy-plantpredict-overlay.yaml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- name: PlantPredict MCP Connector
+  description: >-
+    Hosted Model Context Protocol server that lets Claude, ChatGPT and Cursor act on a user's own PlantPredict account
+    — creating and running predictions, importing weather and shade scenes, browsing projects and reading results in
+    natural language. Protected by OAuth 2.0 (authorization code + PKCE S256) with RFC 9728 protected-resource metadata
+    and RFC 7591 dynamic client registration. Requires a PlantPredict Pro or Enterprise subscription and an
+    administrator to enable "Allow MCP Server Access For API Users".
+  humanURL: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
+  baseURL: https://mcp.plantpredict.terabase.energy
+  tags:
+  - mcp
+  - agent-native
+  - solar
+  - energy-modeling
+  properties:
+  - type: MCPServer
+    url: mcp/terabase-energy-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/terabase-energy-tool-crosswalk.yml
+  - type: MCP
+    url: https://mcp.plantpredict.terabase.energy
+  - type: Documentation
+    url: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
+  - type: WellKnown
+    url: well-known/terabase-energy-well-known.yml
+- name: Terrain Pro API
+  description: >-
+    Terabase Energy's terrain analysis and solar site-planning API, used by the Terrain Pro application for elevation
+    data extraction, layout generation, grading/earthwork solutions, pile binning and reveal reporting, wind-rack
+    summaries and satellite search. The endpoint surface is documented in Terabase's public Terrain Pro API
+    documentation app; the API itself requires authentication (probed anonymously it returns HTTP 403
+    "Authentication credentials were not provided"), and no machine-readable specification is published.
+  humanURL: https://terrain-pro-api-doc-app.s3.us-west-2.amazonaws.com/index.html
+  baseURL: https://services.terabase.energy/tools/api/v1/terrain-pro
+  tags:
+  - terrain-analysis
+  - geospatial
+  - solar
+  - utility-scale-solar
+  - construction-technology
+  properties:
+  - type: Documentation
+    url: https://terrain-pro-api-doc-app.s3.us-west-2.amazonaws.com/index.html
+  x-surface:
+    state: gated
+    reason: customer-only-docs
+    detail: >-
+      The Terrain Pro API is documented publicly but every endpoint requires an authenticated Terabase Tools account;
+      an anonymous GET of the collection root returns a Django REST Framework 403 with
+      "Authentication credentials were not provided." and no OpenAPI/schema route is served.
+    evidence:
+    - url: https://services.terabase.energy/tools/api/v1/terrain-pro/
+      status: 403
+    - url: https://services.terabase.energy/tools/api/schema/
+      status: 200
+    checked: '2026-08-05'
+common:
+- type: Website
+  url: https://www.terabase.energy/
+- type: DeveloperPortal
+  url: https://docs.plantpredict.com
+- type: Documentation
+  url: https://docs.plantpredict.com/api-docs/intro
+- type: APIReference
+  url: https://docs.plantpredict.com/api-reference
+- type: GettingStarted
+  url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+- type: Support
+  url: https://www.plantpredict.com/support
+- type: Blog
+  url: https://www.terabase.energy/resources-library?cat=insights
+- type: GitHubOrganization
+  url: https://github.com/plantpredict
+- type: Pricing
+  url: https://www.plantpredict.com/pricing
+- type: SignUp
+  url: https://www.plantpredict.com/signup
+- type: Login
+  url: https://ui.plantpredict.com/login
+- type: TermsOfService
+  url: https://www.terabase.energy/terms-of-use
+- type: PrivacyPolicy
+  url: https://www.terabase.energy/privacy-policy
+- type: Postman
+  url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+- type: ChangeLog
+  url: https://docs.plantpredict.com/release-notes/Current-Version
+- type: ChangeLog
+  url: changelog/terabase-energy-changelog.yml
+- type: Compliance
+  url: https://docs.plantpredict.com/user-guide/resources/security-compliance
+- type: MCPServer
+  url: mcp/terabase-energy-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/terabase-energy-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/terabase-energy-llms.txt
+- type: Packages
+  url: packages/terabase-energy-packages.yml
+- type: SDKs
+  url: packages/terabase-energy-packages.yml
+- type: WellKnown
+  url: well-known/terabase-energy-well-known.yml
+- type: Authentication
+  url: authentication/terabase-energy-authentication.yml
+- type: OAuthScopes
+  url: scopes/terabase-energy-scopes.yml
+- type: Conventions
+  url: conventions/terabase-energy-conventions.yml
+- type: ErrorCatalog
+  url: errors/terabase-energy-problem-types.yml
+- type: RateLimits
+  url: rate-limits/terabase-energy-rate-limits.yml
+- type: Lifecycle
+  url: lifecycle/terabase-energy-lifecycle.yml
+- type: Conformance
+  url: conformance/terabase-energy-conformance.yml
+- type: DomainSecurity
+  url: security/terabase-energy-domain-security.yml
+- type: DataModel
+  url: data-model/terabase-energy-data-model.yml
+- type: Overlay
+  url: overlays/terabase-energy-plantpredict-overlay.yaml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: AgentCard
+  url: a2a/terabase-energy-a2a.yml
+x-enrichment:
+  date: '2026-08-05'
+  status: enriched
+  artifacts_added: 27
+  pass: local-v1
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
-common:
-- type: Website
-  url: https://forgeglobal.com/terabase-energy_stock/

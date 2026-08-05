@@ -1,0 +1,35 @@
+generated: '2026-08-05'
+method: searched
+skills:
+- file: terabase-energy-plantpredict-agent-skill.md
+  name: Terabaseenergy
+  method: searched
+  source: https://docs.plantpredict.com/.well-known/agent-skills/terabaseenergy/skill.md
+  published_by: Terabase Energy
+  discovered_via: the skills[] entry in the A2A agent card at docs.plantpredict.com/.well-known/agent-card.json
+  api: openapi/terabase-energy-plantpredict-openapi-original.yaml
+  note: >-
+    Provider-published and saved VERBATIM. Two observations for anyone grounding an agent on it: its endpoint table
+    uses pluralised paths (POST /Projects, POST /Projects/{projectId}/Predictions,
+    GET /Projects/{projectId}/Predictions/{predictionId}/Results/Summary) that do not match the singular paths in the
+    published OpenAPI (POST /Project, POST /Project/{projectId}/Prediction,
+    GET /Project/{projectId}/Prediction/{predictionId}/ResultSummary); and it names a web UI host
+    (plantpredict.terabase.energy) that does not resolve — the live UI is ui.plantpredict.com. The generated skills
+    below are grounded in operationIds verified verbatim in the spec.
+- file: terabase-energy-run-energy-prediction.md
+  name: Run a PlantPredict energy prediction
+  method: generated
+  api: openapi/terabase-energy-plantpredict-openapi-original.yaml
+  operations: [createProject, createPrediction, createPowerPlant, runPrediction, getPredictionOverview,
+    getResultSummary, getResultDetails, cancelPrediction]
+- file: terabase-energy-import-weather.md
+  name: Import a weather file into the PlantPredict library
+  method: generated
+  api: openapi/terabase-energy-plantpredict-openapi-original.yaml
+  operations: [searchWeather, validateWeatherDownload, downloadWeather, parseWeather, qualityCheckWeather,
+    finalizeWeatherImport, finalizeGeneratedWeather, getWeather, getWeatherDetails, getHorizonScene]
+- file: terabase-energy-import-pvsyst-project.md
+  name: Import a PVsyst project into PlantPredict
+  method: generated
+  api: openapi/terabase-energy-plantpredict-openapi-original.yaml
+  operations: [importPVsystProject, getPVsystImportStatus, getProject, listPredictions, getPredictionOverview]

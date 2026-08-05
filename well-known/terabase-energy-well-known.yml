@@ -1,0 +1,85 @@
+generated: '2026-08-05'
+method: searched
+source: live probes of every Terabase Energy / PlantPredict host
+hosts:
+- host: https://mcp.plantpredict.terabase.energy
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: terabase-energy-mcp-oauth-authorization-server.json
+    spec: RFC 8414
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: terabase-energy-mcp-oauth-protected-resource.json
+    spec: RFC 9728
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://docs.plantpredict.com
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: ../a2a/terabase-energy-agent-card.json
+    spec: A2A AgentCard
+  - path: /.well-known/agent-skills/terabaseenergy/skill.md
+    status: 200
+    file: ../skills/terabase-energy-plantpredict-agent-skill.md
+    spec: Agent Skill (markdown + frontmatter)
+  - path: /llms.txt
+    status: 200
+    file: ../llms/terabase-energy-llms.txt
+    spec: llms.txt
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://api.plantpredict.terabase.energy
+  documents:
+  - path: /swagger/v1/swagger.json
+    status: 200
+    file: ../openapi/terabase-energy-plantpredict-swagger-v1-original.json
+    spec: OpenAPI 3.0.1
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+- host: https://www.terabase.energy
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /llms.txt
+    status: 404
+  - path: /robots.txt
+    status: 200
+- host: https://www.plantpredict.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+summary:
+  security_txt: false
+  openid_configuration: false
+  oauth_metadata: true
+  api_catalog: false
+  agent_card: true
+  llms_txt: true

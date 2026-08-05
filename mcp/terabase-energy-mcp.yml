@@ -1,0 +1,58 @@
+generated: '2026-08-05'
+method: searched
+status: published
+source: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
+server:
+  name: PlantPredict MCP Connector
+  transport: http
+  url: https://mcp.plantpredict.terabase.energy
+  vendor: Terabase Energy
+  product: PlantPredict
+  clients_documented:
+  - Claude (Pro, Max, Team, Enterprise — custom connectors)
+  - ChatGPT
+  - Cursor
+  entitlement: >-
+    Requires a PlantPredict Pro or Enterprise subscription AND a company administrator to enable
+    "Allow MCP Server Access For API Users". Without both, the connector authenticates but every action returns
+    "MCP access is not enabled".
+  identity_model: >-
+    The connector acts entirely as the signed-in user, using that user's own PlantPredict account and permissions.
+authentication:
+  type: oauth2
+  flow: authorization_code
+  pkce: S256
+  issuer: https://mcp.plantpredict.terabase.energy/
+  authorization_endpoint: https://mcp.plantpredict.terabase.energy/authorize
+  token_endpoint: https://mcp.plantpredict.terabase.energy/token
+  registration_endpoint: https://mcp.plantpredict.terabase.energy/register
+  grant_types: [authorization_code, refresh_token]
+  scopes_supported: []
+  metadata:
+  - {spec: RFC 8414, path: /.well-known/oauth-authorization-server, file: well-known/terabase-energy-mcp-oauth-authorization-server.json}
+  - {spec: RFC 9728, path: /.well-known/oauth-protected-resource, file: well-known/terabase-energy-mcp-oauth-protected-resource.json}
+introspection:
+  tools_list: gated
+  detail: >-
+    An anonymous POST of {"jsonrpc":"2.0","id":1,"method":"tools/list"} returns HTTP 401 with
+    WWW-Authenticate: Bearer error="invalid_token" and a resource_metadata pointer. The live tool set and its
+    inputSchemas therefore require an authenticated OAuth session; the capabilities below are taken from Terabase's
+    own published connector documentation, not from an introspection response, and no tool names are asserted.
+capabilities_documented:
+- Create and run energy predictions
+- Import weather files
+- Import shade scenes
+- Browse projects
+- Read prediction results
+tools: []
+tools_note: >-
+  NOT FABRICATED. Terabase documents the connector's capabilities in prose but does not publish a tool manifest, and
+  tools/list is auth-gated. See mcp/terabase-energy-tool-crosswalk.yml for the capability-to-OpenAPI binding, which is
+  mapped by documented capability rather than by tool name and is marked with honest confidence.
+x-evidence:
+  fetched: '2026-08-05'
+  probes:
+  - {url: 'https://mcp.plantpredict.terabase.energy', method: 'POST tools/list', http_status: 401}
+  - {url: 'https://mcp.plantpredict.terabase.energy/.well-known/oauth-authorization-server', http_status: 200}
+  - {url: 'https://mcp.plantpredict.terabase.energy/.well-known/oauth-protected-resource', http_status: 200}
+  - {url: 'https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector', http_status: 200}

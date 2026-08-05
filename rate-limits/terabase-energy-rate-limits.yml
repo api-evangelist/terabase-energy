@@ -1,0 +1,27 @@
+generated: '2026-08-05'
+method: searched
+source: openapi/terabase-energy-plantpredict-openapi-original.yaml (components.responses.TooManyRequests)
+api: PlantPredict Performance API
+documented: true
+signalling:
+  status_code: 429
+  response_body: empty
+  retry_after_header: false
+  rate_limit_headers: []
+  detail: >-
+    "The caller has exceeded the per-account rate limit for this operation. Wait and retry. The PlantPredict API does
+    not currently emit Retry-After; back off with an exponential schedule (start at 30s)."
+scope: per account, per operation
+client_guidance:
+  backoff: exponential
+  initial_delay_seconds: 30
+rate_limits: []
+published_limits: null
+published_limits_note: >-
+  Terabase documents that a per-account rate limit exists and what a client must do when it trips, but publishes no
+  numeric quota, window, or tier table. No counts are recorded here rather than invented.
+operations_declaring_429:
+- createPrediction
+- updatePrediction
+- createPowerPlant
+- updatePowerPlant

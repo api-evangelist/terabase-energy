@@ -1,0 +1,79 @@
+generated: '2026-08-05'
+method: searched
+source: openapi/terabase-energy-plantpredict-openapi-original.yaml, https://docs.plantpredict.com/user-guide/resources/security-compliance
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: Provider publishes OpenAPI 3.1.0 at /api-docs/api-reference/plantpredict-api.yaml (113 operations).
+- id: openapi-3.0
+  conforms: true
+  evidence: A second, application-generated Swagger document is served at /swagger/v1/swagger.json (OpenAPI 3.0.1).
+- id: oauth2
+  conforms: true
+  evidence: OAuth 2.0 client credentials against AWS Cognito for the REST API; authorization code + PKCE for MCP.
+- id: oauth2-pkce
+  conforms: true
+  evidence: MCP authorization server metadata declares code_challenge_methods_supported [S256].
+- id: rfc8414-authorization-server-metadata
+  conforms: true
+  evidence: 200 at https://mcp.plantpredict.terabase.energy/.well-known/oauth-authorization-server
+- id: rfc9728-protected-resource-metadata
+  conforms: true
+  evidence: 200 at https://mcp.plantpredict.terabase.energy/.well-known/oauth-protected-resource; also advertised in
+    the WWW-Authenticate challenge on an unauthenticated tools/list.
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: registration_endpoint published in the MCP authorization server metadata.
+- id: openid-connect
+  conforms: false
+  evidence: No /.well-known/openid-configuration on any host.
+- id: mcp
+  conforms: true
+  evidence: Hosted MCP server at https://mcp.plantpredict.terabase.energy, documented for Claude/ChatGPT/Cursor.
+- id: a2a
+  conforms: partial
+  grade: near-conformant
+  evidence: AgentCard served at docs.plantpredict.com/.well-known/agent-card.json; capabilities is an object,
+    protocolVersion "0.3" present, skills is an array, but it uses supportedInterfaces rather than
+    additionalInterfaces. See a2a/terabase-energy-a2a.yml.
+- id: llms-txt
+  conforms: true
+  evidence: 200 at https://docs.plantpredict.com/llms.txt (467 entries, per-page .md twins).
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: No application/problem+json anywhere in the spec; errors are ASP.NET model-state JSON, text/plain, or
+    empty bodies. See errors/terabase-energy-problem-types.yml.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation header support documented; retirements announced only in release notes.
+- id: idempotency-key
+  conforms: false
+  evidence: No idempotency key header or de-duplication contract is published.
+- id: pagination
+  conforms: partial
+  evidence: Offset pagination via skip/top on listProjects and listProjectsByStatus only; no cursor, no pagination
+    envelope, most collection endpoints return unpaginated arrays.
+- id: rate-limit-headers
+  conforms: false
+  evidence: 429 is documented but no Retry-After and no RateLimit-* headers are emitted.
+- id: json-api
+  conforms: false
+- id: odata
+  conforms: false
+  note: The skip/top parameter names echo OData conventions but nothing else of OData is implemented.
+compliance_program:
+  url: https://docs.plantpredict.com/user-guide/resources/security-compliance
+  certifications:
+  - name: SOC 2 Type II
+    framework: AICPA Trust Services Criteria
+    scope: [Security, Availability, Confidentiality]
+    report_availability: available to qualified customers and prospects under NDA
+  - name: MSPAlliance Cyber Verify Level 3
+    framework: MSPAlliance Unified Certification Standard (UCS) for Cloud and Managed Service Providers
+  published: true
+x-evidence:
+  fetched: '2026-08-05'
+  urls:
+  - {url: 'https://docs.plantpredict.com/user-guide/resources/security-compliance', http_status: 200}
+  - {url: 'https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml', http_status: 200}
+  - {url: 'https://api.plantpredict.terabase.energy/swagger/v1/swagger.json', http_status: 200}

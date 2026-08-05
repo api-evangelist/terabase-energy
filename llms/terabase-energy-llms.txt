@@ -1,0 +1,467 @@
+# PlantPredict
+
+## Docs
+
+- [PlantPredict Performance API - Quick Start Guide](https://docs.plantpredict.com/api-docs/api_quick_start_guide.md)
+- [ ](https://docs.plantpredict.com/api-docs/intro.md): PlantPredict Performance API and Python SDK - automate utility-scale solar energy predictions, manage projects, predictions, power plants, weather, modules, and inverters via REST or Python.
+- [Postman Collection](https://docs.plantpredict.com/api-docs/postman.md): Use the PlantPredict API from your own Postman workspace, or import the OpenAPI spec into any API client.
+- [Import a PVsyst project](https://docs.plantpredict.com/api-docs/pvsyst-import.md): Send a PVsyst ZIP export to PlantPredict and get back a project with a prediction for each variant.
+- [Github SDK Repository](https://docs.plantpredict.com/api-docs/python-sdk.md)
+- [PlantPredict Python SDK - Quick Start Guide](https://docs.plantpredict.com/api-docs/sdk_quick_start_guide.md)
+- [Get a specific ASHRAE station by name](https://docs.plantpredict.com/api-reference/ashrae/get-a-specific-ashrae-station-by-name.md): ### GET /ASHRAE/GetStation
+- [Get nearest ASHRAE station by coordinates](https://docs.plantpredict.com/api-reference/ashrae/get-nearest-ashrae-station-by-coordinates.md): ### GET /ASHRAE
+- [Add a user to a company](https://docs.plantpredict.com/api-reference/company/add-a-user-to-a-company.md): Adds an existing PlantPredict user (or invites a new one by email) to the given company. The caller must be an admin of the target company. Newly invited users receive an email with onboarding instructions.
+- [Generate API credentials for a user](https://docs.plantpredict.com/api-reference/company/generate-api-credentials-for-a-user.md): Generates a fresh API client ID and secret for the given user. The secret is returned **only in this response** and cannot be retrieved later — store it securely. Calling this endpoint a second time rotates the credentials; any previously issued pair is invalidated.
+- [Get company default settings](https://docs.plantpredict.com/api-reference/company/get-company-default-settings.md): Returns default settings for your company.
+- [Update company default settings](https://docs.plantpredict.com/api-reference/company/update-company-default-settings.md): Updates default settings for your company. Requires Admin role. Default Settings are prediction input values customized per company.
+- [List all countries](https://docs.plantpredict.com/api-reference/country/list-all-countries.md): ### Overview
+- [Get all definitions or filter by enum type](https://docs.plantpredict.com/api-reference/definitions/get-all-definitions-or-filter-by-enum-type.md): ## Overview
+- [Calculate cashflow results](https://docs.plantpredict.com/api-reference/financialmodel/calculate-cashflow-results.md): Returns yearly cashflow results based on prediction results and stored financial model input parameters.
+- [Get financial model parameters](https://docs.plantpredict.com/api-reference/financialmodel/get-financial-model-parameters.md): Returns the persisted financial model inputs and calculations for a prediction.
+- [Save financial model parameters](https://docs.plantpredict.com/api-reference/financialmodel/save-financial-model-parameters.md): Takes input parameters and calculates new financial model inputs. Does not persist; returns calculated values.
+- [Calculate kVA for an inverter at given conditions](https://docs.plantpredict.com/api-reference/inverters/calculate-kva-for-an-inverter-at-given-conditions.md): Get the kVA rating of an Inverter by providing the entire Inverter entity, elevation, temperature, and cooling temp state.
+- [Change status of one or more inverters](https://docs.plantpredict.com/api-reference/inverters/change-status-of-one-or-more-inverters.md): Change the status of one or more Inverters.
+- [Create an inverter](https://docs.plantpredict.com/api-reference/inverters/create-an-inverter.md): Creates a new inverter from the provided body. Response is the ID of the newley created inverter asset.
+- [Delete an inverter](https://docs.plantpredict.com/api-reference/inverters/delete-an-inverter.md): Deletes an existing Inverter, where the target inverter to delete is the ID provided in the URL.
+- [Get an inverter by ID](https://docs.plantpredict.com/api-reference/inverters/get-an-inverter-by-id.md): Creates a .PPI file, which can be used to import the Inverter into PlantPredict for another user.
+- [Get inverter overview list](https://docs.plantpredict.com/api-reference/inverters/get-inverter-overview-list.md): # Inverter Overview
+- [Get stored kVA for an inverter](https://docs.plantpredict.com/api-reference/inverters/get-stored-kva-for-an-inverter.md): Get the kVA rating of an Inverter by Id.
+- [List all accessible inverters](https://docs.plantpredict.com/api-reference/inverters/list-all-accessible-inverters.md): # Get All Inverters
+- [Parse an OND file and return inverter data](https://docs.plantpredict.com/api-reference/inverters/parse-an-ond-file-and-return-inverter-data.md): This endpoint is used to parse an OND file. The response will be a valid Inverter object.
+- [Update an inverter](https://docs.plantpredict.com/api-reference/inverters/update-an-inverter.md): Updates an existing Inverter, where the target inverter to update is the ID provided in the URL.
+- [Advanced generation of single-diode parameters](https://docs.plantpredict.com/api-reference/modules/advanced-generation-of-single-diode-parameters.md): Same goal as `generateSingleDiodeDefault` but accepts a full `Module` payload — letting you override solver constraints (shunt resistance, recombination parameter, series resistance, etc.) and tune the fit before persisting.
+- [Calculate effective irradiance response](https://docs.plantpredict.com/api-reference/modules/calculate-effective-irradiance-response.md): Computes the module's predicted relative efficiency vs. irradiance at a fixed temperature. Returned as an array of (irradiance, relative-efficiency) points suitable for plotting against measured low-light curves.
+- [Create a module](https://docs.plantpredict.com/api-reference/modules/create-a-module.md): Creates a new module from the provided body contents.
+- [Create a module from parsed PAN file data](https://docs.plantpredict.com/api-reference/modules/create-a-module-from-parsed-pan-file-data.md): Creates a new module library entry from parsed PVsyst PAN file data. The raw `.pan` file must be parsed client-side; this endpoint accepts the structured JSON form rather than the file itself. Equivalent to a manual module entry but pre-populated with PVsyst's parameter set.
+- [Delete a module](https://docs.plantpredict.com/api-reference/modules/delete-a-module.md): Permanently removes a module from the company library. Fails if the module is referenced by any active prediction's PowerPlant; reassign or delete dependents first.
+- [Delete a module note](https://docs.plantpredict.com/api-reference/modules/delete-a-module-note.md): Deletes a single note from a module's audit trail. Permanent; intended for cleaning up accidental entries rather than rewriting history.
+- [Export a module](https://docs.plantpredict.com/api-reference/modules/export-a-module.md): Returns a module library entry in a portable format suitable for re-import into another PlantPredict company or use in external modeling tools.
+- [Generate IV curve for a module](https://docs.plantpredict.com/api-reference/modules/generate-iv-curve-for-a-module.md): Generates a synthetic IV curve at the requested irradiance and temperature for a fully-parameterized module. The number of points is controlled via `numIVPoints` in the payload (default 100). Useful for visual QA of a single-diode parameter set.
+- [Generate single-diode parameters from basic datasheet values](https://docs.plantpredict.com/api-reference/modules/generate-single-diode-parameters-from-basic-datasheet-values.md): Derives a complete single-diode model from a minimal set of datasheet values (STC power, voltages, currents, temperature coefficients, cell technology). A good starting point when you don't have measured IV curves to work from. For finer control over the solver and curve-fitting, use `POST /Module/G…
+- [Get a module by ID](https://docs.plantpredict.com/api-reference/modules/get-a-module-by-id.md): Gets the specific module from the provided Id.
+- [Get default IAM curve for a given ASHRAE IAM coefficient](https://docs.plantpredict.com/api-reference/modules/get-default-iam-curve-for-a-given-ashrae-iam-coefficient.md): Returns the default incidence-angle modifier (IAM) curve for a given ASHRAE b₀ coefficient. Use this when defining a new module without measured IAM data; the curve is shared across all modules of the same construction type.
+- [Get module overview list](https://docs.plantpredict.com/api-reference/modules/get-module-overview-list.md): Gets all available modules and with only critical meta data for properties.
+- [Get notes for a module](https://docs.plantpredict.com/api-reference/modules/get-notes-for-a-module.md): Returns the audit-trail notes attached to a module — creation, edits, status changes, and freeform user comments — in reverse chronological order.
+- [List all accessible modules](https://docs.plantpredict.com/api-reference/modules/list-all-accessible-modules.md): Gets all available modules and their corresponding properties.
+- [Optimize series resistance for effective irradiance response](https://docs.plantpredict.com/api-reference/modules/optimize-series-resistance-for-effective-irradiance-response.md): Iteratively refines a module's series resistance so the model's effective-irradiance response matches measured behaviour. Typically called after `generateSingleDiodeAdvanced` when the resulting low-irradiance performance diverges from expectations.
+- [Parse a PAN file and return module data](https://docs.plantpredict.com/api-reference/modules/parse-a-pan-file-and-return-module-data.md): This endpoint will convern a .PAN file and its contents into a JSON structure which is compatible with PlantPredict. The response can be used as the body in a POST request to create a new module.
+- [Process IV curve data](https://docs.plantpredict.com/api-reference/modules/process-iv-curve-data.md): Takes a list of measured IV curves (each a list of `{voltage, current}` pairs at a known irradiance/temperature) and extracts the key operating points — `Isc`, `Imp`, `Voc`, `Vmp`, `Pmax` — for each curve. Used as preprocessing before single-diode parameter derivation.
+- [Process key IV points for module parameter derivation](https://docs.plantpredict.com/api-reference/modules/process-key-iv-points-for-module-parameter-derivation.md): Takes pre-extracted IV operating points across multiple irradiance/temperature conditions and computes derived parameters (temperature coefficients, fill factors, etc.) used as inputs to the single-diode solvers. Lighter-weight alternative to `processIVCurves` when you already have the key points.
+- [Update a module](https://docs.plantpredict.com/api-reference/modules/update-a-module.md): Updates an existing module using the request body. **All fields are required**, even if they haven’t changed. The module will be overwritten with the values you provide, any fields left out may replace existing values with empty/default ones.
+- [Create power plant](https://docs.plantpredict.com/api-reference/powerplant/create-power-plant.md): Creates a power plant for a prediction. May attach X-Message header with configuration warnings.
+- [Get power plant](https://docs.plantpredict.com/api-reference/powerplant/get-power-plant.md): Retrieves the power plant configuration for a prediction. Returns full PVPlant entity.
+- [Update power plant](https://docs.plantpredict.com/api-reference/powerplant/update-power-plant.md): Updates the power plant for a prediction. May attach X-Message header with warnings (e.g., energization date, 3D shading, post height).
+- [Cancel a running prediction](https://docs.plantpredict.com/api-reference/predictions/cancel-a-running-prediction.md): Cancels a running or queued prediction. Returns success message when cancellation completes.
+- [Change status of one or more predictions](https://docs.plantpredict.com/api-reference/predictions/change-status-of-one-or-more-predictions.md): Updates the status of one or more predictions for a project. May trigger report regeneration for completed predictions.
+- [Create a prediction](https://docs.plantpredict.com/api-reference/predictions/create-a-prediction.md): Creates a new prediction under the given project. The prediction starts in `status: 0` (Draft) and must subsequently be associated with a `PowerPlant` via `POST .../PowerPlant` before it can be run. Most model parameters can be left at their defaults; see the `Prediction` schema for the complete lis…
+- [Delete a prediction](https://docs.plantpredict.com/api-reference/predictions/delete-a-prediction.md): Deletes a prediction by project and prediction ID.
+- [Export a prediction](https://docs.plantpredict.com/api-reference/predictions/export-a-prediction.md): Exports a prediction as JSON. Returns the full project/prediction data for the specified prediction.
+- [Export and compare multiple predictions](https://docs.plantpredict.com/api-reference/predictions/export-and-compare-multiple-predictions.md): Exports a comparison report file for a comma-separated list of prediction IDs. Returns an octet-stream file.
+- [Get a prediction](https://docs.plantpredict.com/api-reference/predictions/get-a-prediction.md): Retrieves a single prediction by project and prediction ID. Does not include the power plant; use the Power Plant endpoint for that.
+- [Get albedo data for a prediction](https://docs.plantpredict.com/api-reference/predictions/get-albedo-data-for-a-prediction.md): Retrieves monthly albedo data for the prediction from NSRDB/NASA. Used for bifacial calculations.
+- [Get prediction overview](https://docs.plantpredict.com/api-reference/predictions/get-prediction-overview.md): Returns a summary overview of a prediction by project and prediction ID.
+- [List predictions for a project](https://docs.plantpredict.com/api-reference/predictions/list-predictions-for-a-project.md): Returns all predictions for a project. Predictions do not include power plant data; use the Power Plant operation for sub-entities.
+- [Run a prediction](https://docs.plantpredict.com/api-reference/predictions/run-a-prediction.md): Queues a prediction to run. Validates weather data and queue status before queuing. Export options can be customized.
+- [Update a prediction](https://docs.plantpredict.com/api-reference/predictions/update-a-prediction.md): Updates an existing prediction. May attach an X-Message header with a non-blocking warning about the updated entity.
+- [Update export options for a prediction's power plant](https://docs.plantpredict.com/api-reference/predictions/update-export-options-for-a-predictions-power-plant.md): Sets which sub-systems are included when results for this prediction are exported (e.g. nodal-level vs. aggregate, AC system, ESS, custom array configurations). Has no effect on the simulation itself — only on what the export endpoints subsequently return.
+- [Add a note to a project](https://docs.plantpredict.com/api-reference/projects/add-a-note-to-a-project.md): Creates a new note for a project. Returns the created note ID. Note is automatically associated with the project and current user.
+- [Change status of one or more projects](https://docs.plantpredict.com/api-reference/projects/change-status-of-one-or-more-projects.md): Updates the status of a single or multiple projects. Requires a list of assets with IDs and target statuses.
+- [Check the progress and outcome of a PVsyst import](https://docs.plantpredict.com/api-reference/projects/check-the-progress-and-outcome-of-a-pvsyst-import.md): Poll this with the ID returned by `POST /Project/Import/PVsyst`. Checking once every 10 seconds is plenty; a large export can take several minutes.
+- [Create a project](https://docs.plantpredict.com/api-reference/projects/create-a-project.md): Creates a new project. Returns the created project ID. May attach an X-Message header with a non-blocking warning about the new entity.
+- [Delete a project](https://docs.plantpredict.com/api-reference/projects/delete-a-project.md): Deletes a project by ID. The user must have permission to delete the project.
+- [Delete a project note](https://docs.plantpredict.com/api-reference/projects/delete-a-project-note.md): Deletes a note from a project by note ID. Returns true on success, false if delete fails.
+- [Export a project](https://docs.plantpredict.com/api-reference/projects/export-a-project.md): Exports a project as JSON. Returns the full project data for backup or import elsewhere.
+- [Get a project by ID](https://docs.plantpredict.com/api-reference/projects/get-a-project-by-id.md): Retrieves a single project by its ID. The user must have access to the project within their company context.
+- [Get current user's projects](https://docs.plantpredict.com/api-reference/projects/get-current-users-projects.md): Returns all projects owned by the current user. Optionally filter by status.
+- [Get current user's projects including their predictions](https://docs.plantpredict.com/api-reference/projects/get-current-users-projects-including-their-predictions.md): Returns all projects owned by the current user, including their associated predictions. No parameters required.
+- [Get notes for a project](https://docs.plantpredict.com/api-reference/projects/get-notes-for-a-project.md): Returns all notes for a project. Notes are attached at the project level.
+- [Get project overview](https://docs.plantpredict.com/api-reference/projects/get-project-overview.md): Returns a summary overview of a project by ID. For the full project entity, use the non-overview GET endpoint.
+- [Import a PVsyst project from a ZIP export](https://docs.plantpredict.com/api-reference/projects/import-a-pvsyst-project-from-a-zip-export.md): Imports a PVsyst project export directly, without using the web application.
+- [List projects filtered by status](https://docs.plantpredict.com/api-reference/projects/list-projects-filtered-by-status.md): Returns a paginated list of projects filtered by status. Only projects the user has access to are included.
+- [List projects (paginated)](https://docs.plantpredict.com/api-reference/projects/list-projects-paginated.md): Returns a paginated list of projects for which the user has access. Supports optional pagination parameters.
+- [Search projects by geographic radius](https://docs.plantpredict.com/api-reference/projects/search-projects-by-geographic-radius.md): Returns projects within a geographic radius of a latitude/longitude point. Only projects the user has access to are included.
+- [Cancel report generation](https://docs.plantpredict.com/api-reference/reports/cancel-report-generation.md): Cancels queued or running report generation for a prediction.
+- [Get plant block details report](https://docs.plantpredict.com/api-reference/reports/get-plant-block-details-report.md): Returns the PlantBlockDetails report for a prediction. Not available for batch predictions.
+- [Get URL for a generated report](https://docs.plantpredict.com/api-reference/reports/get-url-for-a-generated-report.md): Returns the download URL for a specific report type. Valid report values: PlantSummary, PlantSummary8760, BlockSummary8760, InputsAssumptions. Not available for batch predictions.
+- [Trigger report generation](https://docs.plantpredict.com/api-reference/reports/trigger-report-generation.md): Queues report generation for a completed prediction. Only works when prediction is complete and no report generation is already queued or running. Not available for batch predictions.
+- [Get average energy results](https://docs.plantpredict.com/api-reference/results/get-average-energy-results.md): Returns average energy for a prediction that has completed with results.
+- [Get detailed energy results](https://docs.plantpredict.com/api-reference/results/get-detailed-energy-results.md): Returns detailed results for a prediction. Includes granular simulation output data.
+- [Get nodal JSON results](https://docs.plantpredict.com/api-reference/results/get-nodal-json-results.md): Returns time-series nodal data. Scope is determined by the combination of query parameters: - No params → System level - blockNumber → Block level - blockNumber + arrayNumber → Array level - blockNumber + arrayNumber + inverterName → Inverter level - blockNumber + arrayNumber + inverterName + dcFiel…
+- [Get prediction result summary](https://docs.plantpredict.com/api-reference/results/get-prediction-result-summary.md): Returns summary results for a prediction by project and prediction ID.
+- [Convert PVC file to PVJ shade scene format](https://docs.plantpredict.com/api-reference/shadescene/convert-pvc-file-to-pvj-shade-scene-format.md): The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard PV Collada file into the compatible PVJ format.
+- [Convert SHD file to PVJ shade scene format](https://docs.plantpredict.com/api-reference/shadescene/convert-shd-file-to-pvj-shade-scene-format.md): The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard SHD file into the compatible PVJ format.
+- [Create/upload a shade scene from PVJ data](https://docs.plantpredict.com/api-reference/shadescene/createupload-a-shade-scene-from-pvj-data.md): This request accepts the response of the /ShadeScene/ConvertPVCtoPVJ endpoint in its body, and creates the initial 3D Shade Scene with default settings.
+- [Get 3D shade calculation results](https://docs.plantpredict.com/api-reference/shadescene/get-3d-shade-calculation-results.md): Returns all 3D scene related results. This includes:
+- [Get shade calculation processing status](https://docs.plantpredict.com/api-reference/shadescene/get-shade-calculation-processing-status.md): Returns status for shading calculations
+- [Get shade scene properties for a DC field](https://docs.plantpredict.com/api-reference/shadescene/get-shade-scene-properties-for-a-dc-field.md): Returns the specified shade scene and current property values.
+- [Get TABT processing status](https://docs.plantpredict.com/api-reference/shadescene/get-tabt-processing-status.md): Returns the status for:
+- [Queue shade calculations](https://docs.plantpredict.com/api-reference/shadescene/queue-shade-calculations.md): Queue's Shading Calculations.
+- [Queue TABT calculations](https://docs.plantpredict.com/api-reference/shadescene/queue-tabt-calculations.md): Queue's calculations for TABT (Terrain Aware Backtracking)
+- [Update shade scene properties](https://docs.plantpredict.com/api-reference/shadescene/update-shade-scene-properties.md): This request accepts the response of the /ShadeScene/Properties endpoint in its body, and will update the stored configuration.
+- [Get API version](https://docs.plantpredict.com/api-reference/system/get-api-version.md): Returns the deployed API version string. **Public endpoint** — no authentication required. Useful as a health check and for compatibility-gating in client code.
+- [Get maintenance mode status](https://docs.plantpredict.com/api-reference/system/get-maintenance-mode-status.md): Returns the current system maintenance mode status.
+- [Create new time series](https://docs.plantpredict.com/api-reference/timeseries/create-new-time-series.md): Adds time series data via JSON. Requires TimeSeriesDTO with Details array.
+- [Delete a time series](https://docs.plantpredict.com/api-reference/timeseries/delete-a-time-series.md): Deletes a time series data entry by ID. Note: Time series inputs with active assignments to a power plant cannot be deleted.
+- [Download time series as CSV](https://docs.plantpredict.com/api-reference/timeseries/download-time-series-as-csv.md): Returns the specified time series data properties, including timestamp details except as a .csv binary stream.
+- [Download time series CSV template](https://docs.plantpredict.com/api-reference/timeseries/download-time-series-csv-template.md): Returns a CSV template for time series data upload. Use to understand the expected format.
+- [Get time series details](https://docs.plantpredict.com/api-reference/timeseries/get-time-series-details.md): Returns the specified time series data properties, including timestamp details.
+- [List time series data sets](https://docs.plantpredict.com/api-reference/timeseries/list-time-series-data-sets.md): Returns all time series data for a prediction.
+- [Upload time series CSV](https://docs.plantpredict.com/api-reference/timeseries/upload-time-series-csv.md): Updates time series data via file upload. Replaces existing data with the uploaded file contents.
+- [Create a weather file](https://docs.plantpredict.com/api-reference/weather/create-a-weather-file.md): Creates a new weather file in the company library from a payload of hourly meteorological records (irradiance, temperature, wind, etc.). For provider-sourced data, use `POST /Weather/Download/{providerId}` instead so metadata and downloads are handled automatically.
+- [Download weather data from a provider](https://docs.plantpredict.com/api-reference/weather/download-weather-data-from-a-provider.md): Fetches weather data from an external provider (SolarAnywhere, Meteonorm, NSRDB, etc.) for a given latitude/longitude and persists it as a new weather file in the company library. The `providerId` path parameter is the integer enum value for the provider; see `WeatherDataProvider` via `GET /Definiti…
+- [Export a weather file](https://docs.plantpredict.com/api-reference/weather/export-a-weather-file.md): Returns the weather file as a downloadable artifact in its native format. Useful for inspecting the data outside PlantPredict or sharing it with other modeling tools.
+- [Finalize a system-generated weather file](https://docs.plantpredict.com/api-reference/weather/finalize-a-system-generated-weather-file.md): Promotes a system-generated weather file from a temporary/preview state to a permanent library entry. Called after the user reviews and accepts a generated dataset.
+- [Finalize import of a parsed weather file](https://docs.plantpredict.com/api-reference/weather/finalize-import-of-a-parsed-weather-file.md): The Finalize Import endpoint will execute the same validations as the Quality Check endpoint however if no errors are found the weather file will successfully be imported into your PlantPredict Weather library. The response from the API will be the weather Id of the newly created asset.
+- [Get a weather file](https://docs.plantpredict.com/api-reference/weather/get-a-weather-file.md): Retrieves a single weather file's metadata (provider, location, time range, status). To fetch the actual hourly records, call `GET /Weather/{weatherId}/Detail`.
+- [Get horizon elevation profile for a location](https://docs.plantpredict.com/api-reference/weather/get-horizon-elevation-profile-for-a-location.md): Returns the horizon elevation profile (azimuth → elevation angle) for a given latitude/longitude. Used to construct shade scenes that account for terrain or distant obstructions surrounding a site.
+- [Get weather hourly detail records](https://docs.plantpredict.com/api-reference/weather/get-weather-hourly-detail-records.md): Returns the full hourly time-series records for a weather file — irradiance components, ambient temperature, wind speed, etc. The response can be large (8760+ rows for a full year); plan to stream or page on the client side.
+- [Parse a raw weather file upload](https://docs.plantpredict.com/api-reference/weather/parse-a-raw-weather-file-upload.md): This endpoint accepts a .csv or .xlsx (note: .xlsx is only accepted in the PlantPredict exported format).
+- [Run quality check on a parsed weather file](https://docs.plantpredict.com/api-reference/weather/run-quality-check-on-a-parsed-weather-file.md): The Quality Check endpoint is used to confirm:
+- [Search weather files by location](https://docs.plantpredict.com/api-reference/weather/search-weather-files-by-location.md): Finds weather files within a geographic radius of a given latitude/longitude. Use this to discover existing library entries near a project site before importing a new one.
+- [Update weather file metadata](https://docs.plantpredict.com/api-reference/weather/update-weather-file-metadata.md): Renames a weather file and/or updates lightweight metadata fields without touching the underlying hourly data.
+- [Update weather hourly detail records](https://docs.plantpredict.com/api-reference/weather/update-weather-hourly-detail-records.md): Used to update details for an existing weather file. **Note: This will completely overwrite the each timestamp with the provided values. If you omit data from the JSON it will not keep the previous values.**
+- [Validate a weather download or import](https://docs.plantpredict.com/api-reference/weather/validate-a-weather-download-or-import.md): Dry-run check that reports whether a weather download request is valid for the given provider, location, and parameters. Call this before `POST /Weather/Download/{providerId}` to surface configuration errors without consuming a provider download quota.
+- [Array-Level Aggregation & AC Losses](https://docs.plantpredict.com/models/ac-losses/array_level_losses.md)
+- [Degradation Losses (AC Applied)](https://docs.plantpredict.com/models/ac-losses/degradation_ac_applied.md)
+- [AC Losses Overview](https://docs.plantpredict.com/models/ac-losses/overview.md)
+- [Plant-Level Aggregation & AC Losses](https://docs.plantpredict.com/models/ac-losses/plant_level_losses.md)
+- [Transformer Loss Model](https://docs.plantpredict.com/models/ac-losses/transformer_loss_model.md)
+- [5-Parameter Model](https://docs.plantpredict.com/models/dc-performance/5_parameter_model.md)
+- [7-Parameter Model](https://docs.plantpredict.com/models/dc-performance/7_parameter_model.md)
+- [DC System Losses](https://docs.plantpredict.com/models/dc-performance/dc_system_losses.md)
+- [DC Wiring Resistance](https://docs.plantpredict.com/models/dc-performance/dc_wiring_resistance.md)
+- [Measured Surface Temperature](https://docs.plantpredict.com/models/dc-performance/measured_surface_temperature.md)
+- [Photovoltaic Conversion Overview](https://docs.plantpredict.com/models/dc-performance/overview.md)
+- [Parameter Translation](https://docs.plantpredict.com/models/dc-performance/parameter_translation.md)
+- [Heat Balance Model](https://docs.plantpredict.com/models/dc-performance/temperature_heat_balance.md)
+- [NOCT-SAM Model](https://docs.plantpredict.com/models/dc-performance/temperature_noct_sam.md)
+- [Sandia Model](https://docs.plantpredict.com/models/dc-performance/temperature_sandia.md)
+- [Battery Model](https://docs.plantpredict.com/models/energy-storage/battery_model.md)
+- [Charge & Discharge Limits](https://docs.plantpredict.com/models/energy-storage/charge_discharge_limits.md)
+- [Dispatch Algorithms](https://docs.plantpredict.com/models/energy-storage/dispatch_algorithms.md)
+- [Energy Storage Overview](https://docs.plantpredict.com/models/energy-storage/overview.md)
+- [Power Flow to Grid](https://docs.plantpredict.com/models/energy-storage/power_flow.md)
+- [Glossary](https://docs.plantpredict.com/models/general/glossary.md)
+- [ ](https://docs.plantpredict.com/models/general/intro.md)
+- [Prediction Model Flow](https://docs.plantpredict.com/models/general/prediction_flow.md)
+- [Variable Input-Output Table](https://docs.plantpredict.com/models/general/variable_input_output_table.md)
+- [Bird Clear Sky Model](https://docs.plantpredict.com/models/horizontal-irradiance/bird_clear_sky_model.md)
+- [GHI Diffuse-Direct Decomposition](https://docs.plantpredict.com/models/horizontal-irradiance/ghi_diffuse_direct_decomposition.md)
+- [Horizontal Irradiance Components Pre-Processing](https://docs.plantpredict.com/models/horizontal-irradiance/horizontal_irradiance_components.md)
+- [Horizontal Irradiance Processing Overview](https://docs.plantpredict.com/models/horizontal-irradiance/overview.md)
+- [POAI Diffuse-Direct Decomposition](https://docs.plantpredict.com/models/horizontal-irradiance/poai_diffuse_direct_decomposition.md)
+- [DC Field Aggregation](https://docs.plantpredict.com/models/inverter-models/dc_field_aggregation.md)
+- [Degradation Losses (DC Applied)](https://docs.plantpredict.com/models/inverter-models/degradation_dc_applied.md)
+- [Inverter Efficiency Models](https://docs.plantpredict.com/models/inverter-models/inverter_efficiency.md)
+- [Inverter Operating Regions](https://docs.plantpredict.com/models/inverter-models/inverter_operating_regions.md)
+- [Inverter Temperature Derating](https://docs.plantpredict.com/models/inverter-models/inverter_temperature_derating.md)
+- [DC Aggregation and DC-AC Conversion Overview](https://docs.plantpredict.com/models/inverter-models/overview.md)
+- [Incidence Angle Modifier (IAM)](https://docs.plantpredict.com/models/poa-irradiance/iam.md)
+- [Plane-of-Array Irradiance Overview](https://docs.plantpredict.com/models/poa-irradiance/overview.md)
+- [Rear Irradiance](https://docs.plantpredict.com/models/poa-irradiance/rear_irradiance.md)
+- [Soiling](https://docs.plantpredict.com/models/poa-irradiance/soiling.md)
+- [Spectral Correction](https://docs.plantpredict.com/models/poa-irradiance/spectral_correction.md)
+- [3D Shading - DC Field Level (Deprecated)](https://docs.plantpredict.com/models/shading/3d_shading_dc_field.md)
+- [3D Shading - Site Level (Version 12+)](https://docs.plantpredict.com/models/shading/3d_shading_site_level.md)
+- [Electrical Effect of Shading](https://docs.plantpredict.com/models/shading/electrical_shading_effect.md)
+- [Ground-Reflected Shading](https://docs.plantpredict.com/models/shading/ground_reflected_shading.md)
+- [Horizon Shading](https://docs.plantpredict.com/models/shading/horizon_shading.md)
+- [Shading Models Overview](https://docs.plantpredict.com/models/shading/overview.md)
+- [Row-to-Row Beam Shading - DC Field Level](https://docs.plantpredict.com/models/shading/row_to_row_beam_shading.md)
+- [Sky Diffuse Shading](https://docs.plantpredict.com/models/shading/sky_diffuse_shading.md)
+- [Air Mass Model](https://docs.plantpredict.com/models/solar-geometry/air_mass.md)
+- [Extraterrestrial Irradiance](https://docs.plantpredict.com/models/solar-geometry/extraterrestrial_irradiance.md)
+- [Sun Position & Extra-terrestrial Irradiance Overview](https://docs.plantpredict.com/models/solar-geometry/overview.md)
+- [Solar Position Algorithm](https://docs.plantpredict.com/models/solar-geometry/solar_position_algorithm.md)
+- [Sunrise and Sunset Determination](https://docs.plantpredict.com/models/solar-geometry/sunrise_sunset.md)
+- [Standard Backtracking](https://docs.plantpredict.com/models/tracking/backtracking/standard_backtracking.md)
+- [Terrain-Aware Backtracking](https://docs.plantpredict.com/models/tracking/backtracking/terrain_aware_backtracking.md)
+- [Fixed-Tilt Arrays](https://docs.plantpredict.com/models/tracking/fixed_tilt_arrays.md)
+- [Incidence Angle Calculation](https://docs.plantpredict.com/models/tracking/incidence_angle.md)
+- [Irradiance Optimization](https://docs.plantpredict.com/models/tracking/irradiance_optimization.md)
+- [Tracker & Array Orientation Overview](https://docs.plantpredict.com/models/tracking/overview.md)
+- [True Tracking](https://docs.plantpredict.com/models/tracking/true_tracking.md)
+- [User-Defined Tracking Angles](https://docs.plantpredict.com/models/tracking/user_defined_tracking_angles.md)
+- [Wind Stow](https://docs.plantpredict.com/models/tracking/wind_stow.md)
+- [3D Transposition](https://docs.plantpredict.com/models/transposition/3d_transposition.md)
+- [Hay-Davies Model](https://docs.plantpredict.com/models/transposition/hay_davies.md)
+- [Transposition Models Overview](https://docs.plantpredict.com/models/transposition/overview.md)
+- [Perez Model](https://docs.plantpredict.com/models/transposition/perez.md)
+- [Current Version](https://docs.plantpredict.com/release-notes/Current-Version.md)
+- [RELEASE 03.00.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.00.0.md)
+- [RELEASE 03.01.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.01.0.md)
+- [RELEASE 03.02.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.02.0.md)
+- [RELEASE 03.03.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.03.0.md)
+- [RELEASE 03.03.1](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.03.1.md)
+- [RELEASE 03.03.2](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.03.2.md)
+- [RELEASE 03.04.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.04.0.md)
+- [RELEASE 03.05.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.05.0.md)
+- [RELEASE 03.06.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.06.0.md)
+- [RELEASE 03.07.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.07.0.md)
+- [RELEASE 03.07.1](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.07.1.md)
+- [RELEASE 03.08.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.08.0.md)
+- [RELEASE 03.09.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.09.0.md)
+- [RELEASE 03.10.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.10.0.md)
+- [RELEASE 03.11.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.11.0.md)
+- [RELEASE 03.12.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.12.0.md)
+- [RELEASE 03.13.0](https://docs.plantpredict.com/release-notes/Version-03/RELEASE-03.13.0.md)
+- [RELEASE 04.00.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.00.0.md)
+- [RELEASE 04.01.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.01.0.md)
+- [RELEASE 04.02.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.02.0.md)
+- [RELEASE 04.02.1](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.02.1.md)
+- [RELEASE 04.03.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.03.0.md)
+- [RELEASE 04.04.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.04.0.md)
+- [RELEASE 04.05.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.05.0.md)
+- [RELEASE 04.06.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.06.0.md)
+- [RELEASE 04.07.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.07.0.md)
+- [RELEASE 04.08.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.08.0.md)
+- [RELEASE 04.09.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.09.0.md)
+- [RELEASE 04.10.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.10.0.md)
+- [RELEASE 04.11.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.11.0.md)
+- [RELEASE 04.12.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.12.0.md)
+- [RELEASE 04.13.0](https://docs.plantpredict.com/release-notes/Version-04/RELEASE-04.13.0.md)
+- [RELEASE 05.00.0](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.00.0.md)
+- [RELEASE 05.01.0](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.01.0.md)
+- [RELEASE 05.02.0](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.02.0.md)
+- [RELEASE 05.03.0](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.03.0.md)
+- [RELEASE 05.04.0](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.04.0.md)
+- [RELEASE 05.04.1](https://docs.plantpredict.com/release-notes/Version-05/RELEASE-05.04.1.md)
+- [RELEASE 06.00.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.00.0.md)
+- [RELEASE 06.01.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.01.0.md)
+- [RELEASE 06.01.1](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.01.1.md)
+- [RELEASE 06.01.2](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.01.2.md)
+- [RELEASE 06.01.3](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.01.3.md)
+- [RELEASE 06.02.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.02.0.md)
+- [RELEASE 06.03.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.03.0.md): July 10, 2018
+- [RELEASE 06.04.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.04.0.md)
+- [RELEASE 06.05.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.05.0.md)
+- [RELEASE 06.06.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.06.0.md)
+- [RELEASE 06.07.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.07.0.md)
+- [RELEASE 06.08.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.08.0.md)
+- [RELEASE 06.09.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.09.0.md)
+- [RELEASE 06.10.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.10.0.md): October 16, 2018
+- [RELEASE 06.11.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.11.0.md)
+- [RELEASE 06.12.0](https://docs.plantpredict.com/release-notes/Version-06/RELEASE-06.12.0.md)
+- [RELEASE 07.00.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.00.0.md)
+- [RELEASE 07.01.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.01.0.md)
+- [RELEASE 07.02.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.02.0.md)
+- [RELEASE 07.03.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.03.0.md)
+- [RELEASE 07.04.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.04.0.md)
+- [RELEASE 07.05.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.05.0.md)
+- [RELEASE 07.06.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.06.0.md)
+- [RELEASE 07.07.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.07.0.md)
+- [RELEASE 07.08.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.08.0.md)
+- [RELEASE 07.09.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.09.0.md)
+- [RELEASE 07.10.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.10.0.md)
+- [RELEASE 07.11.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.11.0.md)
+- [RELEASE 07.12.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.12.0.md)
+- [RELEASE 07.13.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.13.0.md)
+- [RELEASE 07.14.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.14.0.md)
+- [RELEASE 07.15.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.15.0.md)
+- [RELEASE 07.16.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.16.0.md)
+- [RELEASE 07.17.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.17.0.md)
+- [RELEASE 07.18.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.18.0.md)
+- [RELEASE 07.19.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.19.0.md)
+- [RELEASE 07.20.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.20.0.md)
+- [RELEASE 07.21.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.21.0.md)
+- [RELEASE 07.22.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.22.0.md)
+- [RELEASE 07.23.0](https://docs.plantpredict.com/release-notes/Version-07/RELEASE-07.23.0.md)
+- [RELEASE 08.00.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.00.0.md)
+- [RELEASE 08 01 0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.01.0.md)
+- [RELEASE 08.02.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.02.0.md)
+- [RELEASE 08.03.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.03.0.md)
+- [RELEASE 08.03.3](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.03.3.md)
+- [RELEASE 08.04.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.04.0.md)
+- [RELEASE 08.06.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.06.0.md)
+- [RELEASE 08.07.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.07.0.md)
+- [RELEASE 08.09.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.09.0.md)
+- [RELEASE 08.10.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.10.0.md)
+- [RELEASE 08.11.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.11.0.md)
+- [RELEASE 08.12.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.12.0.md)
+- [RELEASE 08.13.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.13.0.md)
+- [RELEASE 08.14.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.14.0.md)
+- [RELEASE 08.15.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.15.0.md)
+- [RELEASE 08.16.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.16.0.md)
+- [RELEASE 08.17.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.17.0.md)
+- [RELEASE 08.18.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.18.0.md)
+- [RELEASE 08.19.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.19.0.md)
+- [RELEASE 08.20.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.20.0.md)
+- [RELEASE 08.21.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.21.0.md)
+- [RELEASE 08.22.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.22.0.md)
+- [RELEASE 08.23.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.23.0.md)
+- [RELEASE 08.24.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.24.0.md)
+- [RELEASE 08.25.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.25.0.md)
+- [RELEASE 08.26.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.26.0.md)
+- [RELEASE 08.27.0](https://docs.plantpredict.com/release-notes/Version-08/RELEASE-08.27.0.md)
+- [RELEASE 09.00.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.00.0.md)
+- [RELEASE 09.01.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.01.0.md)
+- [RELEASE 09.02.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.02.0.md)
+- [RELEASE 09.03.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.03.0.md)
+- [RELEASE 09.04.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.04.0.md)
+- [RELEASE 09.05.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.05.0.md)
+- [RELEASE 09.06.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.06.0.md)
+- [RELEASE 09.07.0](https://docs.plantpredict.com/release-notes/Version-09/RELEASE-09.07.0.md)
+- [RELEASE 10.00.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.00.0.md)
+- [RELEASE 10.01.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.01.0.md)
+- [RELEASE 10.02.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.02.0.md)
+- [RELEASE 10.03.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.03.0.md)
+- [RELEASE 10.04.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.04.0.md)
+- [RELEASE 10.05.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.05.0.md)
+- [RELEASE 10.06.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.06.0.md)
+- [RELEASE 10.07.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.07.0.md)
+- [RELEASE 10.08.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.08.0.md)
+- [RELEASE 10.09.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.09.0.md)
+- [RELEASE 10.10.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.10.0.md)
+- [RELEASE 10.11.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.11.0.md)
+- [RELEASE 10.13.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.13.0.md)
+- [RELEASE 10.14.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.14.0.md)
+- [RELEASE 10.15.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.15.0.md)
+- [RELEASE 10.16.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.16.0.md)
+- [RELEASE 10.16.1](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.16.1.md): January 19, 2023
+- [RELEASE 10.17.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.17.0.md)
+- [RELEASE 10.18.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.18.0.md)
+- [RELEASE 10.19.0](https://docs.plantpredict.com/release-notes/Version-10/RELEASE-10.19.0.md)
+- [RELEASE 11.00.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.00.0.md)
+- [RELEASE 11.01.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.01.0.md)
+- [RELEASE 11.02.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.02.0.md)
+- [RELEASE 11.03.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.03.0.md)
+- [RELEASE 11.04.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.04.0.md)
+- [RELEASE 11.04.01](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.04.01.md)
+- [RELEASE 11.05.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.05.0.md)
+- [RELEASE 11.06.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.06.0.md)
+- [RELEASE 11.07.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.07.0.md)
+- [RELEASE 11.08.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.08.0.md)
+- [RELEASE 11.08.01](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.08.01.md)
+- [RELEASE 11.09.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.09.0.md)
+- [RELEASE 11.10.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.10.0.md)
+- [RELEASE 11.10.1](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.10.1.md)
+- [RELEASE 11.11.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.11.0.md)
+- [RELEASE 11.12.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.12.0.md)
+- [RELEASE 11.13.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.13.0.md)
+- [RELEASE 11.14.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.14.0.md)
+- [RELEASE 11.15.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.15.0.md)
+- [RELEASE 11.15.2](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.15.2.md)
+- [RELEASE 11.16.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.16.0.md)
+- [RELEASE 11.17.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.17.0.md)
+- [RELEASE 11.18.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.18.0.md)
+- [RELEASE 11.19.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.19.0.md)
+- [RELEASE 11.20.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.20.0.md)
+- [RELEASE 11.21.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.21.0.md)
+- [RELEASE 11.22.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.22.0.md)
+- [RELEASE 11.22.1](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.22.1.md)
+- [RELEASE 11.23.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.23.0.md)
+- [RELEASE 11.24.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.24.0.md)
+- [RELEASE 11.25.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.25.0.md)
+- [RELEASE 11.26.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.26.0.md)
+- [RELEASE 11.27.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.27.0.md)
+- [RELEASE 11.28.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.28.0.md)
+- [RELEASE 11.29.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.29.0.md)
+- [RELEASE 11.30.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.30.0.md)
+- [RELEASE 11.31.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.31.0.md)
+- [RELEASE 11.32.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.32.0.md)
+- [RELEASE 11.33.0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.33.0.md)
+- [RELEASE 11.34 0](https://docs.plantpredict.com/release-notes/Version-11/RELEASE-11.34.0.md)
+- [RELEASE 12.00.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.00.0.md)
+- [RELEASE 12.01.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.01.0.md)
+- [RELEASE 12.02.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.02.0.md)
+- [RELEASE 12.03.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.03.0.md)
+- [RELEASE 12.04.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.04.0.md)
+- [RELEASE 12.05.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.05.0.md)
+- [RELEASE 12.06.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.06.0.md)
+- [RELEASE 12.07.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.07.0.md)
+- [RELEASE 12.08.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.08.0.md)
+- [RELEASE 12.09.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.09.0.md)
+- [RELEASE 12.10.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.10.0.md): April 24th, 2025
+- [RELEASE 12.11.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.11.0.md)
+- [RELEASE 12.12.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.12.0.md)
+- [RELEASE 12.13.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.13.0.md)
+- [RELEASE 12.14.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.14.0.md)
+- [RELEASE 12.15.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.15.0.md)
+- [RELEASE 12.16.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.16.0.md)
+- [RELEASE 12.17.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.17.0.md)
+- [RELEASE 12.18.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.18.0.md): October 23, 2025
+- [RELEASE 12.19.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.19.0.md)
+- [RELEASE 12.20.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.20.0.md)
+- [RELEASE 12.21.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.21.0.md)
+- [RELEASE 12.22.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.22.0.md)
+- [RELEASE 12.23.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.23.0.md)
+- [RELEASE 12.24.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.24.0.md)
+- [RELEASE 12.25.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.25.0.md)
+- [RELEASE 12.26.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.26.0.md)
+- [RELEASE 12.27.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.27.0.md)
+- [RELEASE 12.28.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.28.0.md)
+- [RELEASE 12.29.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.29.0.md)
+- [RELEASE 12.30.0](https://docs.plantpredict.com/release-notes/Version-12/RELEASE-12.30.0.md)
+- [History of PlantPredict](https://docs.plantpredict.com/user-guide/intro/history.md): The evolution of PlantPredict from OptiSolar to First Solar to Terabase
+- [ ](https://docs.plantpredict.com/user-guide/intro/introduction.md)
+- [How To Activate / Deactivate User Accounts](https://docs.plantpredict.com/user-guide/knowledge-base/activate-deactivate-user-accounts.md): How Company Administrators can activate and deactivate user accounts
+- [How To Empty Cache and Hard Reload](https://docs.plantpredict.com/user-guide/knowledge-base/clear-cache-hard-reload.md): How to clear your browser cache and perform a hard reload in Chrome to resolve unexpected PlantPredict behavior
+- [How to Use the PlantPredict MCP Connector](https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector.md): A step-by-step guide to connecting Claude, ChatGPT, or Cursor to PlantPredict via the MCP connector
+- [How to Model East/West Dual Tilt Systems](https://docs.plantpredict.com/user-guide/knowledge-base/model-east-west-dual-tilt-systems.md): Workflow for modeling East-West dual tilt PV systems in PlantPredict using 5B Maverick racking as an example
+- [How To Transfer Digital Assets](https://docs.plantpredict.com/user-guide/knowledge-base/transfer-digital-assets.md): How Company Administrators can transfer ownership of projects, predictions, modules, inverters, and weather files between users
+- [Pricing](https://docs.plantpredict.com/user-guide/resources/pricing.md): Bankable solar energy modeling — priced to scale with you.
+- [Security & Compliance](https://docs.plantpredict.com/user-guide/resources/security-compliance.md): Independent third-party security attestations, certifications, and security practices for the PlantPredict platform
+- [Validations](https://docs.plantpredict.com/user-guide/resources/validations.md): Technical reviews, independent engineering reports, and peer-reviewed validation studies of the PlantPredict performance modeling platform
+- [Array Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/array.md): Detailed parameters in the Array nodal data export
+- [Block Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/block.md): Detailed parameters in the Block nodal data export
+- [DC Field Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/dc-field.md): Detailed parameters in the DC Field nodal data export
+- [Nodal Data Overview](https://docs.plantpredict.com/user-guide/results/nodal/intro.md): Introduction to PlantPredict Nodal Data exports for detailed prediction analysis
+- [Inverter Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/inverter.md): Detailed parameters in the Inverter nodal data export
+- [Energy Storage Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/storage.md): Detailed parameters in the Energy Storage System nodal data export
+- [System Nodal Data](https://docs.plantpredict.com/user-guide/results/nodal/system.md): Detailed parameters in the System nodal data export
+- [P50 Loss Tree](https://docs.plantpredict.com/user-guide/results/p50-loss-tree.md): Understanding the P50 loss tree and how each loss factor is calculated in PlantPredict
+- [Summary Results](https://docs.plantpredict.com/user-guide/results/summary-results.md): Understanding the key performance metrics in PlantPredict prediction summary results
+- [Uncertainty Analysis](https://docs.plantpredict.com/user-guide/results/uncertainty-analysis.md): Understanding uncertainty components and exceedance probability calculations in PlantPredict prediction results
+- [Terrain Pro User Guide](https://docs.plantpredict.com/user-guide/terrain-pro/terrain-pro-user-guide.md)
+- [3D Scene Overview](https://docs.plantpredict.com/user-guide/ui/3d-scene-overview.md): Upload and configure 3D shade scenes for advanced shading analysis
+- [3D Shade Scene](https://docs.plantpredict.com/user-guide/ui/3d-shade-scene.md): Visualize shading patterns, manage shading objects, and view heat map results in the 3D scene viewer
+- [Add New Inverter](https://docs.plantpredict.com/user-guide/ui/add-new-inverter.md): Upload inverter files or create custom inverter specifications from scratch
+- [Add New Module](https://docs.plantpredict.com/user-guide/ui/add-new-module.md): Upload module files or generate module specifications from datasheet values, I-V points, or full I-V curves
+- [Add New Weather](https://docs.plantpredict.com/user-guide/ui/add-new-weather.md): Download weather data from integrated providers, upload custom files, or generate synthetic weather data
+- [Company Settings](https://docs.plantpredict.com/user-guide/ui/company-settings.md): Admin-only page for managing users, invitations, API credentials, and company default settings
+- [Create New Project](https://docs.plantpredict.com/user-guide/ui/create-new-project.md): Define a new project with a name and geographic location
+- [Energy Storage System](https://docs.plantpredict.com/user-guide/ui/energy-storage-system.md): Configure AC-coupled battery energy storage including capacity, efficiency, inverter, transformer, and dispatch settings
+- [Environmental Conditions](https://docs.plantpredict.com/user-guide/ui/environmental-conditions.md): Configure weather data, soiling, spectral adjustments, and horizon shading for your prediction
+- [Inverter File](https://docs.plantpredict.com/user-guide/ui/inverter-file.md): Complete reference for all parameters within a PlantPredict inverter file
+- [Inverter Library](https://docs.plantpredict.com/user-guide/ui/inverter-library.md): Browse, search, clone, and manage inverter specifications for your organization
+- [Module File](https://docs.plantpredict.com/user-guide/ui/module-file.md): Complete reference for all parameters within a PlantPredict module file
+- [Module Library](https://docs.plantpredict.com/user-guide/ui/module-library.md): Browse, search, clone, and manage module specifications for your organization
+- [3D View](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-3d-view.md): Analyze terrain slopes, table slope constraints, and post heights for solar array layouts
+- [Array](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-array.md): Configure array multiplier, MV transformer settings, and AC collection losses
+- [Block Overview](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-block.md): Configure power plant hierarchy including blocks, arrays, inverters, and DC fields in a single-line diagram view
+- [Custom Array Editor](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-custom-array-editor.md): Create custom block shapes for inverter arrays to use in automated or manual map layout design
+- [Field](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-dc-field-field.md): Configure DC Field layout including string count, table arrangement, and terrain settings
+- [Losses](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-dc-field-losses.md): Configure DC losses including module quality, mismatch, wiring losses, and thermal model parameters
+- [Objects](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-dc-field-objects.md): Configure near-field shading objects at the DC Field level (legacy workflow)
+- [Table](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-dc-field-table.md): Configure module selection, mounting type, tracker settings, and table geometry for a DC Field
+- [Inverter](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-inverter.md): Configure inverter selection, DC:AC ratio, power setpoints, derating, and repeat count
+- [Map Overview](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-map-interface.md): Design and visualize a power plant layout on an interactive 2D map with automated array placement and site constraints
+- [Basemap and Overlays](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-map-overlays.md): Visualize satellite imagery, terrain data, and publicly available GIS data about land characteristics and infrastructure
+- [Power Plant Parameters](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-map-parameters.md): Configure system technology, capacity targets, DC/AC design, losses, and slope design for automated power plant layout on the map
+- [PlantPredict Layout (PLP-1000)](https://docs.plantpredict.com/user-guide/ui/power-plant-builder-plp1000.md): Generate professional array layout drawings with high-level system and location information for project deliverables
+- [Prediction Overview](https://docs.plantpredict.com/user-guide/ui/prediction-overview.md): Configure prediction settings, access sub-pages for design specifications, run predictions, and view results
+- [Predictions Library](https://docs.plantpredict.com/user-guide/ui/predictions.md): Manage predictions within a project and perform project-level actions
+- [User Profile](https://docs.plantpredict.com/user-guide/ui/profile.md): View user profile information, configure weather provider API keys, and set accessibility options
+- [Project Library](https://docs.plantpredict.com/user-guide/ui/project-library.md): Browse, search, create, and manage projects for your organization
+- [Simulation Settings](https://docs.plantpredict.com/user-guide/ui/simulation-settings.md): Configure prediction timeframe, irradiance models, module models, shading models, and degradation parameters
+- [System Details](https://docs.plantpredict.com/user-guide/ui/system-details.md): Configure system availability, grid limitations, and interconnection losses including HV transformers and transmission lines
+- [Time Series Data](https://docs.plantpredict.com/user-guide/ui/time-series-data.md): Upload optional time-varying data to override calculated values or provide operational constraints
+- [User Interface Overview](https://docs.plantpredict.com/user-guide/ui/ui-overview.md): Introduction to the PlantPredict user interface and navigation
+- [Uncertainty Analysis](https://docs.plantpredict.com/user-guide/ui/uncertainty-analysis.md): Configure P-value selections and uncertainty parameters for probabilistic energy estimates
+- [Weather File](https://docs.plantpredict.com/user-guide/ui/weather-file.md): Complete reference for all parameters and data within a PlantPredict weather file
+- [Weather Library](https://docs.plantpredict.com/user-guide/ui/weather-library.md): Browse, search, compare, and manage weather files for your organization
+- [Voltage Pro User Guide](https://docs.plantpredict.com/user-guide/voltage-pro/voltage-pro-user-guide.md)
+- [Create Module from Datasheet](https://docs.plantpredict.com/user-guide/workflows/create-module-from-datasheet.md): Step-by-step workflow for creating a module specification from manufacturer datasheet values
+- [Create Module from PAN File](https://docs.plantpredict.com/user-guide/workflows/create-module-from-pan-file.md): Step-by-step workflow for importing a PVsyst module file (.pan) into PlantPredict
+- [How to Import PVsyst Projects](https://docs.plantpredict.com/user-guide/workflows/import-pvsyst-project.md): Step-by-step workflow for importing a full PVsyst project (ZIP) or a single PVsyst weather file (.MET) into PlantPredict
+
+## OpenAPI Specs
+
+- [plantpredict-api](https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml)
+- [api-spec](https://docs.plantpredict.com/api-spec.json)
+
+## Optional
+
+- [User Guide](https://terabase.atlassian.net/servicedesk/customer/portal/3/topic/058fa7a7-e6a7-4b23-8c73-84ae563d6cd7/article/1295253542)
+- [PVRADAR Soiling](https://pvradar.com/partners/terabase)
+- [PowerUQ](https://www.poweruq.com/plantpredict-integration)

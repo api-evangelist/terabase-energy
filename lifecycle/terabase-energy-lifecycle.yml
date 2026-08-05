@@ -1,0 +1,54 @@
+generated: '2026-08-05'
+method: searched
+source: https://docs.plantpredict.com/release-notes/Current-Version
+api: PlantPredict Performance API
+versioning:
+  scheme: platform release MAJOR.MINOR.PATCH
+  current: 12.30.0
+  current_date: '2026-07-30'
+  spec_version: 12.13.0
+  uri_versioned: false
+  header_versioned: false
+  runtime_endpoint: /System/Version
+  docs: https://docs.plantpredict.com/release-notes/Current-Version
+  detail: >-
+    The API is not versioned in the URL or by header. Versions track the PlantPredict platform release train, are
+    announced in dated release notes, and can be read at runtime from GET /System/Version.
+deprecation:
+  policy_url: https://docs.plantpredict.com/release-notes/Current-Version
+  formal_policy: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  practice: >-
+    Deprecations and retirements ARE announced, but only in the dated release notes, and not under a standing written
+    policy with a notice period. Observed examples: release 12.28.0 retired the legacy "3D (Deprecated)" shading
+    algorithm for new predictions; release 12.27.0 retired Map Builder slope design and advanced layout.
+  examples:
+  - {version: 12.28.0, date: '2026-06-25', change: '3D (Deprecated) shading algorithm retired for new predictions'}
+  - {version: 12.27.0, date: '2026-06-04', change: 'Map Builder slope design and advanced layout retired'}
+deprecated_operations: []
+deprecated_operations_note: >-
+  No operation in the published OpenAPI carries `deprecated: true`. Retirements are announced at the feature level in
+  release notes, not marked in the contract.
+sla:
+  url: null
+  uptime_target: null
+  note: No published SLA or uptime commitment was found on the docs, marketing, or pricing pages.
+status_page: null
+status_page_note: >-
+  No hosted status page exists. plantpredict.statuspage.io resolves in DNS but is an unclaimed Statuspage subdomain
+  that 302s to atlassian.com marketing — it is NOT a Terabase status page and is not credited here. The API's own
+  GET /System/MaintenanceMode endpoint is the only availability signal Terabase publishes.
+maintenance_signal:
+  operation: getMaintenanceStatus
+  path: /System/MaintenanceMode
+release_cadence:
+  observed: roughly every 2-3 weeks
+  recent: ['12.30.0 2026-07-30', '12.29.0 2026-07-09', '12.28.0 2026-06-25', '12.27.0 2026-06-04', '12.26.0 2026-05-11']
+x-evidence:
+  fetched: '2026-08-05'
+  urls:
+  - {url: 'https://docs.plantpredict.com/release-notes/Current-Version', http_status: 200}
+  - {url: 'https://plantpredict.statuspage.io/', http_status: 200, note: 'redirects to atlassian.com/software/statuspage — unclaimed subdomain, not a status page'}
+  - {url: 'https://status.plantpredict.com', http_status: 0, note: NXDOMAIN}

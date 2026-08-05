@@ -1,0 +1,83 @@
+generated: '2026-08-05'
+method: searched
+source: openapi/terabase-energy-plantpredict-openapi-original.yaml, openapi/terabase-energy-plantpredict-swagger-v1-original.json
+docs: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+summary:
+  types:
+  - oauth2
+  - http
+  - apiKey
+  api_key_in:
+  - header
+  oauth2_flows:
+  - clientCredentials
+  - authorizationCode
+  note: >-
+    The PlantPredict OpenAPI advertises a single `bearerAuth` HTTP bearer scheme, but the API description states
+    plainly that tokens are obtained through an OAuth 2.0 client-credentials exchange against AWS Cognito. The
+    provider documents why: "Most users have access to the production tenant only, and we don't want to invite anyone
+    to enter long-lived client_id / client_secret credentials into a third-party documentation site." The separate
+    MCP connector uses OAuth 2.0 authorization code + PKCE.
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: 'Pass `Authorization: Bearer <token>` on every request.'
+  sources:
+  - openapi/terabase-energy-plantpredict-openapi-original.yaml
+- name: Bearer
+  type: apiKey
+  in: header
+  parameter: Authorization
+  description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+  sources:
+  - openapi/terabase-energy-plantpredict-swagger-v1-original.json
+- name: PlantPredict OAuth 2.0 (client credentials)
+  type: oauth2
+  flow: clientCredentials
+  tokenUrl: https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token
+  client_auth: basic
+  scopes:
+  - transactions/get
+  - transactions/post
+  description: >-
+    Client credentials are generated per user by a company admin in the PlantPredict UI (gear icon -> user profile ->
+    Generate API Credentials) and are shown only once. Credentials are sent as HTTP Basic auth on the token request.
+  sources:
+  - https://docs.plantpredict.com/api-docs/intro
+  - openapi/terabase-energy-plantpredict-openapi-original.yaml
+- name: PlantPredict MCP OAuth 2.0
+  type: oauth2
+  flow: authorizationCode
+  issuer: https://mcp.plantpredict.terabase.energy/
+  authorizationUrl: https://mcp.plantpredict.terabase.energy/authorize
+  tokenUrl: https://mcp.plantpredict.terabase.energy/token
+  registrationUrl: https://mcp.plantpredict.terabase.energy/register
+  pkce: S256
+  grant_types:
+  - authorization_code
+  - refresh_token
+  token_endpoint_auth_methods:
+  - client_secret_post
+  - client_secret_basic
+  description: >-
+    Dynamic client registration (RFC 7591) plus authorization-code with PKCE, advertised via RFC 8414 authorization
+    server metadata and RFC 9728 protected-resource metadata. Users sign in once with their PlantPredict email and
+    password; the connector acts as the user with the user's own permissions.
+  sources:
+  - well-known/terabase-energy-mcp-oauth-authorization-server.json
+  - https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
+credential_lifecycle:
+  issue: Company admin generates a Client ID + Secret per user in the PlantPredict UI.
+  rotate: >-
+    POST /Company/{companyId}/User/{userId}/Secret (Generate API credentials for a user) rotates the pair and
+    invalidates any previously issued credentials.
+  retrieval: The secret is returned only in the generation response and cannot be retrieved later.
+x-evidence:
+  fetched: '2026-08-05'
+  urls:
+  - url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+    http_status: 200
+  - url: https://mcp.plantpredict.terabase.energy/.well-known/oauth-authorization-server
+    http_status: 200
