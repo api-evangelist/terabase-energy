@@ -92,7 +92,7 @@ apis:
     url: mcp/terabase-energy-mcp.yml
   - type: ToolCrosswalk
     url: mcp/terabase-energy-tool-crosswalk.yml
-  - type: MCP
+  - type: MCPServer
     url: https://mcp.plantpredict.terabase.energy
   - type: Documentation
     url: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
