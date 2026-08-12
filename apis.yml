@@ -30,56 +30,13 @@ tags:
 - mcp
 - energy-storage
 apis:
-- name: PlantPredict Performance API
-  description: >-
-    The REST API behind PlantPredict, Terabase Energy's utility-scale solar performance-modeling platform. It exposes
-    the full modeling engine — projects, predictions, power plant designs (blocks/arrays/inverters/DC fields), weather
-    files, module and inverter libraries, 3D shade scenes, terrain-aware backtracking, time-series inputs, financial
-    models and results — over 113 documented operations. Authentication is OAuth 2.0 client credentials against AWS
-    Cognito, presented on the wire as a JWT bearer token.
-  humanURL: https://docs.plantpredict.com/api-docs/intro
-  baseURL: https://api.plantpredict.terabase.energy
-  tags:
-  - solar
-  - energy-modeling
-  - simulation
-  - photovoltaics
-  - utility-scale-solar
-  - energy-storage
-  properties:
-  - type: OpenAPI
-    url: openapi/terabase-energy-plantpredict-openapi-original.yaml
-  - type: OpenAPI
-    url: openapi/terabase-energy-plantpredict-swagger-v1-original.json
-  - type: Documentation
-    url: https://docs.plantpredict.com/api-docs/intro
-  - type: APIReference
-    url: https://docs.plantpredict.com/api-reference
-  - type: GettingStarted
-    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
-  - type: Postman
-    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
-  - type: Authentication
-    url: authentication/terabase-energy-authentication.yml
-  - type: OAuthScopes
-    url: scopes/terabase-energy-scopes.yml
-  - type: ErrorCatalog
-    url: errors/terabase-energy-problem-types.yml
-  - type: Conventions
-    url: conventions/terabase-energy-conventions.yml
-  - type: DataModel
-    url: data-model/terabase-energy-data-model.yml
-  - type: Overlay
-    url: overlays/terabase-energy-plantpredict-overlay.yaml
-  - type: SDKs
-    url: https://github.com/plantpredict/python-sdk
 - name: PlantPredict MCP Connector
   description: >-
-    Hosted Model Context Protocol server that lets Claude, ChatGPT and Cursor act on a user's own PlantPredict account
-    — creating and running predictions, importing weather and shade scenes, browsing projects and reading results in
-    natural language. Protected by OAuth 2.0 (authorization code + PKCE S256) with RFC 9728 protected-resource metadata
-    and RFC 7591 dynamic client registration. Requires a PlantPredict Pro or Enterprise subscription and an
-    administrator to enable "Allow MCP Server Access For API Users".
+    Hosted Model Context Protocol server that lets Claude, ChatGPT and Cursor act on a user's own PlantPredict
+    account — creating and running predictions, importing weather and shade scenes, browsing projects
+    and reading results in natural language. Protected by OAuth 2.0 (authorization code + PKCE S256) with
+    RFC 9728 protected-resource metadata and RFC 7591 dynamic client registration. Requires a PlantPredict
+    Pro or Enterprise subscription and an administrator to enable "Allow MCP Server Access For API Users".
   humanURL: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
   baseURL: https://mcp.plantpredict.terabase.energy
   tags:
@@ -100,11 +57,12 @@ apis:
     url: well-known/terabase-energy-well-known.yml
 - name: Terrain Pro API
   description: >-
-    Terabase Energy's terrain analysis and solar site-planning API, used by the Terrain Pro application for elevation
-    data extraction, layout generation, grading/earthwork solutions, pile binning and reveal reporting, wind-rack
-    summaries and satellite search. The endpoint surface is documented in Terabase's public Terrain Pro API
-    documentation app; the API itself requires authentication (probed anonymously it returns HTTP 403
-    "Authentication credentials were not provided"), and no machine-readable specification is published.
+    Terabase Energy's terrain analysis and solar site-planning API, used by the Terrain Pro application
+    for elevation data extraction, layout generation, grading/earthwork solutions, pile binning and reveal
+    reporting, wind-rack summaries and satellite search. The endpoint surface is documented in Terabase's
+    public Terrain Pro API documentation app; the API itself requires authentication (probed anonymously
+    it returns HTTP 403 "Authentication credentials were not provided"), and no machine-readable specification
+    is published.
   humanURL: https://terrain-pro-api-doc-app.s3.us-west-2.amazonaws.com/index.html
   baseURL: https://services.terabase.energy/tools/api/v1/terrain-pro
   tags:
@@ -120,8 +78,8 @@ apis:
     state: gated
     reason: customer-only-docs
     detail: >-
-      The Terrain Pro API is documented publicly but every endpoint requires an authenticated Terabase Tools account;
-      an anonymous GET of the collection root returns a Django REST Framework 403 with
+      The Terrain Pro API is documented publicly but every endpoint requires an authenticated Terabase
+      Tools account; an anonymous GET of the collection root returns a Django REST Framework 403 with
       "Authentication credentials were not provided." and no OpenAPI/schema route is served.
     evidence:
     - url: https://services.terabase.energy/tools/api/v1/terrain-pro/
@@ -129,6 +87,726 @@ apis:
     - url: https://services.terabase.energy/tools/api/schema/
       status: 200
     checked: '2026-08-05'
+- aid: terabase-energy:terabase-energy-ashrae-api
+  name: Terabase Energy ASHRAE API
+  description: ASHRAE climate station lookup
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - ASHRAE
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-ashrae-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-company-api
+  name: Terabase Energy Company API
+  description: Company settings and user management
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Company
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-company-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-country-api
+  name: Terabase Energy Country API
+  description: Reference country data
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Country
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-country-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-definition-api
+  name: Terabase Energy Definition API
+  description: The Definition API from Terabase Energy — 1 operation(s) for definition.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Definition
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-definition-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-definitions-api
+  name: Terabase Energy Definitions API
+  description: Enum and model type definitions
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Definitions
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-definitions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-financialmodel-api
+  name: Terabase Energy Financial Model API
+  description: Financial model parameters and cashflow results
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - FinancialModel
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-financialmodel-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-home-api
+  name: Terabase Energy Home API
+  description: The Home API from Terabase Energy — 1 operation(s) for home.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Home
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-home-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-inverter-api
+  name: Terabase Energy Inverter API
+  description: The Inverter API from Terabase Energy — 8 operation(s) for inverter.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Inverter
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-inverter-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-inverters-api
+  name: Terabase Energy Inverters API
+  description: Inverter library management
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Inverters
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-inverters-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-module-api
+  name: Terabase Energy Module API
+  description: The Module API from Terabase Energy — 9 operation(s) for module.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Module
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-module-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-modules-api
+  name: Terabase Energy Modules API
+  description: PV module library and single-diode parameter generation
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Modules
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-modules-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-powerplant-api
+  name: Terabase Energy Power Plant API
+  description: Power plant design (blocks, arrays, inverters, transformers)
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - PowerPlant
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-powerplant-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-predictions-api
+  name: Terabase Energy Predictions API
+  description: Energy prediction configuration and execution
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Predictions
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-predictions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-project-api
+  name: Terabase Energy Project API
+  description: The Project API from Terabase Energy — 47 operation(s) for project.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Project
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-project-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-projects-api
+  name: Terabase Energy Projects API
+  description: Solar project management
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-projects-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-reports-api
+  name: Terabase Energy Reports API
+  description: Report generation and export
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Reports
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-reports-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-results-api
+  name: Terabase Energy Results API
+  description: Prediction results — summary, details, nodal, average energy
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Results
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-results-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-shadeengine-api
+  name: Terabase Energy Shade Engine API
+  description: The ShadeEngine API from Terabase Energy — 14 operation(s) for shadeengine.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - ShadeEngine
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-shadeengine-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-shadescene-api
+  name: Terabase Energy Shade Scene API
+  description: 3D shade scene management and calculations
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - ShadeScene
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-shadescene-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-system-api
+  name: Terabase Energy System API
+  description: System version and maintenance status
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - System
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-system-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-tabtengine-api
+  name: Terabase Energy TABT Engine API
+  description: The TABTEngine API from Terabase Energy — 7 operation(s) for tabtengine.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - TABTEngine
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-tabtengine-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-timeseries-api
+  name: Terabase Energy Time Series API
+  description: Custom time series data inputs
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - TimeSeries
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-timeseries-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-version-api
+  name: Terabase Energy Version API
+  description: The Version API from Terabase Energy — 1 operation(s) for version.
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Version
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-version-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-weather-api
+  name: Terabase Energy Weather API
+  description: Weather file import, download, and management
+  humanURL: https://docs.plantpredict.com/api-docs/intro
+  baseURL: https://api.plantpredict.terabase.energy
+  tags:
+  - Weather
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-weather-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
 common:
 - type: Website
   url: https://www.terabase.energy/
