@@ -1,0 +1,1468 @@
+{
+  "item": [
+    {
+      "id": "2b91ca2b-43ca-4d84-ada8-927244ef286c",
+      "name": "Reports",
+      "description": {
+        "content": "Report generation and export",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "408cc880-4870-4004-9a3b-151684b652bd",
+          "name": "Get URL for a generated report",
+          "request": {
+            "name": "Get URL for a generated report",
+            "description": {
+              "content": "Returns the download URL for a specific report type. Valid report values: PlantSummary, PlantSummary8760, BlockSummary8760, InputsAssumptions. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `report` (path, required): Report type name (PlantSummary, PlantSummary8760, BlockSummary8760, or InputsAssumptions).\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ReportURL",
+                ":reportType"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "reportType",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b8952507-6a9a-403d-986d-b9499414561b",
+              "name": "Report URL",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"url\": \"http://nQQLxMQXQliAPBQqGtalLGsvb.hkdnrpfZZaPgcKYrb,LGAracspsS+eDatWUImu\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "08120167-37c8-4ebc-ba01-723ee81ed10a",
+              "name": "Report is not ready yet (still generating) or no report exists for this report type. Response body is empty.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "f73a5904-a445-4d57-92b6-89dbbed50f9e",
+              "name": "Example response from Postman collection",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Found",
+              "code": 302,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "\"https://plantpredictreprts.blob.core.windows.net/1234/Prediction_PlantSummary_Draft.pdf\"",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4d4d440a-8cd0-4886-9b52-bdc4eaa78370",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "76808b14-358f-4560-ac5c-57be416ab23c",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "95734f04-3bde-4b4c-a99a-fbc2cf48d641",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ReportURL",
+                    ":reportType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "reportType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2fd75984-96b2-4f64-9c34-8489a5028eef",
+          "name": "Get plant block details report",
+          "request": {
+            "name": "Get plant block details report",
+            "description": {
+              "content": "Returns the PlantBlockDetails report for a prediction. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "Report",
+                "PlantBlockDetails"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "38ba70d7-266d-4eb7-8da4-d25c65717019",
+              "name": "Block details report data",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "Report",
+                    "PlantBlockDetails"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"PredictionDetails\": [\n    {\n      \"TS\": \"2005-06-01T00:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T01:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T02:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T03:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T04:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T05:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 4678.873638743381\n    },\n    {\n      \"TS\": \"2005-06-01T06:00:00\",\n      \"PowerGenerated\": 135465.920035931,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T07:00:00\",\n      \"PowerGenerated\": 432300.82441283425,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T08:00:00\",\n      \"PowerGenerated\": 517864.3219019887,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T09:00:00\",\n      \"PowerGenerated\": 683810.5111924584,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T10:00:00\",\n      \"PowerGenerated\": 945483.7142077374,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T11:00:00\",\n      \"PowerGenerated\": 1085951.1506709917,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T12:00:00\",\n      \"PowerGenerated\": 1167738.654774927,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T13:00:00\",\n      \"PowerGenerated\": 1310463.5386243185,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T14:00:00\",\n      \"PowerGenerated\": 1265024.201011021,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T15:00:00\",\n      \"PowerGenerated\": 1311901.1083898917,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T16:00:00\",\n      \"PowerGenerated\": 1422848.6872543134,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T17:00:00\",\n      \"PowerGenerated\": 1351996.8235709863,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T18:00:00\",\n      \"PowerGenerated\": 679418.320603014,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T19:00:00\",\n      \"PowerGenerated\": 11389.306803293464,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-01T20:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T21:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T22:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-01T23:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T00:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T01:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T02:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T03:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T04:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T05:00:00\",\n      \"PowerGenerated\": 616.5620420919681,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T06:00:00\",\n      \"PowerGenerated\": 668719.9119581294,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T07:00:00\",\n      \"PowerGenerated\": 1352248.0668887813,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T08:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T09:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T10:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T11:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T12:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T13:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T14:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T15:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T16:00:00\",\n      \"PowerGenerated\": 1418328.1140462803,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T17:00:00\",\n      \"PowerGenerated\": 1237296.9793195773,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T18:00:00\",\n      \"PowerGenerated\": 647592.7390174023,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T19:00:00\",\n      \"PowerGenerated\": 2853.455412790509,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-02T20:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T21:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T22:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-02T23:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T00:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T01:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T02:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T03:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T04:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T05:00:00\",\n      \"PowerGenerated\": 11007.285668395698,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T06:00:00\",\n      \"PowerGenerated\": 733342.3880277616,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T07:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T08:00:00\",\n      \"PowerGenerated\": 1267329.9270791924,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T09:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T10:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T11:00:00\",\n      \"PowerGenerated\": 982748.2560299629,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T12:00:00\",\n      \"PowerGenerated\": 658330.6056016892,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T13:00:00\",\n      \"PowerGenerated\": 410974.7867563835,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T14:00:00\",\n      \"PowerGenerated\": 461428.3651277204,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T15:00:00\",\n      \"PowerGenerated\": 626220.7836773194,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T16:00:00\",\n      \"PowerGenerated\": 1258638.4592681369,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T17:00:00\",\n      \"PowerGenerated\": 1240031.3817762914,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T18:00:00\",\n      \"PowerGenerated\": 811809.6443267899,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T19:00:00\",\n      \"PowerGenerated\": 7891.733768414895,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-03T20:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T21:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T22:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-03T23:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T00:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T01:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T02:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T03:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T04:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T05:00:00\",\n      \"PowerGenerated\": 1870.3823467513866,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T06:00:00\",\n      \"PowerGenerated\": 809481.3991642708,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T07:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T08:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T09:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T10:00:00\",\n      \"PowerGenerated\": 1463125.1444332986,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T11:00:00\",\n      \"PowerGenerated\": 1166485.697461644,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T12:00:00\",\n      \"PowerGenerated\": 1023779.1042799754,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T13:00:00\",\n      \"PowerGenerated\": 921963.8401689203,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T14:00:00\",\n      \"PowerGenerated\": 932975.0942789962,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T15:00:00\",\n      \"PowerGenerated\": 740088.5883120213,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T16:00:00\",\n      \"PowerGenerated\": 601644.4038178967,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T17:00:00\",\n      \"PowerGenerated\": 407090.1589606743,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T18:00:00\",\n      \"PowerGenerated\": 225429.3035156776,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T19:00:00\",\n      \"PowerGenerated\": 2643.8561165324745,\n      \"PowerConsumed\": 0\n    },\n    {\n      \"TS\": \"2005-06-04T20:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T21:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T22:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    },\n    {\n      \"TS\": \"2005-06-04T23:00:00\",\n      \"PowerGenerated\": 0,\n      \"PowerConsumed\": 11221.676075624426\n    }\n  ],\n  \"BlockData\": [\n    {\n      \"Name\": \"Block1\",\n      \"BlockDetails\": [\n        {\n          \"TS\": \"2005-06-01T00:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T01:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T02:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T03:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T04:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T05:00:00\",\n          \"NetEnergy\": -4678.873638743381\n        },\n        {\n          \"TS\": \"2005-06-01T06:00:00\",\n          \"NetEnergy\": 135465.920035931\n        },\n        {\n          \"TS\": \"2005-06-01T07:00:00\",\n          \"NetEnergy\": 432300.82441283425\n        },\n        {\n          \"TS\": \"2005-06-01T08:00:00\",\n          \"NetEnergy\": 517864.3219019887\n        },\n        {\n          \"TS\": \"2005-06-01T09:00:00\",\n          \"NetEnergy\": 683810.5111924584\n        },\n        {\n          \"TS\": \"2005-06-01T10:00:00\",\n          \"NetEnergy\": 945483.7142077374\n        },\n        {\n          \"TS\": \"2005-06-01T11:00:00\",\n          \"NetEnergy\": 1085951.1506709917\n        },\n        {\n          \"TS\": \"2005-06-01T12:00:00\",\n          \"NetEnergy\": 1167738.654774927\n        },\n        {\n          \"TS\": \"2005-06-01T13:00:00\",\n          \"NetEnergy\": 1310463.5386243185\n        },\n        {\n          \"TS\": \"2005-06-01T14:00:00\",\n          \"NetEnergy\": 1265024.201011021\n        },\n        {\n          \"TS\": \"2005-06-01T15:00:00\",\n          \"NetEnergy\": 1311901.1083898917\n        },\n        {\n          \"TS\": \"2005-06-01T16:00:00\",\n          \"NetEnergy\": 1422848.6872543134\n        },\n        {\n          \"TS\": \"2005-06-01T17:00:00\",\n          \"NetEnergy\": 1351996.8235709863\n        },\n        {\n          \"TS\": \"2005-06-01T18:00:00\",\n          \"NetEnergy\": 679418.320603014\n        },\n        {\n          \"TS\": \"2005-06-01T19:00:00\",\n          \"NetEnergy\": 11389.306803293464\n        },\n        {\n          \"TS\": \"2005-06-01T20:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T21:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T22:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-01T23:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T00:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T01:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T02:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T03:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T04:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T05:00:00\",\n          \"NetEnergy\": 616.5620420919681\n        },\n        {\n          \"TS\": \"2005-06-02T06:00:00\",\n          \"NetEnergy\": 668719.9119581294\n        },\n        {\n          \"TS\": \"2005-06-02T07:00:00\",\n          \"NetEnergy\": 1352248.0668887813\n        },\n        {\n          \"TS\": \"2005-06-02T08:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T09:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T10:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T11:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T12:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T13:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T14:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T15:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-02T16:00:00\",\n          \"NetEnergy\": 1418328.1140462803\n        },\n        {\n          \"TS\": \"2005-06-02T17:00:00\",\n          \"NetEnergy\": 1237296.9793195773\n        },\n        {\n          \"TS\": \"2005-06-02T18:00:00\",\n          \"NetEnergy\": 647592.7390174023\n        },\n        {\n          \"TS\": \"2005-06-02T19:00:00\",\n          \"NetEnergy\": 2853.455412790509\n        },\n        {\n          \"TS\": \"2005-06-02T20:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T21:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T22:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-02T23:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T00:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T01:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T02:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T03:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T04:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T05:00:00\",\n          \"NetEnergy\": 11007.285668395698\n        },\n        {\n          \"TS\": \"2005-06-03T06:00:00\",\n          \"NetEnergy\": 733342.3880277616\n        },\n        {\n          \"TS\": \"2005-06-03T07:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-03T08:00:00\",\n          \"NetEnergy\": 1267329.9270791924\n        },\n        {\n          \"TS\": \"2005-06-03T09:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-03T10:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-03T11:00:00\",\n          \"NetEnergy\": 982748.2560299629\n        },\n        {\n          \"TS\": \"2005-06-03T12:00:00\",\n          \"NetEnergy\": 658330.6056016892\n        },\n        {\n          \"TS\": \"2005-06-03T13:00:00\",\n          \"NetEnergy\": 410974.7867563835\n        },\n        {\n          \"TS\": \"2005-06-03T14:00:00\",\n          \"NetEnergy\": 461428.3651277204\n        },\n        {\n          \"TS\": \"2005-06-03T15:00:00\",\n          \"NetEnergy\": 626220.7836773194\n        },\n        {\n          \"TS\": \"2005-06-03T16:00:00\",\n          \"NetEnergy\": 1258638.4592681369\n        },\n        {\n          \"TS\": \"2005-06-03T17:00:00\",\n          \"NetEnergy\": 1240031.3817762914\n        },\n        {\n          \"TS\": \"2005-06-03T18:00:00\",\n          \"NetEnergy\": 811809.6443267899\n        },\n        {\n          \"TS\": \"2005-06-03T19:00:00\",\n          \"NetEnergy\": 7891.733768414895\n        },\n        {\n          \"TS\": \"2005-06-03T20:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T21:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T22:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-03T23:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T00:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T01:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T02:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T03:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T04:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T05:00:00\",\n          \"NetEnergy\": 1870.3823467513866\n        },\n        {\n          \"TS\": \"2005-06-04T06:00:00\",\n          \"NetEnergy\": 809481.3991642708\n        },\n        {\n          \"TS\": \"2005-06-04T07:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-04T08:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-04T09:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-04T10:00:00\",\n          \"NetEnergy\": 1463125.1444332986\n        },\n        {\n          \"TS\": \"2005-06-04T11:00:00\",\n          \"NetEnergy\": 1166485.697461644\n        },\n        {\n          \"TS\": \"2005-06-04T12:00:00\",\n          \"NetEnergy\": 1023779.1042799754\n        },\n        {\n          \"TS\": \"2005-06-04T13:00:00\",\n          \"NetEnergy\": 921963.8401689203\n        },\n        {\n          \"TS\": \"2005-06-04T14:00:00\",\n          \"NetEnergy\": 932975.0942789962\n        },\n        {\n          \"TS\": \"2005-06-04T15:00:00\",\n          \"NetEnergy\": 740088.5883120213\n        },\n        {\n          \"TS\": \"2005-06-04T16:00:00\",\n          \"NetEnergy\": 601644.4038178967\n        },\n        {\n          \"TS\": \"2005-06-04T17:00:00\",\n          \"NetEnergy\": 407090.1589606743\n        },\n        {\n          \"TS\": \"2005-06-04T18:00:00\",\n          \"NetEnergy\": 225429.3035156776\n        },\n        {\n          \"TS\": \"2005-06-04T19:00:00\",\n          \"NetEnergy\": 2643.8561165324745\n        },\n        {\n          \"TS\": \"2005-06-04T20:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T21:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T22:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        },\n        {\n          \"TS\": \"2005-06-04T23:00:00\",\n          \"NetEnergy\": -11221.676075624426\n        }\n      ]\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "75ef419e-05df-4c87-a40b-6596f15004ee",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "Report",
+                    "PlantBlockDetails"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "2c48673a-1d06-4d23-8092-053a5feaaa62",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "Report",
+                    "PlantBlockDetails"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "1dc5de2b-1199-4174-a4e6-a18bb06a51a4",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "Report",
+                    "PlantBlockDetails"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c4255700-9be9-4cd3-a963-3a558dba9cbe",
+          "name": "Trigger report generation",
+          "request": {
+            "name": "Trigger report generation",
+            "description": {
+              "content": "Queues report generation for a completed prediction. Only works when prediction is complete and no report generation is already queued or running. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "GenerateReports"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "781624ff-6074-4988-adfb-5537b23e4132",
+              "name": "Generation started",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "GenerateReports"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "6aa4d219-b2d3-4b20-adde-0141a00e67b6",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "GenerateReports"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "a26878b8-be0d-4cee-b1df-4805e7721487",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "GenerateReports"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "edc83174-d9ca-4927-906a-0f647bbed06b",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "GenerateReports"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "570e6f9b-71cd-4144-ad37-799e4213b580",
+          "name": "Cancel report generation",
+          "request": {
+            "name": "Cancel report generation",
+            "description": {
+              "content": "Cancels queued or running report generation for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "CancelReportGeneration"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "53144530-ea24-4dec-9c99-d5670dd429d1",
+              "name": "Cancelled",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CancelReportGeneration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "c20d7136-883c-4de0-a8af-408db8e23e1a",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CancelReportGeneration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "58f4fe5a-8495-4e65-ace8-052fb9bf8942",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CancelReportGeneration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "07ccf2f6-000a-4ea2-9c7e-5f6bd1b79549",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CancelReportGeneration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "426f8be1-cb03-4364-90a6-1cff2be074f2",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CancelReportGeneration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "d0f41e3e-2261-4fcc-b475-65a2be85fff4",
+    "name": "PlantPredict Reports API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n",
+      "type": "text/plain"
+    }
+  }
+}

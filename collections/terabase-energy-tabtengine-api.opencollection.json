@@ -1,0 +1,248 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict TABT Engine API",
+    "version": "current"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "TABTEngine",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get TABT Engine Run information",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TABT/ProcessingStatus",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get TABT Engine Run information"
+        },
+        {
+          "info": {
+            "name": "Trigger the TABT engine to run calculation using a prediction id",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TABT/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Trigger the TABT engine to run calculation using a prediction id"
+        },
+        {
+          "info": {
+            "name": "Get the stored Terrain Aware Engine Inputs for a given prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TerrainAwareEngineInputs",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the stored Terrain Aware Engine Inputs for a given prediction"
+        },
+        {
+          "info": {
+            "name": "Get table rotation schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TableRotation",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dateTime",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get table rotation schedule"
+        },
+        {
+          "info": {
+            "name": "Used to upload table schedules for entire site",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TableRotation",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Used to upload table schedules for entire site"
+        },
+        {
+          "info": {
+            "name": "This operation will delete the table rotation schedule for the specified prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TableRotation",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will delete the table rotation schedule for the specified prediction."
+        },
+        {
+          "info": {
+            "name": "This operation will download the table rotation schedule.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TableRotation/Download",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will download the table rotation schedule."
+        },
+        {
+          "info": {
+            "name": "This operation will get Transposition values.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TranspositionFactors",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will get Transposition values."
+        },
+        {
+          "info": {
+            "name": "This operation will get Transposition values.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TABT/TranspositionTimeSeries",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will get Transposition values."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

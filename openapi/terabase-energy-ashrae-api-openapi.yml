@@ -1,0 +1,262 @@
+openapi: 3.2.0
+info:
+  title: Terabase Energy ASHRAE API
+  version: '1.0'
+  description: 'Operations tagged ASHRAE across 2 of this provider''s published API definitions: terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+tags:
+- name: ASHRAE
+  description: ASHRAE climate station lookup
+paths:
+  /ASHRAE:
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
+    get:
+      tags:
+      - ASHRAE
+      summary: Get nearest ASHRAE station by coordinates
+      description: '### GET /ASHRAE
+
+
+        Returns the closest ASHRAE station based on the specified coordinates. The station with the shortest distance from the latitude and longitude is returned.
+
+
+        **Parameters:**
+
+        - `Latitude` (query, required): Latitude coordinate.
+
+        - `Longitude` (query, required): Longitude coordinate.
+
+        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.
+
+        '
+      operationId: getASHRAE
+      x-doc-source: postman
+      parameters:
+      - name: Latitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: Longitude
+        in: query
+        required: true
+        schema:
+          type: number
+      responses:
+        '200':
+          description: ASHRAE station data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ASHRAEStation'
+              examples:
+                postman-ashrae:
+                  value:
+                    stationName: TRAVERSE CITY CHERRY CAPITAL, MI, USA
+                    wmo: '726387'
+                    cool996: 31.5
+                    min50Year: -32
+                    max50Year: 38.4
+                    distance: 3823.050281721237
+                    latitude: 44.741
+                    longitude: -85.583
+                    minAnnualMeanDBTemp: -21.4
+                    version: 2021
+                    elevation: 188
+                    timeZone: -5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - bearerAuth: []
+  /ASHRAE/GetStation:
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
+    get:
+      tags:
+      - ASHRAE
+      summary: Get a specific ASHRAE station by name
+      description: '### GET /ASHRAE/GetStation
+
+
+        Returns the closest ASHRAE station matching the provided name and shortest distance from the specified coordinates.
+
+
+        **Parameters:**
+
+        - `StationName` (query, required): Name of the ASHRAE station to match.
+
+        - `Latitude` (query, required): Latitude coordinate.
+
+        - `Longitude` (query, required): Longitude coordinate.
+
+        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.
+
+        '
+      operationId: getASHRAEStation
+      x-doc-source: postman
+      parameters:
+      - name: StationName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: Latitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: Longitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: Version
+        in: query
+        schema:
+          type: string
+          enum:
+          - Version_2013
+          - Version_2021
+      responses:
+        '200':
+          description: ASHRAE station data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ASHRAEStation'
+              examples:
+                postman-ashrae-station:
+                  value:
+                    stationName: HARBOR SPRINGS, MI, USA
+                    wmo: '722145'
+                    cool996: 28.3
+                    min50Year: -34.7
+                    max50Year: 34.3
+                    distance: 0.23219238787982716
+                    latitude: 45.426
+                    longitude: -84.913
+                    minAnnualMeanDBTemp: -23.5
+                    version: 2021
+                    elevation: 206
+                    timeZone: -5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    ASHRAEStation:
+      type: object
+      properties:
+        stationName:
+          type: string
+        wmo:
+          type: string
+        cool996:
+          type: number
+        min50Year:
+          type: number
+        max50Year:
+          type: number
+        distance:
+          type: number
+        latitude:
+          type: number
+        longitude:
+          type: number
+        minAnnualMeanDBTemp:
+          type: number
+        version:
+          type: integer
+          description: ASHRAE design-conditions table version year (e.g., 2021). Returned as integer despite the look of a year string.
+        elevation:
+          type: number
+        timeZone:
+          type: number
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+      name: Authorization
+      in: header
+x-refined-from:
+- terabase-energy-plantpredict-openapi-original.yaml
+- terabase-energy-plantpredict-swagger-v1-original.json

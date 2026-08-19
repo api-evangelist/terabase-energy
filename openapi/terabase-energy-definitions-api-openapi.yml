@@ -1,0 +1,902 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Definitions API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Definitions
+  description: Enum and model type definitions
+paths:
+  /Definitions:
+    get:
+      tags:
+      - Definitions
+      summary: Get all definitions or filter by enum type
+      description: "## Overview\n\nThis request calls the PlantPredict API **Definitions** endpoint to retrieve the list of available model definitions.\n\nEnsure these variables are correctly set in the active environment before sending the request.\n\n## Typical Use Cases\n\n- Retrieve available model definitions before **creating** a new project.\n    \n- Look up model definitions prior to **updating** an existing project.\n    \n- Inspect available model types and their identifiers for client-side validation or UI population.\n    \n\n## Successful Response (High-Level)\n\nA successful response returns an array of **definition objects**, each typically including:\n\n- A unique **ID** for the definition.\n    \n- A human-readable **name**.\n    \n- Additional **metadata** describing the model definition and how it can be used in projects.\n"
+      operationId: getDefinitions
+      x-doc-source: postman
+      parameters:
+      - name: type
+        in: query
+        required: false
+        description: Enum type name (e.g. CellTechnologyTypeEnum). Omit to return all.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of definitions (or filtered enum values)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/Definition'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/DefinitionValue'
+              examples:
+                postman-all:
+                  value:
+                  - type: AirMassModelType
+                    values:
+                    - id: 0
+                      name: Bird-Hulstrom
+                    - id: 1
+                      name: Kasten-Sandia
+                  - type: AshraeVersionEnum
+                    values:
+                    - id: 0
+                      name: Version_2013
+                    - id: 1
+                      name: Version_2021
+                  - type: Axis
+                    values:
+                    - id: 0
+                      name: X
+                    - id: 1
+                      name: Y
+                    - id: 2
+                      name: Z
+                  - type: BatchStepVariableTypeEnum
+                    values:
+                    - id: 1
+                      name: DCAC Ratio
+                    - id: 2
+                      name: GCR
+                    - id: 3
+                      name: Tilt Angle
+                    - id: 4
+                      name: Azimuth
+                    - id: 5
+                      name: Post Height
+                  - type: BOSInputMethod
+                    values:
+                    - id: 0
+                      name: Manual Input
+                    - id: 1
+                      name: BOS Calculation
+                  - type: CellDesignType
+                    values:
+                    - id: 0
+                      name: Full Cell Technology
+                    - id: 1
+                      name: Half Cell Technology
+                    - id: 2
+                      name: N/A
+                    - id: 3
+                      name: None Specified
+                  - type: CellTechnologyTypeEnum
+                    values:
+                    - id: 1
+                      name: n-type mono c-Si
+                    - id: 2
+                      name: p-type mono c-Si PERC
+                    - id: 3
+                      name: p-type mono c-Si BSF
+                    - id: 4
+                      name: poly c-Si PERC
+                    - id: 5
+                      name: poly c-Si BSF
+                    - id: 6
+                      name: CdTe
+                    - id: 7
+                      name: CIGS
+                    - id: 8
+                      name: Mixed
+                  - type: ConstructionTypeEnum
+                    values:
+                    - id: 1
+                      name: Glass-Glass
+                    - id: 2
+                      name: Glass-Backsheet
+                  - type: DataSourceType
+                    values:
+                    - id: 1
+                      name: Manufacturer
+                    - id: 2
+                      name: PVsyst
+                    - id: 3
+                      name: University of Geneva
+                    - id: 4
+                      name: Photon
+                    - id: 5
+                      name: Sandia Database
+                    - id: 6
+                      name: Custom
+                    - id: 7
+                      name: PlantPredict
+                  - type: DCFieldBacktrackingType
+                    values:
+                    - id: 0
+                      name: True-Tracking
+                    - id: 1
+                      name: Backtracking
+                    - id: 2
+                      name: Time-Series
+                  - type: DCFieldObjectSide
+                    values:
+                    - id: 1
+                      name: One
+                    - id: 2
+                      name: Two
+                    - id: 3
+                      name: Three
+                    - id: 4
+                      name: Four
+                  - type: DCFieldTrackingTypeEnum
+                    values:
+                    - id: 0
+                      name: Fixed Tilt
+                    - id: 1
+                      name: Horizontal Tracker
+                    - id: 2
+                      name: Seasonal Tilt
+                  - type: DefaultDCFieldBacktrackingType
+                    values:
+                    - id: 0
+                      name: True-Tracking
+                    - id: 1
+                      name: Backtracking
+                  - type: DefaultDegradation
+                    values:
+                    - id: 0
+                      name: Module Defined
+                    - id: 1
+                      name: Fixed Degredation Rate
+                  - type: DegradationModel
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Stepped AC
+                    - id: 2
+                      name: Linear AC
+                    - id: 3
+                      name: Linear DC
+                    - id: 4
+                      name: Non-Linear DC
+                  - type: DiffuseDirectDecompModelType
+                    values:
+                    - id: 0
+                      name: Erbs
+                    - id: 1
+                      name: Reindl
+                    - id: 2
+                      name: DIRINT
+                    - id: 3
+                      name: None
+                  - type: DiffuseShadingModel
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Schaar-Panchula
+                  - type: DirectBeamShadingModel
+                    values:
+                    - id: 0
+                      name: Linear
+                    - id: 1
+                      name: None
+                    - id: 2
+                      name: 2 Dimension (retired)
+                    - id: 3
+                      name: Fractional Electrical Shading
+                    - id: 5
+                      name: Module File Defined Shading
+                  - type: EnergyInputMethod
+                    values:
+                    - id: 0
+                      name: Manual Input
+                    - id: 1
+                      name: Map Extrapolation
+                    - id: 2
+                      name: Model 8760
+                  - type: EntityType
+                    values:
+                    - id: 1
+                      name: Project
+                    - id: 2
+                      name: Module
+                    - id: 3
+                      name: Inverter
+                    - id: 4
+                      name: Weather
+                    - id: 5
+                      name: Prediction
+                    - id: 6
+                      name: MultiJunction
+                  - type: ESSChargeAlgorithm
+                    values:
+                    - id: 0
+                      name: LGIA Excess
+                    - id: 1
+                      name: Energy Available
+                    - id: 2
+                      name: Custom
+                  - type: ESSDispatchCustomCommand
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Discharge
+                    - id: 2
+                      name: Charge
+                  - type: EvalType
+                    values:
+                    - id: 0
+                      name: FieldEval
+                    - id: 1
+                      name: GroupEval
+                    - id: 2
+                      name: TabRepeat
+                  - type: FacialityEnum
+                    values:
+                    - id: 0
+                      name: Monofacial
+                    - id: 1
+                      name: Bifacial
+                  - type: IncidenceAngleModelType
+                    values:
+                    - id: 2
+                      name: Sandia
+                    - id: 3
+                      name: ASHRAE
+                    - id: 4
+                      name: None
+                    - id: 5
+                      name: Tabular IAM
+                  - type: InverterType
+                    values:
+                    - id: 0
+                      name: Unspecified
+                    - id: 1
+                      name: String
+                    - id: 2
+                      name: Central
+                  - type: JunctionType
+                    values:
+                    - id: 0
+                      name: Parallel
+                    - id: 1
+                      name: Series
+                  - type: LibraryStatusEnum
+                    values:
+                    - id: 0
+                      name: Unknown
+                    - id: 1
+                      name: Draft-Private
+                    - id: 2
+                      name: Draft-Shared
+                    - id: 3
+                      name: Active
+                    - id: 4
+                      name: Retired
+                    - id: 5
+                      name: Global
+                    - id: 6
+                      name: Global-Retired
+                  - type: MapBuilderCreateDCOptions
+                    values:
+                    - id: 0
+                      name: Arrays
+                    - id: 1
+                      name: Tables
+                  - type: MarionDiffuseRegions
+                    values:
+                    - id: 0
+                      name: Sky
+                    - id: 1
+                      name: Ground
+                  - type: MessageType
+                    values:
+                    - id: 1
+                      name: Error
+                    - id: 2
+                      name: Warning
+                    - id: 3
+                      name: Info
+                    - id: 4
+                      name: Debug
+                  - type: MessageTypeEnum
+                    values:
+                    - id: 0
+                      name: Prediction
+                    - id: 1
+                      name: Report
+                  - type: ModuleDegradationModel
+                    values:
+                    - id: 0
+                      name: Unspecified
+                    - id: 1
+                      name: Linear
+                    - id: 2
+                      name: Non-Linear
+                  - type: ModuleDurability
+                    values:
+                    - id: 0
+                      name: Standard
+                    - id: 1
+                      name: Quality
+                    - id: 2
+                      name: High
+                  - type: ModuleOrientation
+                    values:
+                    - id: 0
+                      name: Landscape
+                    - id: 1
+                      name: Portrait
+                  - type: ModuleShadingResponse
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Linear
+                    - id: 2
+                      name: Fractional Electrical Shading
+                  - type: ModuleTemperatureModelType
+                    values:
+                    - id: 0
+                      name: Heat Balance
+                    - id: 1
+                      name: Sandia
+                  - type: NSRDBRegions
+                    values:
+                    - id: 0
+                      name: USA
+                    - id: 1
+                      name: Mexico
+                    - id: 2
+                      name: Americas
+                    - id: 3
+                      name: Europe
+                    - id: 4
+                      name: Africa
+                    - id: 5
+                      name: Asia
+                    - id: 6
+                      name: South_Asia
+                    - id: 7
+                      name: Australia_Pacific
+                  - type: PowerPlantDesignType
+                    values:
+                    - id: 0
+                      name: Simple
+                    - id: 1
+                      name: Advanced
+                  - type: PredictionItemStatisticsTrackingTypeEnum
+                    values:
+                    - id: 0
+                      name: Fixed Tilt
+                    - id: 1
+                      name: Horizontal Tracker
+                    - id: 2
+                      name: Seasonal Tilt
+                    - id: 3
+                      name: Mixed
+                  - type: PredictionProcessingStep
+                    values:
+                    - id: 0
+                      name: Unknown
+                    - id: 1
+                      name: None
+                    - id: 2
+                      name: InitializeFromDatabase
+                    - id: 3
+                      name: PrePrediction
+                    - id: 4
+                      name: PreparePrediction
+                    - id: 5
+                      name: PrepareWeather
+                    - id: 6
+                      name: PrepareWeatherDetail
+                    - id: 7
+                      name: ExecuteDiffuseDecompModel
+                    - id: 8
+                      name: PreparePowerPlant
+                    - id: 9
+                      name: PrepareBlocks
+                    - id: 10
+                      name: PrepareArrays
+                    - id: 11
+                      name: PrepareInverters
+                    - id: 12
+                      name: PrepareDCFields
+                    - id: 13
+                      name: PrepareModules
+                    - id: 14
+                      name: InitializeResults
+                    - id: 15
+                      name: MainPrediction
+                    - id: 16
+                      name: MainOuterPredictionLoop
+                    - id: 17
+                      name: FormattingWeatherFileForMultiYear
+                    - id: 18
+                      name: DCFieldCalculationLogic
+                    - id: 19
+                      name: InverterCalculationLogic
+                    - id: 20
+                      name: ArrayCalculationLogic
+                    - id: 21
+                      name: BlockCalculationLogic
+                    - id: 22
+                      name: PowerPlantCalculationLogic
+                    - id: 23
+                      name: ESSCalculationLogic
+                    - id: 24
+                      name: StructureShadingLogic
+                    - id: 25
+                      name: AggregateResults
+                    - id: 26
+                      name: PostPrediction
+                    - id: 27
+                      name: CalculatePredictionParameters
+                    - id: 28
+                      name: CalculatePlantCharactersitics
+                    - id: 29
+                      name: CalculateLocationParameters
+                    - id: 30
+                      name: CalculateResultSummary
+                    - id: 31
+                      name: CalculateBlockResultSummaries
+                    - id: 32
+                      name: CalculateDetailedOutputs
+                    - id: 33
+                      name: StoreResults
+                    - id: 34
+                      name: HandleNodalData
+                    - id: 35
+                      name: ExportCSV
+                    - id: 36
+                      name: ExportJSON
+                    - id: 37
+                      name: CreatePredictionStatistics
+                    - id: 38
+                      name: Completed
+                  - type: PredictionStatusEnum
+                    values:
+                    - id: 1
+                      name: Draft-Private
+                    - id: 2
+                      name: Draft-Shared
+                    - id: 3
+                      name: Analysis
+                    - id: 4
+                      name: Bid
+                    - id: 5
+                      name: Contract
+                    - id: 6
+                      name: Development
+                    - id: 7
+                      name: As Built
+                    - id: 8
+                      name: Warranty
+                    - id: 9
+                      name: Archived
+                  - type: PredictionVersionEnum
+                    values:
+                    - id: 3
+                      name: Version 3
+                    - id: 4
+                      name: Version 4
+                    - id: 5
+                      name: Version 5
+                    - id: 6
+                      name: Version 6
+                    - id: 7
+                      name: Version 7
+                    - id: 8
+                      name: Version 8
+                    - id: 9
+                      name: Version 9
+                    - id: 10
+                      name: Version 10
+                  - type: ProcessingStatusEnum
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Queued
+                    - id: 2
+                      name: Running
+                    - id: 3
+                      name: Success
+                    - id: 4
+                      name: Error
+                    - id: 5
+                      name: Cancelled
+                  - type: ProjectStatusEnum
+                    values:
+                    - id: 0
+                      name: Active
+                    - id: 1
+                      name: Archived
+                    - id: 2
+                      name: StringSize
+                  - type: PvModelType
+                    values:
+                    - id: 0
+                      name: 1-Diode Recombination
+                    - id: 1
+                      name: 1-Diode
+                    - id: 3
+                      name: 1-Diode Recombination Non-Linear Temp
+                  - type: ResponseMessageType
+                    values:
+                    - id: 0
+                      name: Info
+                    - id: 1
+                      name: Warning
+                    - id: 2
+                      name: Error
+                  - type: RevenueType
+                    values:
+                    - id: 0
+                      name: PPA
+                    - id: 1
+                      name: Merchant
+                  - type: ShadeAlgorithm
+                    values:
+                    - id: 0
+                      name: 2D(default)
+                    - id: 1
+                      name: Infinite Rows
+                    - id: 2
+                      name: 3D
+                  - type: SoilingModelType
+                    values:
+                    - id: 0
+                      name: Constant Monthly
+                    - id: 1
+                      name: Weather File
+                    - id: 2
+                      name: None
+                  - type: SolarGISVersion
+                    values:
+                    - id: 0
+                      name: PVPlanner
+                    - id: 1
+                      name: TMY15
+                    - id: 2
+                      name: TMY60
+                  - type: SpectralResponseEnum
+                    values:
+                    - id: 0
+                      name: No Spectral Shift
+                    - id: 1
+                      name: FS Series 4 & Earlier
+                    - id: 2
+                      name: FS Series 4-2 & Later
+                    - id: 3
+                      name: Sandia
+                  - type: SpectralShiftModel
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: 1-Param Pwat or Sandia
+                    - id: 2
+                      name: 2-Param Pwat and AM
+                    - id: 3
+                      name: Monthly Override
+                  - type: SpectralWeatherType
+                    values:
+                    - id: 0
+                      name: None
+                    - id: 1
+                      name: Ngan-PWat
+                    - id: 2
+                      name: Ngan-RH
+                    - id: 3
+                      name: Ngan-Dewpoint
+                  - type: TableType
+                    values:
+                    - id: 0
+                      name: Flat
+                    - id: 1
+                      name: Sloped
+                  - type: TimeSeriesType
+                    values:
+                    - id: 0
+                      name: InverterSetPoint
+                    - id: 1
+                      name: InverterDerate
+                    - id: 2
+                      name: TrackingAngle
+                    - id: 3
+                      name: ModuleSurfaceTemperature
+                    - id: 4
+                      name: LGIALimit
+                    - id: 5
+                      name: IMPPAdjustment
+                    - id: 6
+                      name: VMPPAdjustment
+                  - type: TranspositionModelType
+                    values:
+                    - id: 0
+                      name: Hay
+                    - id: 1
+                      name: Perez
+                  - type: UserStatusEnum
+                    values:
+                    - id: 0
+                      name: Disabled
+                    - id: 1
+                      name: Active
+                    - id: 2
+                      name: Pending
+                    - id: 3
+                      name: Archived
+                  - type: WeatherDataProvider
+                    values:
+                    - id: 1
+                      name: NREL
+                    - id: 2
+                      name: AWS Truepower
+                    - id: 3
+                      name: WindLogics
+                    - id: 4
+                      name: Meteonorm
+                    - id: 5
+                      name: 3TIER
+                    - id: 6
+                      name: Clean Power Research
+                    - id: 7
+                      name: GeoModel Solar
+                    - id: 8
+                      name: GeoSUN Africa
+                    - id: 9
+                      name: SoDa
+                    - id: 10
+                      name: HelioClim
+                    - id: 11
+                      name: Solar Resource Assessment
+                    - id: 12
+                      name: EnergyPlus
+                    - id: 13
+                      name: Other
+                    - id: 14
+                      name: Customer
+                    - id: 15
+                      name: Solar Prospector
+                    - id: 16
+                      name: GlobalFED
+                    - id: 17
+                      name: NSRDB
+                    - id: 18
+                      name: WhiteBox Technologies
+                    - id: 19
+                      name: SolarGIS
+                    - id: 20
+                      name: NASA
+                    - id: 21
+                      name: 3TIER/Vaisala
+                    - id: 22
+                      name: Solcast
+                  - type: WeatherDataType
+                    values:
+                    - id: 0
+                      name: Synthetic Monthly
+                    - id: 1
+                      name: Satellite
+                    - id: 2
+                      name: Ground Corrected
+                    - id: 3
+                      name: Measured
+                    - id: 4
+                      name: TMY3
+                    - id: 5
+                      name: TGY
+                    - id: 6
+                      name: TMY
+                    - id: 7
+                      name: PSM
+                    - id: 8
+                      name: SUNY
+                    - id: 9
+                      name: MTS2
+                    - id: 10
+                      name: CZ2010
+                  - type: WeatherFileColumnTypeEnum
+                    values:
+                    - id: 1
+                      name: GHI
+                    - id: 2
+                      name: DNI
+                    - id: 3
+                      name: DHI
+                    - id: 4
+                      name: TEMP
+                    - id: 5
+                      name: Windspeed
+                    - id: 6
+                      name: RelativeHumidity
+                    - id: 7
+                      name: PWAT
+                    - id: 8
+                      name: Rain
+                    - id: 9
+                      name: Pressure
+                    - id: 10
+                      name: DewpointTemp
+                    - id: 11
+                      name: WindDirection
+                    - id: 12
+                      name: SoilingLoss
+                    - id: 13
+                      name: POAI
+                  - type: WeatherFormat
+                    values:
+                    - id: 1
+                      name: Solar Prospector CSV
+                    - id: 2
+                      name: NREL TMY3
+                    - id: 3
+                      name: Meteonorm TMY3
+                    - id: 4
+                      name: 3Tier
+                    - id: 5
+                      name: AWS
+                    - id: 6
+                      name: EPW
+                    - id: 7
+                      name: GeoModel Solar
+                    - id: 8
+                      name: Clean Power Research
+                    - id: 9
+                      name: PlantPredict
+                    - id: 10
+                      name: TMY3
+                    - id: 11
+                      name: SolarGIS
+                    - id: 12
+                      name: NASA
+                    - id: 13
+                      name: 3Tier/Vaisala
+                    - id: 14
+                      name: Solcast
+                  - type: WeatherPLevel
+                    values:
+                    - id: 0
+                      name: P50
+                    - id: 1
+                      name: P90
+                    - id: 2
+                      name: N/A
+                    - id: 3
+                      name: P95
+                    - id: 4
+                      name: P99
+                    - id: 5
+                      name: P75
+                  - type: WeatherSourceTypeAPIEnum
+                    values:
+                    - id: 0
+                      name: Unknown
+                    - id: 1
+                      name: Meteonorm
+                    - id: 2
+                      name: CPR-SolarAnywhere
+                    - id: 3
+                      name: NSRDB PSM
+                    - id: 4
+                      name: NSRDB SUNY
+                    - id: 5
+                      name: NSRDB MTS2
+                    - id: 6
+                      name: SolarGIS
+                    - id: 7
+                      name: NASA
+                    - id: 8
+                      name: Solcast
+                  - type: WeatherTimestampDefinitionEnum
+                    values:
+                    - id: 0
+                      name: Undefined
+                    - id: 1
+                      name: IntervalEnd
+                    - id: 2
+                      name: IntervalBegin
+                    - id: 3
+                      name: IntervalMiddle
+                postman-type:
+                  value:
+                  - id: 1
+                    name: n-type mono c-Si
+                  - id: 2
+                    name: p-type mono c-Si PERC
+                  - id: 3
+                    name: p-type mono c-Si BSF
+                  - id: 4
+                    name: poly c-Si PERC
+                  - id: 5
+                    name: poly c-Si BSF
+                  - id: 6
+                    name: CdTe
+                  - id: 7
+                    name: CIGS
+                  - id: 8
+                    name: Mixed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    DefinitionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Definition:
+      type: object
+      properties:
+        type:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/DefinitionValue'
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

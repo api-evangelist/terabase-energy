@@ -1,0 +1,97 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Financial Model API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "FinancialModel",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get financial model parameters",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/FinancialModelParameters",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the persisted financial model inputs and calculations for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Save financial model parameters",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/FinancialModelParameters",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Takes input parameters and calculates new financial model inputs. Does not persist; returns calculated values.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `modelInputs` (body, required): FinancialModelParameters with input values to calculate.\n"
+        },
+        {
+          "info": {
+            "name": "Calculate cashflow results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/CalculateCashflowResults",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns yearly cashflow results based on prediction results and stored financial model input parameters.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,1079 @@
+openapi: 3.2.0
+info:
+  title: Terabase Energy Country API
+  version: '1.0'
+  description: 'Operations tagged Country across 2 of this provider''s published API definitions: terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+tags:
+- name: Country
+  description: Reference country data
+paths:
+  /Country:
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
+    get:
+      tags:
+      - Country
+      summary: List all countries
+      description: "### Overview\n\nRetrieves the list of all supported countries.\n\n### Response\n\nOn success, the endpoint returns HTTP `200 OK` with a JSON array of country objects. Each object has the following fields:\n\n- `id` _(integer)_  \n    Internal identifier for the country.\n    \n- `name` _(string)_  \n    Human-readable country name (e.g., `\"Afghanistan\"`, `\"Åland Islands\"`).\n    \n- `numeric` _(integer)_  \n    Numeric country code, typically aligned with ISO 3166-1 numeric codes (e.g., `4`, `248`).\n    \n- `alpha` _(string)_  \n    Alphabetic country code, typically aligned with ISO 3166-1 alpha-3 codes (e.g., `\"AFG\"`, `\"ALA\"`).\n"
+      operationId: listCountries
+      x-doc-source: postman
+      security: []
+      responses:
+        '200':
+          description: Country list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+              examples:
+                postman-countries:
+                  value:
+                  - id: 1
+                    name: Afghanistan
+                    numeric: 4
+                    alpha: AFG
+                  - id: 2
+                    name: Åland Islands
+                    numeric: 248
+                    alpha: ALA
+                  - id: 3
+                    name: Albania
+                    numeric: 8
+                    alpha: ALB
+                  - id: 4
+                    name: Algeria
+                    numeric: 12
+                    alpha: DZA
+                  - id: 5
+                    name: American Samoa
+                    numeric: 16
+                    alpha: ASM
+                  - id: 6
+                    name: Andorra
+                    numeric: 20
+                    alpha: AND
+                  - id: 7
+                    name: Angola
+                    numeric: 24
+                    alpha: AGO
+                  - id: 8
+                    name: Anguilla
+                    numeric: 660
+                    alpha: AIA
+                  - id: 9
+                    name: Antarctica
+                    numeric: 10
+                    alpha: ATA
+                  - id: 10
+                    name: Antigua and Barbuda
+                    numeric: 28
+                    alpha: ATG
+                  - id: 11
+                    name: Argentina
+                    numeric: 32
+                    alpha: ARG
+                  - id: 12
+                    name: Armenia
+                    numeric: 51
+                    alpha: ARM
+                  - id: 13
+                    name: Aruba
+                    numeric: 533
+                    alpha: ABW
+                  - id: 14
+                    name: Australia
+                    numeric: 36
+                    alpha: AUS
+                  - id: 15
+                    name: Austria
+                    numeric: 40
+                    alpha: AUT
+                  - id: 16
+                    name: Azerbaijan
+                    numeric: 31
+                    alpha: AZE
+                  - id: 17
+                    name: Bahamas
+                    numeric: 44
+                    alpha: BHS
+                  - id: 18
+                    name: Bahrain
+                    numeric: 48
+                    alpha: BHR
+                  - id: 19
+                    name: Bangladesh
+                    numeric: 50
+                    alpha: BGD
+                  - id: 20
+                    name: Barbados
+                    numeric: 52
+                    alpha: BRB
+                  - id: 21
+                    name: Belarus
+                    numeric: 112
+                    alpha: BLR
+                  - id: 22
+                    name: Belgium
+                    numeric: 56
+                    alpha: BEL
+                  - id: 23
+                    name: Belize
+                    numeric: 84
+                    alpha: BLZ
+                  - id: 24
+                    name: Benin
+                    numeric: 204
+                    alpha: BEN
+                  - id: 25
+                    name: Bermuda
+                    numeric: 60
+                    alpha: BMU
+                  - id: 26
+                    name: Bhutan
+                    numeric: 64
+                    alpha: BTN
+                  - id: 27
+                    name: Bolivia, Plurinational State of
+                    numeric: 68
+                    alpha: BOL
+                  - id: 28
+                    name: Bonaire, Sint Eustatius and Saba
+                    numeric: 535
+                    alpha: BES
+                  - id: 29
+                    name: Bosnia and Herzegovina
+                    numeric: 70
+                    alpha: BIH
+                  - id: 30
+                    name: Botswana
+                    numeric: 72
+                    alpha: BWA
+                  - id: 31
+                    name: Bouvet Island
+                    numeric: 74
+                    alpha: BVT
+                  - id: 32
+                    name: Brazil
+                    numeric: 76
+                    alpha: BRA
+                  - id: 33
+                    name: British Indian Ocean Territory
+                    numeric: 86
+                    alpha: IOT
+                  - id: 34
+                    name: Brunei Darussalam
+                    numeric: 96
+                    alpha: BRN
+                  - id: 35
+                    name: Bulgaria
+                    numeric: 100
+                    alpha: BGR
+                  - id: 36
+                    name: Burkina Faso
+                    numeric: 854
+                    alpha: BFA
+                  - id: 37
+                    name: Burundi
+                    numeric: 108
+                    alpha: BDI
+                  - id: 38
+                    name: Cabo Verde
+                    numeric: 132
+                    alpha: CPV
+                  - id: 39
+                    name: Cambodia
+                    numeric: 116
+                    alpha: KHM
+                  - id: 40
+                    name: Cameroon
+                    numeric: 120
+                    alpha: CMR
+                  - id: 41
+                    name: Canada
+                    numeric: 124
+                    alpha: CAN
+                  - id: 42
+                    name: Cayman Islands
+                    numeric: 136
+                    alpha: CYM
+                  - id: 43
+                    name: Central African Republic
+                    numeric: 140
+                    alpha: CAF
+                  - id: 44
+                    name: Chad
+                    numeric: 148
+                    alpha: TCD
+                  - id: 45
+                    name: Chile
+                    numeric: 152
+                    alpha: CHL
+                  - id: 46
+                    name: China
+                    numeric: 156
+                    alpha: CHN
+                  - id: 47
+                    name: Christmas Island
+                    numeric: 162
+                    alpha: CXR
+                  - id: 48
+                    name: Cocos (Keeling) Islands
+                    numeric: 166
+                    alpha: CCK
+                  - id: 49
+                    name: Colombia
+                    numeric: 170
+                    alpha: COL
+                  - id: 50
+                    name: Comoros
+                    numeric: 174
+                    alpha: COM
+                  - id: 51
+                    name: Congo
+                    numeric: 178
+                    alpha: COG
+                  - id: 52
+                    name: Congo, the Democratic Republic of the
+                    numeric: 180
+                    alpha: COD
+                  - id: 53
+                    name: Cook Islands
+                    numeric: 184
+                    alpha: COK
+                  - id: 54
+                    name: Costa Rica
+                    numeric: 188
+                    alpha: CRI
+                  - id: 55
+                    name: Côte d'Ivoire
+                    numeric: 384
+                    alpha: CIV
+                  - id: 56
+                    name: Croatia
+                    numeric: 191
+                    alpha: HRV
+                  - id: 57
+                    name: Cuba
+                    numeric: 192
+                    alpha: CUB
+                  - id: 58
+                    name: Curaçao
+                    numeric: 531
+                    alpha: CUW
+                  - id: 59
+                    name: Cyprus
+                    numeric: 196
+                    alpha: CYP
+                  - id: 60
+                    name: Czech Republic
+                    numeric: 203
+                    alpha: CZE
+                  - id: 61
+                    name: Denmark
+                    numeric: 208
+                    alpha: DNK
+                  - id: 62
+                    name: Djibouti
+                    numeric: 262
+                    alpha: DJI
+                  - id: 63
+                    name: Dominica
+                    numeric: 212
+                    alpha: DMA
+                  - id: 64
+                    name: Dominican Republic
+                    numeric: 214
+                    alpha: DOM
+                  - id: 65
+                    name: Ecuador
+                    numeric: 218
+                    alpha: ECU
+                  - id: 66
+                    name: Egypt
+                    numeric: 818
+                    alpha: EGY
+                  - id: 67
+                    name: El Salvador
+                    numeric: 222
+                    alpha: SLV
+                  - id: 68
+                    name: Equatorial Guinea
+                    numeric: 226
+                    alpha: GNQ
+                  - id: 69
+                    name: Eritrea
+                    numeric: 232
+                    alpha: ERI
+                  - id: 70
+                    name: Estonia
+                    numeric: 233
+                    alpha: EST
+                  - id: 71
+                    name: Ethiopia
+                    numeric: 231
+                    alpha: ETH
+                  - id: 72
+                    name: Falkland Islands (Malvinas)
+                    numeric: 238
+                    alpha: FLK
+                  - id: 73
+                    name: Faroe Islands
+                    numeric: 234
+                    alpha: FRO
+                  - id: 74
+                    name: Fiji
+                    numeric: 242
+                    alpha: FJI
+                  - id: 75
+                    name: Finland
+                    numeric: 246
+                    alpha: FIN
+                  - id: 76
+                    name: France
+                    numeric: 250
+                    alpha: FRA
+                  - id: 77
+                    name: French Guiana
+                    numeric: 254
+                    alpha: GUF
+                  - id: 78
+                    name: French Polynesia
+                    numeric: 258
+                    alpha: PYF
+                  - id: 79
+                    name: French Southern Territories
+                    numeric: 260
+                    alpha: ATF
+                  - id: 80
+                    name: Gabon
+                    numeric: 266
+                    alpha: GAB
+                  - id: 81
+                    name: Gambia
+                    numeric: 270
+                    alpha: GMB
+                  - id: 82
+                    name: Georgia
+                    numeric: 268
+                    alpha: GEO
+                  - id: 83
+                    name: Germany
+                    numeric: 276
+                    alpha: DEU
+                  - id: 84
+                    name: Ghana
+                    numeric: 288
+                    alpha: GHA
+                  - id: 85
+                    name: Gibraltar
+                    numeric: 292
+                    alpha: GIB
+                  - id: 86
+                    name: Greece
+                    numeric: 300
+                    alpha: GRC
+                  - id: 87
+                    name: Greenland
+                    numeric: 304
+                    alpha: GRL
+                  - id: 88
+                    name: Grenada
+                    numeric: 308
+                    alpha: GRD
+                  - id: 89
+                    name: Guadeloupe
+                    numeric: 312
+                    alpha: GLP
+                  - id: 90
+                    name: Guam
+                    numeric: 316
+                    alpha: GUM
+                  - id: 91
+                    name: Guatemala
+                    numeric: 320
+                    alpha: GTM
+                  - id: 92
+                    name: Guernsey
+                    numeric: 831
+                    alpha: GGY
+                  - id: 93
+                    name: Guinea
+                    numeric: 324
+                    alpha: GIN
+                  - id: 94
+                    name: Guinea-Bissau
+                    numeric: 624
+                    alpha: GNB
+                  - id: 95
+                    name: Guyana
+                    numeric: 328
+                    alpha: GUY
+                  - id: 96
+                    name: Haiti
+                    numeric: 332
+                    alpha: HTI
+                  - id: 97
+                    name: Heard Island and McDonald Islands
+                    numeric: 334
+                    alpha: HMD
+                  - id: 98
+                    name: Holy See (Vatican City State)
+                    numeric: 336
+                    alpha: VAT
+                  - id: 99
+                    name: Honduras
+                    numeric: 340
+                    alpha: HND
+                  - id: 100
+                    name: Hong Kong
+                    numeric: 344
+                    alpha: HKG
+                  - id: 101
+                    name: Hungary
+                    numeric: 348
+                    alpha: HUN
+                  - id: 102
+                    name: Iceland
+                    numeric: 352
+                    alpha: ISL
+                  - id: 103
+                    name: India
+                    numeric: 356
+                    alpha: IND
+                  - id: 104
+                    name: Indonesia
+                    numeric: 360
+                    alpha: IDN
+                  - id: 105
+                    name: Iran, Islamic Republic of
+                    numeric: 364
+                    alpha: IRN
+                  - id: 106
+                    name: Iraq
+                    numeric: 368
+                    alpha: IRQ
+                  - id: 107
+                    name: Ireland
+                    numeric: 372
+                    alpha: IRL
+                  - id: 108
+                    name: Isle of Man
+                    numeric: 833
+                    alpha: IMN
+                  - id: 109
+                    name: Israel
+                    numeric: 376
+                    alpha: ISR
+                  - id: 110
+                    name: Italy
+                    numeric: 380
+                    alpha: ITA
+                  - id: 111
+                    name: Jamaica
+                    numeric: 388
+                    alpha: JAM
+                  - id: 112
+                    name: Japan
+                    numeric: 392
+                    alpha: JPN
+                  - id: 113
+                    name: Jersey
+                    numeric: 832
+                    alpha: JEY
+                  - id: 114
+                    name: Jordan
+                    numeric: 400
+                    alpha: JOR
+                  - id: 115
+                    name: Kazakhstan
+                    numeric: 398
+                    alpha: KAZ
+                  - id: 116
+                    name: Kenya
+                    numeric: 404
+                    alpha: KEN
+                  - id: 117
+                    name: Kiribati
+                    numeric: 296
+                    alpha: KIR
+                  - id: 118
+                    name: Korea, Democratic People's Republic of
+                    numeric: 408
+                    alpha: PRK
+                  - id: 119
+                    name: Korea, Republic of
+                    numeric: 410
+                    alpha: KOR
+                  - id: 120
+                    name: Kuwait
+                    numeric: 414
+                    alpha: KWT
+                  - id: 121
+                    name: Kyrgyzstan
+                    numeric: 417
+                    alpha: KGZ
+                  - id: 122
+                    name: Lao People's Democratic Republic
+                    numeric: 418
+                    alpha: LAO
+                  - id: 123
+                    name: Latvia
+                    numeric: 428
+                    alpha: LVA
+                  - id: 124
+                    name: Lebanon
+                    numeric: 422
+                    alpha: LBN
+                  - id: 125
+                    name: Lesotho
+                    numeric: 426
+                    alpha: LSO
+                  - id: 126
+                    name: Liberia
+                    numeric: 430
+                    alpha: LBR
+                  - id: 127
+                    name: Libya
+                    numeric: 434
+                    alpha: LBY
+                  - id: 128
+                    name: Liechtenstein
+                    numeric: 438
+                    alpha: LIE
+                  - id: 129
+                    name: Lithuania
+                    numeric: 440
+                    alpha: LTU
+                  - id: 130
+                    name: Luxembourg
+                    numeric: 442
+                    alpha: LUX
+                  - id: 131
+                    name: Macao
+                    numeric: 446
+                    alpha: MAC
+                  - id: 132
+                    name: Macedonia, the former Yugoslav Republic of
+                    numeric: 807
+                    alpha: MKD
+                  - id: 133
+                    name: Madagascar
+                    numeric: 450
+                    alpha: MDG
+                  - id: 134
+                    name: Malawi
+                    numeric: 454
+                    alpha: MWI
+                  - id: 135
+                    name: Malaysia
+                    numeric: 458
+                    alpha: MYS
+                  - id: 136
+                    name: Maldives
+                    numeric: 462
+                    alpha: MDV
+                  - id: 137
+                    name: Mali
+                    numeric: 466
+                    alpha: MLI
+                  - id: 138
+                    name: Malta
+                    numeric: 470
+                    alpha: MLT
+                  - id: 139
+                    name: Marshall Islands
+                    numeric: 584
+                    alpha: MHL
+                  - id: 140
+                    name: Martinique
+                    numeric: 474
+                    alpha: MTQ
+                  - id: 141
+                    name: Mauritania
+                    numeric: 478
+                    alpha: MRT
+                  - id: 142
+                    name: Mauritius
+                    numeric: 480
+                    alpha: MUS
+                  - id: 143
+                    name: Mayotte
+                    numeric: 175
+                    alpha: MYT
+                  - id: 144
+                    name: Mexico
+                    numeric: 484
+                    alpha: MEX
+                  - id: 145
+                    name: Micronesia, Federated States of
+                    numeric: 583
+                    alpha: FSM
+                  - id: 146
+                    name: Moldova, Republic of
+                    numeric: 498
+                    alpha: MDA
+                  - id: 147
+                    name: Monaco
+                    numeric: 492
+                    alpha: MCO
+                  - id: 148
+                    name: Mongolia
+                    numeric: 496
+                    alpha: MNG
+                  - id: 149
+                    name: Montenegro
+                    numeric: 499
+                    alpha: MNE
+                  - id: 150
+                    name: Montserrat
+                    numeric: 500
+                    alpha: MSR
+                  - id: 151
+                    name: Morocco
+                    numeric: 504
+                    alpha: MAR
+                  - id: 152
+                    name: Mozambique
+                    numeric: 508
+                    alpha: MOZ
+                  - id: 153
+                    name: Myanmar
+                    numeric: 104
+                    alpha: MMR
+                  - id: 154
+                    name: Namibia
+                    numeric: 516
+                    alpha: NAM
+                  - id: 155
+                    name: Nauru
+                    numeric: 520
+                    alpha: NRU
+                  - id: 156
+                    name: Nepal
+                    numeric: 524
+                    alpha: NPL
+                  - id: 157
+                    name: Netherlands
+                    numeric: 528
+                    alpha: NLD
+                  - id: 158
+                    name: New Caledonia
+                    numeric: 540
+                    alpha: NCL
+                  - id: 159
+                    name: New Zealand
+                    numeric: 554
+                    alpha: NZL
+                  - id: 160
+                    name: Nicaragua
+                    numeric: 558
+                    alpha: NIC
+                  - id: 161
+                    name: Niger
+                    numeric: 562
+                    alpha: NER
+                  - id: 162
+                    name: Nigeria
+                    numeric: 566
+                    alpha: NGA
+                  - id: 163
+                    name: Niue
+                    numeric: 570
+                    alpha: NIU
+                  - id: 164
+                    name: Norfolk Island
+                    numeric: 574
+                    alpha: NFK
+                  - id: 165
+                    name: Northern Mariana Islands
+                    numeric: 580
+                    alpha: MNP
+                  - id: 166
+                    name: Norway
+                    numeric: 578
+                    alpha: NOR
+                  - id: 167
+                    name: Oman
+                    numeric: 512
+                    alpha: OMN
+                  - id: 168
+                    name: Pakistan
+                    numeric: 586
+                    alpha: PAK
+                  - id: 169
+                    name: Palau
+                    numeric: 585
+                    alpha: PLW
+                  - id: 170
+                    name: Palestine, State of
+                    numeric: 275
+                    alpha: PSE
+                  - id: 171
+                    name: Panama
+                    numeric: 591
+                    alpha: PAN
+                  - id: 172
+                    name: Papua New Guinea
+                    numeric: 598
+                    alpha: PNG
+                  - id: 173
+                    name: Paraguay
+                    numeric: 600
+                    alpha: PRY
+                  - id: 174
+                    name: Peru
+                    numeric: 604
+                    alpha: PER
+                  - id: 175
+                    name: Philippines
+                    numeric: 608
+                    alpha: PHL
+                  - id: 176
+                    name: Pitcairn
+                    numeric: 612
+                    alpha: PCN
+                  - id: 177
+                    name: Poland
+                    numeric: 616
+                    alpha: POL
+                  - id: 178
+                    name: Portugal
+                    numeric: 620
+                    alpha: PRT
+                  - id: 179
+                    name: Puerto Rico
+                    numeric: 630
+                    alpha: PRI
+                  - id: 180
+                    name: Qatar
+                    numeric: 634
+                    alpha: QAT
+                  - id: 181
+                    name: Réunion
+                    numeric: 638
+                    alpha: REU
+                  - id: 182
+                    name: Romania
+                    numeric: 642
+                    alpha: ROU
+                  - id: 183
+                    name: Russian Federation
+                    numeric: 643
+                    alpha: RUS
+                  - id: 184
+                    name: Rwanda
+                    numeric: 646
+                    alpha: RWA
+                  - id: 185
+                    name: Saint Barthélemy
+                    numeric: 652
+                    alpha: BLM
+                  - id: 186
+                    name: Saint Helena, Ascension and Tristan da Cunha
+                    numeric: 654
+                    alpha: SHN
+                  - id: 187
+                    name: Saint Kitts and Nevis
+                    numeric: 659
+                    alpha: KNA
+                  - id: 188
+                    name: Saint Lucia
+                    numeric: 662
+                    alpha: LCA
+                  - id: 189
+                    name: Saint Martin (French part)
+                    numeric: 663
+                    alpha: MAF
+                  - id: 190
+                    name: Saint Pierre and Miquelon
+                    numeric: 666
+                    alpha: SPM
+                  - id: 191
+                    name: Saint Vincent and the Grenadines
+                    numeric: 670
+                    alpha: VCT
+                  - id: 192
+                    name: Samoa
+                    numeric: 882
+                    alpha: WSM
+                  - id: 193
+                    name: San Marino
+                    numeric: 674
+                    alpha: SMR
+                  - id: 194
+                    name: Sao Tome and Principe
+                    numeric: 678
+                    alpha: STP
+                  - id: 195
+                    name: Saudi Arabia
+                    numeric: 682
+                    alpha: SAU
+                  - id: 196
+                    name: Senegal
+                    numeric: 686
+                    alpha: SEN
+                  - id: 197
+                    name: Serbia
+                    numeric: 688
+                    alpha: SRB
+                  - id: 198
+                    name: Seychelles
+                    numeric: 690
+                    alpha: SYC
+                  - id: 199
+                    name: Sierra Leone
+                    numeric: 694
+                    alpha: SLE
+                  - id: 200
+                    name: Singapore
+                    numeric: 702
+                    alpha: SGP
+                  - id: 201
+                    name: Sint Maarten (Dutch part)
+                    numeric: 534
+                    alpha: SXM
+                  - id: 202
+                    name: Slovakia
+                    numeric: 703
+                    alpha: SVK
+                  - id: 203
+                    name: Slovenia
+                    numeric: 705
+                    alpha: SVN
+                  - id: 204
+                    name: Solomon Islands
+                    numeric: 90
+                    alpha: SLB
+                  - id: 205
+                    name: Somalia
+                    numeric: 706
+                    alpha: SOM
+                  - id: 206
+                    name: South Africa
+                    numeric: 710
+                    alpha: ZAF
+                  - id: 207
+                    name: South Georgia and the South Sandwich Islands
+                    numeric: 239
+                    alpha: SGS
+                  - id: 208
+                    name: South Sudan
+                    numeric: 728
+                    alpha: SSD
+                  - id: 209
+                    name: Spain
+                    numeric: 724
+                    alpha: ESP
+                  - id: 210
+                    name: Sri Lanka
+                    numeric: 144
+                    alpha: LKA
+                  - id: 211
+                    name: Sudan
+                    numeric: 729
+                    alpha: SDN
+                  - id: 212
+                    name: Suriname
+                    numeric: 740
+                    alpha: SUR
+                  - id: 213
+                    name: Svalbard and Jan Mayen
+                    numeric: 744
+                    alpha: SJM
+                  - id: 214
+                    name: Swaziland
+                    numeric: 748
+                    alpha: SWZ
+                  - id: 215
+                    name: Sweden
+                    numeric: 752
+                    alpha: SWE
+                  - id: 216
+                    name: Switzerland
+                    numeric: 756
+                    alpha: CHE
+                  - id: 217
+                    name: Syrian Arab Republic
+                    numeric: 760
+                    alpha: SYR
+                  - id: 218
+                    name: Taiwan, Province of China
+                    numeric: 158
+                    alpha: TWN
+                  - id: 219
+                    name: Tajikistan
+                    numeric: 762
+                    alpha: TJK
+                  - id: 220
+                    name: Tanzania, United Republic of
+                    numeric: 834
+                    alpha: TZA
+                  - id: 221
+                    name: Thailand
+                    numeric: 764
+                    alpha: THA
+                  - id: 222
+                    name: Timor-Leste
+                    numeric: 626
+                    alpha: TLS
+                  - id: 223
+                    name: Togo
+                    numeric: 768
+                    alpha: TGO
+                  - id: 224
+                    name: Tokelau
+                    numeric: 772
+                    alpha: TKL
+                  - id: 225
+                    name: Tonga
+                    numeric: 776
+                    alpha: TON
+                  - id: 226
+                    name: Trinidad and Tobago
+                    numeric: 780
+                    alpha: TTO
+                  - id: 227
+                    name: Tunisia
+                    numeric: 788
+                    alpha: TUN
+                  - id: 228
+                    name: Turkey
+                    numeric: 792
+                    alpha: TUR
+                  - id: 229
+                    name: Turkmenistan
+                    numeric: 795
+                    alpha: TKM
+                  - id: 230
+                    name: Turks and Caicos Islands
+                    numeric: 796
+                    alpha: TCA
+                  - id: 231
+                    name: Tuvalu
+                    numeric: 798
+                    alpha: TUV
+                  - id: 232
+                    name: Uganda
+                    numeric: 800
+                    alpha: UGA
+                  - id: 233
+                    name: Ukraine
+                    numeric: 804
+                    alpha: UKR
+                  - id: 234
+                    name: United Arab Emirates
+                    numeric: 784
+                    alpha: ARE
+                  - id: 235
+                    name: United Kingdom
+                    numeric: 826
+                    alpha: GBR
+                  - id: 236
+                    name: United States Minor Outlying Islands
+                    numeric: 581
+                    alpha: UMI
+                  - id: 237
+                    name: United States of America
+                    numeric: 840
+                    alpha: USA
+                  - id: 238
+                    name: Uruguay
+                    numeric: 858
+                    alpha: URY
+                  - id: 239
+                    name: Uzbekistan
+                    numeric: 860
+                    alpha: UZB
+                  - id: 240
+                    name: Vanuatu
+                    numeric: 548
+                    alpha: VUT
+                  - id: 241
+                    name: Venezuela, Bolivarian Republic of
+                    numeric: 862
+                    alpha: VEN
+                  - id: 242
+                    name: Viet Nam
+                    numeric: 704
+                    alpha: VNM
+                  - id: 243
+                    name: Virgin Islands, British
+                    numeric: 92
+                    alpha: VGB
+                  - id: 244
+                    name: Virgin Islands, U.S.
+                    numeric: 850
+                    alpha: VIR
+                  - id: 245
+                    name: Wallis and Futuna
+                    numeric: 876
+                    alpha: WLF
+                  - id: 246
+                    name: Western Sahara
+                    numeric: 732
+                    alpha: ESH
+                  - id: 247
+                    name: Yemen
+                    numeric: 887
+                    alpha: YEM
+                  - id: 248
+                    name: Zambia
+                    numeric: 894
+                    alpha: ZMB
+                  - id: 249
+                    name: Zimbabwe
+                    numeric: 716
+                    alpha: ZWE
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    Country:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        numeric:
+          type: integer
+        alpha:
+          type: string
+  responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+      name: Authorization
+      in: header
+x-refined-from:
+- terabase-energy-plantpredict-openapi-original.yaml
+- terabase-energy-plantpredict-swagger-v1-original.json

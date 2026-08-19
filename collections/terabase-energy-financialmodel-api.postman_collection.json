@@ -1,0 +1,1050 @@
+{
+  "item": [
+    {
+      "id": "d7c12466-b395-48c5-891e-d9e23c561e1b",
+      "name": "FinancialModel",
+      "description": {
+        "content": "Financial model parameters and cashflow results",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "41fe1d57-3960-4a70-81f1-f411a15e9c1e",
+          "name": "Get financial model parameters",
+          "request": {
+            "name": "Get financial model parameters",
+            "description": {
+              "content": "Returns the persisted financial model inputs and calculations for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "FinancialModelParameters"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c838ebb5-88f0-449b-890d-f11280427b7b",
+              "name": "Financial model parameters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fcf6dbc7-b28b-47a7-8b9a-4b98fa4e2270",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e7c054db-be85-4029-b1e5-d1aedd1485a9",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e0de620a-63c2-45d8-bcb5-4f438f95018e",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9e4f8155-6569-4837-8b10-33f6e8fcb60c",
+          "name": "Save financial model parameters",
+          "request": {
+            "name": "Save financial model parameters",
+            "description": {
+              "content": "Takes input parameters and calculates new financial model inputs. Does not persist; returns calculated values.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `modelInputs` (body, required): FinancialModelParameters with input values to calculate.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "FinancialModelParameters"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "<object>",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a437f04e-1bde-4b42-8bf1-0302964eaacf",
+              "name": "Saved parameters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f5c90d32-5e69-4516-8391-e6d0332677fe",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6a6e8f2c-59c3-4c22-bf42-fb7c96a33486",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3dc40992-0f19-4ba2-9161-a286a43801d1",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "5a8e5a45-dfa9-49d8-a660-f8392de0192e",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "FinancialModelParameters"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 166274,\n  \"systemSizeAtPOI\": 0.15,\n  \"systemInverterCapacity\": 0.15,\n  \"systemSize\": 0.195,\n  \"specificYieldUsedInAnalysis\": 1504.9936308468727,\n  \"dcacAtPOI\": 1.3,\n  \"dcacAtInverter\": 1.3,\n  \"epcbosCost\": 0.5,\n  \"epcCapitalCost\": 0.0975,\n  \"developmentCostTotal\": 0.03,\n  \"moduleCostTotal\": 0.058499999999999996,\n  \"capitalCostTotalPreITC\": 0.186,\n  \"capitalCostTotalPostITC\": 0.13763999999999998,\n  \"yearOneEnergy\": 293.4737580151402,\n  \"averageGCRPercentage\": 40,\n  \"itcTotal\": 0.04836,\n  \"basisForDepreciation\": 0.15252,\n  \"bonusDepreciation\": 0,\n  \"basisForMACRS\": 0.15252,\n  \"salvageValue\": 0.009300000000000001,\n  \"energyInput\": 1504.9936308468727,\n  \"bosInput\": 0.5,\n  \"developmentCostPerWatt\": 0.2,\n  \"moduleCostPerWatt\": 0.3,\n  \"itcPercentage\": 26,\n  \"yearOneEnergyAdjustmentPercentage\": 0,\n  \"annualSolarDegradationPercentage\": 0.3,\n  \"ppaPrice\": 25,\n  \"ppaEscalatorPercentage\": 0,\n  \"omYearOne\": 3.5,\n  \"omYearlyEscalatorPercentage\": 2.5,\n  \"ppaDuration\": 20,\n  \"postPPAPrice\": 50,\n  \"postPPAPriceEscalationPercentage\": 2,\n  \"projectLife\": 35,\n  \"discountNPVPercentage\": 6,\n  \"itcEligibilityPercentage\": 100,\n  \"solarSalvageValuePercentage\": 5,\n  \"insuranceCapitalCostPercentage\": 0.15,\n  \"insuranceEscalatorPerYearPercentage\": 0,\n  \"bonusDepreciationRate\": 0,\n  \"stateTaxRate\": 6,\n  \"federalTaxRate\": 21,\n  \"solarLandLeaseCost\": 0,\n  \"solarLandLeaseEscalationPercentage\": 0,\n  \"solarPropertyTaxCost\": 0,\n  \"solarPropertyTaxEscalationPercentage\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ae0cb725-66a6-4fc5-b58f-feb0bdb7b293",
+          "name": "Calculate cashflow results",
+          "request": {
+            "name": "Calculate cashflow results",
+            "description": {
+              "content": "Returns yearly cashflow results based on prediction results and stored financial model input parameters.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "CalculateCashflowResults"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "0578f3f3-afcb-44ef-8d67-28b016622eca",
+              "name": "Cashflow results",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CalculateCashflowResults"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 7247,\n  \"cumulativeCashflowSummary\": {},\n  \"projectOutputs\": {}\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "244c1353-28df-4bc1-9f3f-85159f4cb889",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CalculateCashflowResults"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "901b7be4-82eb-4a0e-b4ad-f82dfafb83bb",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CalculateCashflowResults"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "91cde9f9-d791-4434-b302-fef8c9ac1e5a",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "CalculateCashflowResults"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "cdc3c68a-99a8-4e25-bc90-e07cfd6ad186",
+    "name": "PlantPredict Financial Model API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n",
+      "type": "text/plain"
+    }
+  }
+}

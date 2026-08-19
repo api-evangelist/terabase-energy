@@ -1,0 +1,2524 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Projects API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Projects
+  description: Solar project management
+paths:
+  /Project:
+    get:
+      tags:
+      - Projects
+      summary: List projects (paginated)
+      description: "Returns a paginated list of projects for which the user has access. Supports optional pagination parameters.\n\n**Parameters:**\n\n- `skip` (query, optional): Number of records to skip for pagination.\n    \n- `top` (query, optional): Maximum number of records to return.\n"
+      operationId: listProjects
+      x-doc-source: postman
+      parameters:
+      - name: skip
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: top
+        in: query
+        schema:
+          type: integer
+          default: 10
+      responses:
+        '200':
+          description: Array of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+              examples:
+                postman-projects:
+                  value:
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 190781
+                    name: Mock Project Atlas
+                    companyId: 1042
+                    createdDate: '2026-01-29T09:49:36.19'
+                  - latitude: 33.348
+                    longitude: -112.817
+                    country: United States
+                    countryCode: US
+                    stateProvince: Arizona
+                    stateProvinceCode: AZ
+                    locality: Arlington
+                    region: North America
+                    elevation: 268.2567138671875
+                    standardOffsetFromUTC: -7
+                    status: 0
+                    distance: 0
+                    id: 190780
+                    name: Mock Project Saguaro
+                    companyId: 1042
+                    createdDate: '2026-01-29T09:47:08.917'
+                  - latitude: 31.63
+                    longitude: -89.95
+                    country: United States
+                    countryCode: US
+                    stateProvince: Mississippi
+                    stateProvinceCode: MS
+                    locality: Prentiss
+                    region: North America
+                    elevation: 124.3755340576172
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 190779
+                    name: Mock Project Magnolia
+                    companyId: 1042
+                    createdDate: '2026-01-29T09:08:06.157'
+                  - latitude: 37.745439395979105
+                    longitude: -119.53304740776922
+                    country: United States
+                    countryCode: US
+                    stateProvince: California
+                    stateProvinceCode: CA
+                    locality: Mariposa County
+                    region: North America
+                    elevation: 2675.35595703125
+                    standardOffsetFromUTC: -8
+                    status: 0
+                    distance: 0
+                    id: 190764
+                    name: Mock Project Sierra
+                    companyId: 1042
+                    createdDate: '2026-01-26T21:42:48.037'
+                  - latitude: 45.19650126701191
+                    longitude: -84.9482652314071
+                    country: United States
+                    countryCode: US
+                    stateProvince: Michigan
+                    stateProvinceCode: MI
+                    locality: Boyne City
+                    region: North America
+                    elevation: 210.8321380615234
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 190744
+                    name: Mock Project Great Lakes
+                    companyId: 1042
+                    createdDate: '2026-01-23T13:47:33.16'
+                  - latitude: 45.5635
+                    longitude: -120.5628
+                    country: United States
+                    countryCode: US
+                    stateProvince: Oregon
+                    stateProvinceCode: OR
+                    locality: Wasco
+                    region: North America
+                    elevation: 461.2723083496094
+                    standardOffsetFromUTC: -8
+                    status: 0
+                    distance: 0
+                    id: 190742
+                    name: Mock Project Columbia
+                    companyId: 1042
+                    createdDate: '2026-01-22T19:24:25.303'
+                  - latitude: -35.14729
+                    longitude: 149.599047
+                    country: Australia
+                    countryCode: AU
+                    stateProvince: New South Wales
+                    stateProvinceCode: NSW
+                    locality: Tarago
+                    region: Australia
+                    elevation: 762.80419921875
+                    standardOffsetFromUTC: 10
+                    status: 0
+                    distance: 0
+                    id: 190738
+                    name: Mock Project Southern Cross
+                    companyId: 1042
+                    createdDate: '2026-01-22T09:14:10.217'
+                  - latitude: 45.64675117988259
+                    longitude: -120.58828583328498
+                    country: United States
+                    countryCode: US
+                    stateProvince: Oregon
+                    stateProvinceCode: OR
+                    locality: Wasco
+                    region: North America
+                    elevation: 379.0628356933594
+                    standardOffsetFromUTC: -8
+                    status: 0
+                    distance: 0
+                    id: 190737
+                    name: Mock Project High Desert
+                    companyId: 1042
+                    createdDate: '2026-01-22T06:00:14.433'
+                  - latitude: 45.64675117988259
+                    longitude: -120.58828583328498
+                    country: United States
+                    countryCode: US
+                    stateProvince: Oregon
+                    stateProvinceCode: OR
+                    locality: Wasco
+                    region: North America
+                    elevation: 379.0628356933594
+                    standardOffsetFromUTC: -8
+                    status: 0
+                    distance: 0
+                    id: 190736
+                    name: Mock Project Cascade
+                    companyId: 1042
+                    createdDate: '2026-01-22T05:59:26.08'
+                  - latitude: 38.122296115753
+                    longitude: -91.40624999997603
+                    country: United States
+                    countryCode: US
+                    stateProvince: Missouri
+                    stateProvinceCode: MO
+                    locality: Cuba
+                    region: North America
+                    elevation: 269.2212829589844
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 190733
+                    name: Mock Project Ozark
+                    companyId: 1042
+                    createdDate: '2026-01-22T05:20:26.747'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - Projects
+      summary: Create a project
+      description: "Creates a new project. Returns the created project ID. May attach an X-Message header with a non-blocking warning about the new entity.\n\n**Parameters:**\n\n- `project` (body, required): The project entity to create.\n    \n- `enableMeteonormDownload` (query, optional): Whether to enable Meteonorm weather data download. Default: false.\n"
+      operationId: createProject
+      x-doc-source: postman
+      parameters:
+      - name: enableMeteonormDownload
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+            examples:
+              postman-projects-project-project:
+                value:
+                  latitude: 41.6528052
+                  longitude: -83.5378674
+                  country: United States
+                  countryCode: US
+                  stateProvince: Ohio
+                  stateProvinceCode: OH
+                  locality: Toledo
+                  region: North America
+                  elevation: 178.5460357666016
+                  standardOffsetFromUTC: -5
+                  predictions: []
+                  status: 0
+                  name: Sample Project
+                  description: null
+      responses:
+        '200':
+          description: Created project ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+              examples:
+                postman-project:
+                  value:
+                    id: 76495
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/My:
+    get:
+      tags:
+      - Projects
+      summary: Get current user's projects
+      description: 'Returns all projects owned by the current user. Optionally filter by status.
+
+
+        **Parameters:**
+
+
+        - `status` (query, optional): Filter by project status (ProjectStatusEnum).
+
+        '
+      operationId: getMyProjects
+      x-doc-source: postman
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Array of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+              examples:
+                postman-my-projects:
+                  value:
+                  - latitude: 37.09024
+                    longitude: -95.712891
+                    country: United States
+                    countryCode: US
+                    stateProvince: Kansas
+                    stateProvinceCode: KS
+                    locality: Montgomery County
+                    region: North America
+                    elevation: 257.4061584472656
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 187745
+                    name: Mock Project Sunflower
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:50:21.497'
+                  - latitude: 31
+                    longitude: -95
+                    country: United States
+                    countryCode: US
+                    stateProvince: Texas
+                    stateProvinceCode: TX
+                    locality: Groveton
+                    region: North America
+                    elevation: 128.1359710693359
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 187746
+                    name: Mock Project Pine Ridge
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:58:32.03'
+                  - latitude: -34.122009101021725
+                    longitude: 150.4711842668258
+                    country: Australia
+                    countryCode: AU
+                    stateProvince: New South Wales
+                    stateProvinceCode: NSW
+                    locality: Oakdale
+                    region: Australia
+                    elevation: 250.9766998291016
+                    standardOffsetFromUTC: 10
+                    status: 0
+                    distance: 0
+                    id: 187747
+                    name: Mock Project Southern Sky
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:59:23.027'
+                  - latitude: -15.79453658771201
+                    longitude: -47.2072032901765
+                    country: Brazil
+                    countryCode: BR
+                    stateProvince: Goiás
+                    stateProvinceCode: GO
+                    locality: Formosa
+                    region: South America
+                    elevation: 912.9883422851562
+                    standardOffsetFromUTC: -3
+                    status: 0
+                    distance: 0
+                    id: 187748
+                    name: Mock Project Cerrado
+                    companyId: 1042
+                    createdDate: '2024-10-23T13:03:51.75'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 187749
+                    name: Mock Project Papertrail
+                    companyId: 1042
+                    createdDate: '2024-10-23T13:04:30.243'
+                  - latitude: 35.42887998943477
+                    longitude: -81.85512828232781
+                    country: United States
+                    countryCode: US
+                    stateProvince: North Carolina
+                    stateProvinceCode: NC
+                    locality: Bostic
+                    region: North America
+                    elevation: 299.8757629394531
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 190210
+                    name: Mock Project Blue Horizon
+                    companyId: 1042
+                    createdDate: '2025-10-22T19:22:47.63'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /ProjectsAndPredictions/My:
+    get:
+      tags:
+      - Projects
+      summary: Get current user's projects including their predictions
+      description: Returns all projects owned by the current user, including their associated predictions. No parameters required.
+      operationId: getMyProjectsAndPredictions
+      x-doc-source: postman
+      responses:
+        '200':
+          description: Array of projects with nested predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+              examples:
+                postman-my-projects-predictions:
+                  value:
+                  - latitude: 37.09024
+                    longitude: -95.712891
+                    country: United States
+                    countryCode: US
+                    stateProvince: Kansas
+                    stateProvinceCode: KS
+                    locality: Montgomery County
+                    region: North America
+                    elevation: 257.4061584472656
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 187745
+                    name: Mock Project Sunflower
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:50:21.497'
+                  - latitude: 31
+                    longitude: -95
+                    country: United States
+                    countryCode: US
+                    stateProvince: Texas
+                    stateProvinceCode: TX
+                    locality: Groveton
+                    region: North America
+                    elevation: 128.1359710693359
+                    standardOffsetFromUTC: -6
+                    status: 0
+                    distance: 0
+                    id: 187746
+                    name: Mock Project Pine Ridge
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:58:32.03'
+                  - latitude: -34.122009101021725
+                    longitude: 150.4711842668258
+                    country: Australia
+                    countryCode: AU
+                    stateProvince: New South Wales
+                    stateProvinceCode: NSW
+                    locality: Oakdale
+                    region: Australia
+                    elevation: 250.9766998291016
+                    standardOffsetFromUTC: 10
+                    status: 0
+                    distance: 0
+                    id: 187747
+                    name: Mock Project Southern Sky
+                    companyId: 1042
+                    createdDate: '2024-10-23T12:59:23.027'
+                  - latitude: -15.79453658771201
+                    longitude: -47.2072032901765
+                    country: Brazil
+                    countryCode: BR
+                    stateProvince: Goiás
+                    stateProvinceCode: GO
+                    locality: Formosa
+                    region: South America
+                    elevation: 912.9883422851562
+                    standardOffsetFromUTC: -3
+                    status: 0
+                    distance: 0
+                    id: 187748
+                    name: Mock Project Cerrado
+                    companyId: 1042
+                    createdDate: '2024-10-23T13:03:51.75'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 187749
+                    name: Mock Project Papertrail
+                    companyId: 1042
+                    createdDate: '2024-10-23T13:04:30.243'
+                  - latitude: 35.42887998943477
+                    longitude: -81.85512828232781
+                    country: United States
+                    countryCode: US
+                    stateProvince: North Carolina
+                    stateProvinceCode: NC
+                    locality: Bostic
+                    region: North America
+                    elevation: 299.8757629394531
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0
+                    id: 190210
+                    name: Mock Project Blue Horizon
+                    companyId: 1042
+                    createdDate: '2025-10-22T19:22:47.63'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/Search:
+    get:
+      tags:
+      - Projects
+      summary: Search projects by geographic radius
+      description: "Returns projects within a geographic radius of a latitude/longitude point. Only projects the user has access to are included.\n\n**Parameters:**\n\n- `latitude` (query, required): Center point latitude.\n    \n- `longitude` (query, required): Center point longitude.\n    \n- `searchRadius` (query, required): Search radius in miles.\n"
+      operationId: searchProjects
+      x-doc-source: postman
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: searchRadius
+        in: query
+        required: true
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Matching projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+              examples:
+                postman-project-search:
+                  value:
+                  - latitude: 41.3844964
+                    longitude: -83.32048069999999
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Gibsonburg
+                    region: North America
+                    elevation: 208.6482391357422
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.38619901694003844
+                    id: 173910
+                    name: Mock Project Hearthstone
+                    companyId: 1042
+                    createdDate: '2024-05-04T13:55:02.667'
+                  - latitude: 41.361566704160964
+                    longitude: -83.31704747246094
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Gibsonburg
+                    region: North America
+                    elevation: 211.3801574707031
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.39669829386889693
+                    id: 179578
+                    name: Mock Project Sandhill
+                    companyId: 1042
+                    createdDate: '2024-06-17T17:53:49.503'
+                  - latitude: 41.36
+                    longitude: -83.32
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Gibsonburg
+                    region: North America
+                    elevation: 211.073486328125
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.39999999999999575
+                    id: 123737
+                    name: Mock Project Buckeye
+                    companyId: 1042
+                    createdDate: '2023-05-18T19:31:59.313'
+                  - latitude: 41.56
+                    longitude: -83.45
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Millbury
+                    region: North America
+                    elevation: 188.1432647705078
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.45177427992306346
+                    id: 161410
+                    name: Mock Project Lakeview
+                    companyId: 1042
+                    createdDate: '2024-02-28T15:50:12.63'
+                  - latitude: 41.27017568847599
+                    longitude: -82.8878170336973
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Bellevue
+                    region: North America
+                    elevation: 236.6902618408203
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.34838067455120497
+                    id: 169082
+                    name: Mock Project Ridgeway
+                    companyId: 1042
+                    createdDate: '2024-03-28T18:30:10.057'
+                  - latitude: 41.26418140161006
+                    longitude: -82.88165923151855
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Bellevue
+                    region: North America
+                    elevation: 238.0453338623047
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.356059922638487
+                    id: 169080
+                    name: Mock Project Heartland
+                    companyId: 1042
+                    createdDate: '2024-03-28T18:01:38.047'
+                  - latitude: 41.65404
+                    longitude: -83.53674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.8838348388672
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5394535653788881
+                    id: 149782
+                    name: Mock Project Riverbend
+                    companyId: 1042
+                    createdDate: '2023-12-04T17:26:27.027'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5404532626692118
+                    id: 159167
+                    name: Mock Project Keystone
+                    companyId: 1042
+                    createdDate: '2024-02-14T12:49:43.447'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5404532626692118
+                    id: 159488
+                    name: Mock Project Keystone West
+                    companyId: 1042
+                    createdDate: '2024-02-15T13:14:09.907'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5404532626692118
+                    id: 160126
+                    name: Mock Project Shadowline
+                    companyId: 1042
+                    createdDate: '2024-02-22T14:28:08.337'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5404532626692118
+                    id: 170611
+                    name: Mock Project Glass City
+                    companyId: 1042
+                    createdDate: '2024-04-17T19:19:03.817'
+                  - latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    status: 0
+                    distance: 0.5404532626692118
+                    id: 134680
+                    name: Mock Project Albedo Forge
+                    companyId: 1042
+                    createdDate: '2023-08-16T15:15:53.767'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/ByStatus:
+    get:
+      tags:
+      - Projects
+      summary: List projects filtered by status
+      description: "Returns a paginated list of projects filtered by status. Only projects the user has access to are included.\n\n**Parameters:**\n\n- `status` (query, optional): Filter by project status (ProjectStatusEnum).\n    \n- `skip` (query, optional): Number of records to skip for pagination.\n    \n- `top` (query, optional): Maximum number of records to return.\n"
+      operationId: listProjectsByStatus
+      x-doc-source: postman
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: integer
+      - name: skip
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: top
+        in: query
+        schema:
+          type: integer
+          default: 10
+      responses:
+        '200':
+          description: Array of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+              examples:
+                postman-by-status:
+                  value:
+                  - latitude: 29.574
+                    longitude: -99.17
+                    country: United States
+                    countryCode: US
+                    stateProvince: Texas
+                    stateProvinceCode: TX
+                    locality: Hondo
+                    region: North America
+                    elevation: 428.7325134277344
+                    standardOffsetFromUTC: -6
+                    status: 1
+                    distance: 0
+                    id: 189820
+                    name: Mock Project Lone Star
+                    companyId: 1042
+                    createdDate: '2025-09-02T02:25:36.367'
+                  - latitude: 36.8716
+                    longitude: -78.5308
+                    country: United States
+                    countryCode: US
+                    stateProvince: Virginia
+                    stateProvinceCode: VA
+                    locality: Chase City
+                    region: North America
+                    elevation: 177.1206512451172
+                    standardOffsetFromUTC: -5
+                    status: 1
+                    distance: 0
+                    id: 188240
+                    name: Mock Project Blue Ridge
+                    companyId: 1042
+                    createdDate: '2025-01-13T02:08:03.737'
+                  - latitude: 32.515235761961364
+                    longitude: -111.64193562103895
+                    country: United States
+                    countryCode: US
+                    stateProvince: Arizona
+                    stateProvinceCode: AZ
+                    locality: Eloy
+                    region: North America
+                    elevation: 538.2682495117188
+                    standardOffsetFromUTC: -7
+                    status: 1
+                    distance: 0
+                    id: 184950
+                    name: Mock Project Sonoran
+                    companyId: 1042
+                    createdDate: '2024-08-12T15:28:13.92'
+                  - latitude: 47.71398199999999
+                    longitude: 3.665354999999999
+                    country: France
+                    countryCode: FR
+                    stateProvince: Bourgogne-Franche-Comté
+                    stateProvinceCode: Bourgogne-Franche-Comté
+                    locality: Irancy
+                    region: Europe
+                    elevation: 174.3704376220703
+                    standardOffsetFromUTC: 1
+                    status: 1
+                    distance: 0
+                    id: 154377
+                    name: Mock Project Burgundy
+                    companyId: 1042
+                    createdDate: '2024-01-16T17:45:15.987'
+                  - latitude: 55.27501
+                    longitude: 12.03738
+                    country: Denmark
+                    countryCode: DK
+                    locality: Rønnede
+                    region: Europe
+                    elevation: 46.70444107055664
+                    standardOffsetFromUTC: 1
+                    status: 1
+                    distance: 0
+                    id: 150543
+                    name: Mock Project Nordic Meadow
+                    companyId: 1042
+                    createdDate: '2023-12-08T17:36:35.44'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/Status:
+    post:
+      tags:
+      - Projects
+      summary: Change status of one or more projects
+      description: 'Updates the status of a single or multiple projects. Requires a list of assets with IDs and target statuses.
+
+
+        **Parameters:**
+
+
+        - `assets` (body, required): List of Asset objects containing project IDs and new status values.
+
+        '
+      operationId: changeProjectStatus
+      x-doc-source: postman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusChangeItem'
+            examples:
+              postman-projects-project-change-status:
+                value:
+                - id: 190835
+                  status: '1'
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/Import/PVsyst:
+    post:
+      tags:
+      - Projects
+      summary: Import a PVsyst project from a ZIP export
+      description: 'Imports a PVsyst project export directly, without using the web application.
+
+
+        Send the ZIP exactly as PVsyst produced it. The import runs asynchronously and can
+
+        take several minutes, so this returns `202 Accepted` immediately with a job ID. Poll
+
+        `GET /Project/Import/PVsyst/{jobId}` with that ID until the status is `Completed`
+
+        or `Failed`.
+
+
+        Every variant whose referenced module, inverter and weather files are in the ZIP —
+
+        or which match a record already in your library — is imported. A variant that
+
+        references a file which is absent or unreadable is left out and reported in the
+
+        status response, naming the file so you can fix the export and send it again.
+
+        **Files are never substituted automatically.**
+
+
+        Unlike the web application there is no review step: everything that can be built is
+
+        built. See the [PVsyst import guide](/api-docs/pvsyst-import) for a full walkthrough.
+
+        '
+      operationId: importPVsystProject
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The ZIP file exactly as PVsyst exported it.
+              required:
+              - file
+      responses:
+        '202':
+          description: 'The import was accepted and is now running. The `Location` header carries the
+
+            status URL. No project exists yet.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PVsystImportStartResult'
+              example:
+                jobId: 4471
+                statusUrl: /Project/Import/PVsyst/4471
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/Import/PVsyst/{jobId}:
+    get:
+      tags:
+      - Projects
+      summary: Check the progress and outcome of a PVsyst import
+      description: 'Poll this with the ID returned by `POST /Project/Import/PVsyst`. Checking once every
+
+        10 seconds is plenty; a large export can take several minutes.
+
+
+        `status` is `Processing` while the import is running, then `Completed` or `Failed`.
+
+        On `Completed`, `projectId` is the created project and `imported` lists the variants
+
+        that became predictions. `skipped` lists variants that were left out, each naming the
+
+        file references that could not be used, so an incomplete export can be corrected and
+
+        sent again. On `Failed`, `errorCode` distinguishes a problem with the ZIP from a
+
+        problem on the PlantPredict side.
+
+
+        A partial import — some variants imported, others skipped — is a normal `Completed`
+
+        outcome, not an error. If no variant could be imported the job is `Failed` and no
+
+        project is created.
+
+
+        An import is visible only to the account that created it.
+
+
+        **Parameters:**
+
+
+        - `jobId` (path, required): The import job ID returned by `POST /Project/Import/PVsyst`.
+
+        '
+      operationId: getPVsystImportStatus
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: The current state of the import job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PVsystImportStatusResult'
+              example:
+                jobId: 4471
+                status: Completed
+                originalFileName: Desert Ridge.zip
+                projectId: 88213
+                projectName: Desert Ridge
+                summary: Imported 7 of 9 variants. 2 skipped because files they reference are missing from the ZIP or could not be read.
+                errorCode: null
+                error: null
+                imported:
+                - variantFile: Desert Ridge.VC0
+                  predictionId: 90112
+                skipped:
+                - variantFile: Desert Ridge.VC3
+                  reason: References CS7N-695TB-AG.PAN, which could not be used.
+                  blockedBy:
+                  - category: module
+                    fileName: CS7N-695TB-AG.PAN
+                    problem: Not included in the ZIP.
+                failed: []
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}:
+    get:
+      tags:
+      - Projects
+      summary: Get a project by ID
+      description: 'Retrieves a single project by its ID. The user must have access to the project within their company context.
+
+
+        **Parameters:**
+
+
+        - `id` (path, required): The unique identifier of the project.
+
+        '
+      operationId: getProject
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Project entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+              examples:
+                postman-project:
+                  value:
+                    latitude: 41.6528052
+                    longitude: -83.5378674
+                    country: United States
+                    countryCode: US
+                    stateProvince: Ohio
+                    stateProvinceCode: OH
+                    locality: Toledo
+                    region: North America
+                    elevation: 178.5460357666016
+                    standardOffsetFromUTC: -5
+                    predictions: []
+                    status: 0
+                    name: Sample Project
+                    description: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+      - Projects
+      summary: Delete a project
+      description: 'Deletes a project by ID. The user must have permission to delete the project.
+
+
+        **Parameters:**
+
+
+        - `id` (path, required): The unique identifier of the project to delete.
+
+        '
+      operationId: deleteProject
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Overview:
+    get:
+      tags:
+      - Projects
+      summary: Get project overview
+      description: 'Returns a summary overview of a project by ID. For the full project entity, use the non-overview GET endpoint.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The unique identifier of the project.
+
+        '
+      operationId: getProjectOverview
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Project overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOverview'
+              examples:
+                postman-overview:
+                  value:
+                    id: 76494
+                    name: Sample Project
+                    country: United States
+                    countryCode: US
+                    createdDate: '2022-12-15T21:28:50.34'
+                    elevation: 178.5460357666016
+                    region: North America
+                    standardOffsetFromUTC: -5
+                    lastModified: '2022-12-15T21:28:50.34'
+                    locality: Toledo
+                    latitude: 41.6528052
+                    longitude: -83.5378674
+                    stateProvinceCode: OH
+                    status: 0
+                    predictions:
+                    - id: 460910
+                      name: Sample Block Prediction
+                      projectId: 76494
+                      ownerId: 5093
+                      status: 1
+                      lastModified: '2022-12-15T22:02:04.223'
+                      isBatch: false
+                      batchQualified: true
+                      useMapBuilder: false
+                      statistics:
+                        acSize: 2.75
+                        dcSize: 3.3
+                        dcacRatio: 1.2
+                        groundCoverageRatio: 40.000000000000014
+                        avgMountingType: 1
+                      results: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Export:
+    get:
+      tags:
+      - Projects
+      summary: Export a project
+      description: 'Exports a project as JSON. Returns the full project data for backup or import elsewhere.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The unique identifier of the project to export.
+
+        '
+      operationId: exportProject
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Project export data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+              examples:
+                postman-export:
+                  value:
+                    Latitude: 41.6528052
+                    Longitude: -83.5378674
+                    Country: United States
+                    CountryCode: US
+                    StateProvince: Ohio
+                    StateProvinceCode: OH
+                    Locality: Toledo
+                    Region: North America
+                    Elevation: 178.5460357666016
+                    StandardOffsetFromUTC: -5
+                    Predictions:
+                    - Status: 2
+                      Start: '2005-01-01T00:00:00'
+                      End: '2005-12-31T23:00:00'
+                      LastPublishedDateToQueue: null
+                      StartIndex: 0
+                      EndIndex: 0
+                      YearRepeater: 1
+                      TranspositionModel: 1
+                      PerezCoefficients: 0
+                      DiffuseDirectDecompModel: 3
+                      CircumsolarTreatment: 0
+                      DiffuseDirectDecompModelExecuted: false
+                      UseMeteoDni: false
+                      UseMeteoPOAI: false
+                      UseBacksidePOAI: false
+                      UseLeapYears: false
+                      UseWeatherFileAlbedoData: false
+                      UseMetastability: false
+                      EnableLeTID: false
+                      AirMassModel: 0
+                      SoilingModel: 0
+                      ModTempModel: 0
+                      IncAngleModel: 5
+                      DirectBeamShadingModel: 5
+                      DegradationModel: 0
+                      DiffuseShadingModel: 1
+                      LinearDegradationRate: 0.5
+                      FirstYearDegradation: false
+                      NonLinearDegradationRates: []
+                      LightAndElevatedTemperatureDegradationRates: []
+                      ErrorModelAcc: 2.9
+                      ErrorSensAcc: 5
+                      ErrorIntAnnVar: 3
+                      ErrorMonAcc: 2
+                      ErrorSpaVar: 2
+                      SiteResultList: null
+                      SpectralShiftModel: 2
+                      SpectralWeatherType: 0
+                      PowerPlantId: 1185523
+                      PowerPlant:
+                        Id: 1185523
+                        ResultList: null
+                        Blocks:
+                        - Name: 1
+                          NodalExportOptions: null
+                          ResultList: null
+                          Arrays:
+                          - Name: 1
+                            ResultList: null
+                            Inverters:
+                            - Name: A
+                              ResultList: null
+                              DCFields:
+                              - Name: 1
+                                ModuleId: 42930
+                                Module:
+                                  Status: 3
+                                  Model: CS6W-560TB-AG 1500V
+                                  Manufacturer: CSI Solar Co., Ltd.
+                                  Length: 2278
+                                  Width: 1134
+                                  Weight: 32.3
+                                  DefaultOrientation: 1
+                                  NumberOfCellsInSeries: 72
+                                  NumberOfCellsInParallel: 2
+                                  STCShortCircuitCurrent: 13.69
+                                  STCOpenCircuitVoltage: 51.40000000001521
+                                  STCMPPCurrent: 13.059968913682152
+                                  STCMPPVoltage: 42.97039999999989
+                                  STCMaxPower: 560
+                                  STCPowerTempCoef: -0.2978960659351747
+                                  STCShortCircuitCurrentTempCoef: 0.05040175310445581
+                                  STCOpenCircuitVoltageTempCoef: -0.25
+                                  STCEfficiency: 21.724739537606087
+                                  MinTolerance: 0
+                                  MaxTolerance: 1.8
+                                  CellTechnologyType: 2
+                                  ConstructionType: 2
+                                  Faciality: 1
+                                  BifacialityFactor: 80
+                                  TransmissionFactor: 0
+                                  BackSideMismatch: 3
+                                  DataSource: 1
+                                  LightInducedDegradation: 1.5
+                                  ModuleQuality: 0
+                                  ModuleMismatchCoefficient: 1
+                                  HeatBalanceConvectiveCoef: 0
+                                  HeatBalanceConductiveCoef: 29
+                                  SandiaConductiveCoef: -3.56
+                                  SandiaConvectiveCoef: -0.075
+                                  CellToModuleTempDiff: 3
+                                  SaturationCurrentAtSTC: 1.430522027037574e-11
+                                  SeriesResistanceAtSTC: 0.205
+                                  ShuntResistanceAtSTC: 7500
+                                  DiodeIdealityFactorAtSTC: 1.007220280461766
+                                  ExponentialDependencyOnShuntResistance: 5.5
+                                  DarkShuntResistance: 30000
+                                  LinearTempDependenceOnGamma: -0.026929422499999824
+                                  ShortCircuitCurrentAtSTC: 13.69
+                                  RecombinationParameter: 0
+                                  BuiltInVoltage: 0
+                                  BandgapVoltage: 1.12
+                                  LinearTempDependenceOnIsc: 0.05040175310445581
+                                  HeatAbsorptionCoefAlphaT: 0.9
+                                  ReferenceIrradiance: 1000
+                                  ReferenceTemperature: 25
+                                  AGamma: null
+                                  BGamma: null
+                                  CGamma: null
+                                  DGamma: null
+                                  SpectralResponse: 0
+                                  PvModel: 1
+                                  UseDefaultSandiaIAM: true
+                                  UseDefaultTabularIAM: false
+                                  SandiaSpectralA0: 0
+                                  SandiaSpectralA1: 0
+                                  SandiaSpectralA2: 0
+                                  SandiaSpectralA3: 0
+                                  SandiaSpectralA4: 0
+                                  SandiaIAMB0: 6.038242275137197
+                                  SandiaIAMB1: -0.5248112239136882
+                                  SandiaIAMB2: 0.02130703918426116
+                                  SandiaIAMB3: -0.00042240723312322523
+                                  SandiaIAMB4: 4.091960268471147e-06
+                                  SandiaIAMB5: -1.5564126828688897e-08
+                                  ASHRAEIAMB0: 0.05
+                                  Spectral2B0: 0.85914
+                                  Spectral2B1: -0.02088
+                                  Spectral2B2: -0.0058853
+                                  Spectral2B3: 0.12029
+                                  Spectral2B4: 0.026814
+                                  Spectral2B5: -0.001781
+                                  IAMFactors:
+                                  - Id: 428902
+                                    IncidenceAngle: 20
+                                    Factor: 1
+                                  - Id: 428903
+                                    IncidenceAngle: 40
+                                    Factor: 1
+                                  - Id: 428904
+                                    IncidenceAngle: 60
+                                    Factor: 1
+                                  - Id: 428905
+                                    IncidenceAngle: 65
+                                    Factor: 0.99
+                                  - Id: 428906
+                                    IncidenceAngle: 70
+                                    Factor: 0.96
+                                  - Id: 428907
+                                    IncidenceAngle: 75
+                                    Factor: 0.92
+                                  - Id: 428908
+                                    IncidenceAngle: 80
+                                    Factor: 0.84
+                                  - Id: 428909
+                                    IncidenceAngle: 85
+                                    Factor: 0.72
+                                  - Id: 428910
+                                    IncidenceAngle: 90
+                                    Factor: 0
+                                  DegradationModel: 1
+                                  LinearDegradationRate: 0.5
+                                  NonLinearDegradationRates: null
+                                  CellDesignType: 0
+                                  UseAntiReflectiveCoating: false
+                                  RefractiveIndex: 1.526
+                                  RefractiveIndexOfARC: 1.29
+                                  GlazingExtinctionCoef: 4
+                                  GlazingThickness: 0.002
+                                  PowerAtSTC: 0
+                                  PowerAtSTCExcludingWiringLosses: 0
+                                  EffectiveIrradianceResponse: null
+                                  ElectricalShadingFractionalEffect: 100
+                                  ModuleShadingResponse: 2
+                                  IsMetastable: false
+                                  MetastabilityProperties: null
+                                  Id: 42930
+                                  Name: CSI Solar Co., Ltd. CS6W-560TB-AG 1500V
+                                  Description: null
+                                  CompanyId: 1042
+                                  Company: null
+                                  OwnerId: 4876
+                                  CreatedDate: '2023-02-18T01:32:52.38'
+                                  LastModified: '2023-02-18T01:34:13.867'
+                                  LastModifiedById: 4876
+                                TrackingType: 1
+                                ModuleOrientation: 1
+                                IrradianceOptimization: false
+                                IrradianceOptimizationType: 0
+                                RotationSpeed: 1
+                                NonIdealityFactor: 0.2
+                                TablesRemovedForPCS: 0
+                                TransverseSlope: null
+                                BaselineSlope: null
+                                NorthSouthRoadWidth: 0
+                                EastWestRoadWidth: 6.096011996927617
+                                ModulesHigh: 1
+                                ModulesWide: 26
+                                LateralIntermoduleGap: 0.02
+                                VerticalIntermoduleGap: 0.02
+                                FieldLength: 358.6684981684981
+                                FieldWidth: 99.09299999999999
+                                CollectorBandwidth: 2.278
+                                TableLength: 29484.5
+                                TablesPerRow: 12
+                                PostToPostSpacing: 5.694999999999999
+                                NumberOfRows: 18
+                                TableToTableSpacing: 0
+                                ModuleAzimuth: 180
+                                ModuleTilt: 54
+                                TrackingBacktrackingType: 1
+                                TrackerPitchAngleD: 0
+                                MinimumTrackingLimitAngleD: -60
+                                MaximumTrackingLimitAngleD: 60
+                                NightTimeStowAngleD: 0
+                                TrackerStowAngle: 0
+                                WindStowType: 0
+                                ArrayTechnologiesWindStowType: 0
+                                WindStowThreshold: null
+                                WindStowAngle: null
+                                PostHeight: 1.5
+                                StructureShading: 5
+                                BackSideMismatch: 3
+                                FieldDcPower: 3134.9999999999995
+                                ModulesWiredInSeries: 26
+                                NumberOfSeriesStringsWiredInParallel: 215.31593406593404
+                                PlannedModuleRating: 560
+                                ModTempModel: 0
+                                SandiaConductiveCoef: -3.56
+                                SandiaConvectiveCoef: -0.075
+                                CellToModuleTempDiff: 3
+                                HeatBalanceConductiveCoef: 29
+                                HeatBalanceConvectiveCoef: 0
+                                NominalOperatingCellTemperature: 45
+                                TransmittanceAbsorptance: 0.9
+                                ModuleMismatchCoefficient: 1
+                                ModuleQuality: 0
+                                LightInducedDegradation: 1.5
+                                TrackerLoadLoss: 2.028
+                                DCWiringLossAtSTC: 1.5
+                                DCHealth: 0
+                                InverterIdShadeSource: null
+                                MonthlySeasonalTiltFactors: []
+                                ResultList: null
+                                EffectiveResistanceAtSTC: 0
+                                TotalModuleArea: 0
+                                UIAMD: null
+                                UIAMG: null
+                                UshD: null
+                                UshG: null
+                                ModuleSurfaceTemperatureTimeSeriesId: null
+                                ModuleSurfaceTemperatureTimeSeries: null
+                                UseModuleSurfaceTempTimeSeries: false
+                                TrackingAngleTimeSeriesId: null
+                                TrackingAngleTimeSeries: null
+                                GroundCoverageRatio: 40
+                                CalculateDCFields: false
+                                ShadeObjects: []
+                                TableType: 0
+                                ShadingAlgorithm: 0
+                                Ground:
+                                  EdgeOffset: 50
+                                  Calculate: true
+                                  Color: '#afaea4'
+                                  Slope: 0
+                                  SlopeAzimuth: 180
+                                LockModuleAzimuth: false
+                                LockModulesHigh: false
+                                LockPostHeight: false
+                                LockModulesWide: false
+                                LockNumberOfSeriesStringsWiredInParallel: false
+                                LockModulesWiredInSeries: false
+                                LockPostToPostSpacing: false
+                                LockMwAc: false
+                                LockNumberOfRows: false
+                                LockBacksideMismatch: false
+                                Repeater: 1
+                                Id: 3387869
+                                Description: null
+                              InverterId: 3880
+                              Inverter:
+                                Status: 5
+                                Model: '2500'
+                                Manufacturer: Demo
+                                PowerRated: 2500
+                                ApparentPower: 2750
+                                MinDCPowerThreshold: 5000
+                                MinVoltage: 800
+                                MaxMPPVoltage: 1450
+                                MaxAbsoluteVoltage: 1500
+                                MaxCurrent: 3508
+                                MaxElevation: 4000
+                                OutputVoltage: 550
+                                UsekVACurves: true
+                                UsePQCurves: false
+                                DataSource: 1
+                                EfficiencyCurves:
+                                - Id: 10567
+                                  Voltage: 800
+                                  EfficiencyPoints:
+                                  - Id: 76185
+                                    Power: 245.03
+                                    Efficiency: 98.01
+                                  - Id: 76186
+                                    Power: 493.1
+                                    Efficiency: 98.62
+                                  - Id: 76187
+                                    Power: 740.7
+                                    Efficiency: 98.76
+                                  - Id: 76188
+                                    Power: 1234.63
+                                    Efficiency: 98.77
+                                  - Id: 76189
+                                    Power: 1849.69
+                                    Efficiency: 98.65
+                                  - Id: 76190
+                                    Power: 2461.25
+                                    Efficiency: 98.45
+                                - Id: 10568
+                                  Voltage: 900
+                                  EfficiencyPoints:
+                                  - Id: 76191
+                                    Power: 244.6
+                                    Efficiency: 97.84
+                                  - Id: 76192
+                                    Power: 492.35
+                                    Efficiency: 98.47
+                                  - Id: 76193
+                                    Power: 739.73
+                                    Efficiency: 98.63
+                                  - Id: 76194
+                                    Power: 1233.13
+                                    Efficiency: 98.65
+                                  - Id: 76195
+                                    Power: 1847.06
+                                    Efficiency: 98.51
+                                  - Id: 76196
+                                    Power: 2457.75
+                                    Efficiency: 98.31
+                                - Id: 10569
+                                  Voltage: 1200
+                                  EfficiencyPoints:
+                                  - Id: 76197
+                                    Power: 243.48
+                                    Efficiency: 97.39
+                                  - Id: 76198
+                                    Power: 491
+                                    Efficiency: 98.2
+                                  - Id: 76199
+                                    Power: 738.08
+                                    Efficiency: 98.41
+                                  - Id: 76200
+                                    Power: 1230.75
+                                    Efficiency: 98.46
+                                  - Id: 76201
+                                    Power: 1842.56
+                                    Efficiency: 98.27
+                                  - Id: 76202
+                                    Power: 2454.75
+                                    Efficiency: 98.19
+                                kVACurves:
+                                - Id: 3872
+                                  Elevation: 2000
+                                  kVAPoints:
+                                  - Id: 21335
+                                    Temperature: -35
+                                    kVA: 2750
+                                  - Id: 21336
+                                    Temperature: 45
+                                    kVA: 2750
+                                  - Id: 21337
+                                    Temperature: 50
+                                    kVA: 2500
+                                  - Id: 21338
+                                    Temperature: 60
+                                    kVA: 0
+                                - Id: 3873
+                                  Elevation: 3000
+                                  kVAPoints:
+                                  - Id: 21339
+                                    Temperature: -35
+                                    kVA: 2250
+                                  - Id: 21340
+                                    Temperature: 45
+                                    kVA: 2250
+                                  - Id: 21341
+                                    Temperature: 50
+                                    kVA: 2025
+                                  - Id: 21342
+                                    Temperature: 60
+                                    kVA: 0
+                                - Id: 3874
+                                  Elevation: 4000
+                                  kVAPoints:
+                                  - Id: 21343
+                                    Temperature: -35
+                                    kVA: 1750
+                                  - Id: 21344
+                                    Temperature: 45
+                                    kVA: 1750
+                                  - Id: 21345
+                                    Temperature: 50
+                                    kVA: 1575
+                                  - Id: 21346
+                                    Temperature: 60
+                                    kVA: 0
+                                PQCurves: null
+                                InverterType: 2
+                                Id: 3880
+                                Name: 'Demo Central 2500 '
+                                Description: copied for presentation on sep 2020
+                                CompanyId: 1
+                                Company: null
+                                OwnerId: 742
+                                CreatedDate: '2020-09-09T20:28:25.883'
+                                LastModified: '2020-09-15T18:28:12.46'
+                                LastModifiedById: 742
+                              SetpointkW: 2612.5
+                              PowerFactor: 0.95
+                              DesignDerate: 0.95
+                              kVARating: 2750
+                              TotalModuleArea: 0
+                              DerateTimeSeriesId: null
+                              DerateTimeSeries: null
+                              UseDerateTimeSeries: false
+                              SetPointTimeSeriesId: null
+                              SetPointTimeSeries: null
+                              UseSetPointTimeSeries: false
+                              VMPPAdjustmentTimeSeriesId: null
+                              VMPPAdjustmentTimeSeries: null
+                              UseVMPPTimeSeriesAdjustment: false
+                              IMPPAdjustmentTimeSeriesId: null
+                              IMPPAdjustmentTimeSeries: null
+                              UseIMPPTimeSeriesAdjustment: false
+                              Repeater: 1
+                              Id: 2975697
+                              Description: null
+                            ACCollectionLoss: 1
+                            DasLoad: 800
+                            CoolingLoad: 0
+                            AdditionalLosses: 0
+                            MatchTotalInverterkVA: true
+                            TransformerEnabled: true
+                            TransformerkVARating: 2750
+                            TransformerHighSideVoltage: 34.5
+                            TransformerNoLoadLoss: 0.2
+                            TransformerFullLoadLoss: 0.7
+                            TotalModules: 0
+                            TotalModuleArea: 0
+                            TrackerMotorLosses: 0
+                            Repeater: 1
+                            Id: 2720072
+                            Description: null
+                          EnergizationDate: null
+                          UseEnergizationDate: false
+                          NumberOfModules: 0
+                          TotalModuleArea: 0
+                          Repeater: 1
+                          Id: 1538513
+                          Description: null
+                        Transformers: []
+                        TransmissionLines: []
+                        ESS: null
+                        ESS_Id: null
+                        ExportSystem: false
+                        ExportESS: false
+                        LGIALimitTimeSeriesId: null
+                        LGIALimitTimeSeries: null
+                        UseLGIALimitTimeSeries: false
+                        PowerFactor: 0.95
+                        LGIALimitation: null
+                        NighttimeDisconnect: false
+                        AvailabilityLoss: null
+                        UseCoolingTemp: true
+                        DesiredDCACRatio: null
+                        PowerPlantDesignType: 0
+                        CustomArrayConfig: null
+                        UseCustomArrayConfig: false
+                        TotalModuleArea: 0
+                        MaxMVTransformerVoltage: 0
+                        MaximumPlantOutput: 0
+                      MonthlyFactors:
+                      - Month: 1
+                        MonthName: Jan
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 2
+                        MonthName: Feb
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 3
+                        MonthName: Mar
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 4
+                        MonthName: Apr
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 5
+                        MonthName: May
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 6
+                        MonthName: Jun
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 7
+                        MonthName: Jul
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 8
+                        MonthName: Aug
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 9
+                        MonthName: Sep
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 10
+                        MonthName: Oct
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 11
+                        MonthName: Nov
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      - Month: 12
+                        MonthName: Dec
+                        SoilingLoss: 2
+                        Albedo: 0.2
+                        SpectralShift: null
+                      HorizonDetails: []
+                      AshraeStation: TOLEDO CGS, OH, USA
+                      AshraeVersion: 2021
+                      Heat996: null
+                      Cool996: 32.5
+                      Max50Year: 39.4
+                      Min50Year: -30.3
+                      MinAnnualMeanDBTemp: -19.1
+                      Elevation: 184
+                      TimeZone: -5
+                      Weather:
+                        Status: 3
+                        Distance: 0
+                        Locality: Toledo
+                        StateProvince: Ohio
+                        StateProvinceCode: OH
+                        Country: United States
+                        CountryCode: US
+                        Region: North America
+                        Source: Meteonorm API
+                        StationName: null
+                        Format: 3
+                        StationCode: null
+                        Latitude: 41.6528053
+                        Longitude: -83.5378647
+                        Elevation: 186
+                        TimeZone: -5
+                        TimestampDefinition: 1
+                        TimestampDefinitionOriginal: 1
+                        TimeInterval: 60
+                        StartDate: '2005-01-01T00:00:00'
+                        EndDate: '2005-12-31T23:00:00'
+                        GlobalHorizontalIrradianceSum: 1421.63
+                        DiffuseHorizontalIrradianceSum: 664.06
+                        DirectNormalIrradianceSum: 1350.69
+                        PlaneOfArrayIrradianceSum: null
+                        BacksidePlaneOfArrayIrradianceSum: null
+                        AverageAirTemperature: 10.63
+                        MaxAirTemperature: 34.99
+                        AverageRelativeHumidity: 71.31
+                        AverageWindSpeed: 3.82
+                        AveragePrecipitableWater: null
+                        AverageDewpoint: null
+                        AverageSoilingLoss: null
+                        AverageWindGust: null
+                        RainfallSum: 832.77
+                        AlbedoSum: null
+                        AverageAlbedo: null
+                        HasAlbedoData: false
+                        WeatherDataModelVersion: 8.2.0.35136
+                        DataProvider: 4
+                        PLevel: 0
+                        WindSensorHeight: 10
+                        MonthlyFactors: []
+                        WeatherDetails: null
+                        DataType: 1
+                        CustomerName: null
+                        APILocked: false
+                        APIDownloaded: true
+                        WeatherFileKey: 00000000-0000-0000-0000-000000000000
+                        OffsetMinutes: 0
+                        UsingSytemKey: false
+                        DetailsKey: null
+                        ModuleTilt: null
+                        ModuleAzimuth: null
+                        TrackingType: null
+                        TrackingBacktrackingType: null
+                        MinimumTrackingLimitAngleD: null
+                        MaximumTrackingLimitAngleD: null
+                        TrackerPitchAngleD: null
+                        TrackerStowAngle: null
+                        GroundCoverageRatio: null
+                        DownloadInfo: null
+                        Id: 230763
+                        Name: Meteonorm - 41.653N - 83.538W
+                        Description: MN 41.65N --83.54W
+                        CompanyId: 1042
+                        Company: null
+                        OwnerId: 8903
+                        CreatedDate: '2025-01-21T17:02:07.227'
+                        LastModified: '2025-01-21T17:02:07.227'
+                        LastModifiedById: 8903
+                      WeatherId: 230763
+                      Project: null
+                      ProjectId: 187749
+                      ResultSummary: null
+                      ResultSummaryId: null
+                      FinancialModelParameters: null
+                      FinancialModelParametersId: null
+                      CashflowSummaryResult: null
+                      CashflowSummaryResultId: null
+                      ShadeSceneProperties: null
+                      ShadeScenePropertiesId: 4297
+                      ShadeEngineRunInfo: null
+                      ShadeEngineRunInfo_Id: 6806
+                      Shading3DModel: 0
+                      TABTEngineRunInfo: null
+                      TABTEngineRunInfo_Id: 802
+                      PercentComplete: 0
+                      ProcessingStatus: 0
+                      ProcessingStep: 0
+                      ProcessingMessage: Unknown
+                      ResultDetail: null
+                      PValues: []
+                      IsReadOnly: false
+                      PValuesString: ''
+                      NodalData: false
+                      HasTimeSeriesData: false
+                      IsBatch: false
+                      BatchPredictionId: null
+                      ChildPredictions: null
+                      BatchStepVariable: []
+                      BatchQualified: true
+                      LogicVersion: 12
+                      MapKML: null
+                      MapBuilderCreateDCAs: 0
+                      UseMapBuilder: false
+                      MapDesignData: null
+                      ScenePropertiesKey: 00000000-0000-0000-0000-000000000000
+                      Setback: 0
+                      TargetDC: 0
+                      WeatherLocked: false
+                      ElectricalShadingFractionalEffect: 100
+                      NumberOfModuleFractions: 0
+                      TimeSeriesData: null
+                      NumOfBlocks: 0
+                      NumOfWeatherDetails: 0
+                      HasObjectShading: false
+                      NumOfShadingObjects: 0
+                      Reports: null
+                      ReportsId: 941620
+                      CanImportAlbedoData: false
+                      QueueMessageId: null
+                      QueuePopReceipt: null
+                      RunningOnVMName: null
+                      RunCompletedDateTimeUTC: null
+                      UseSpectral30: false
+                      Spectral30B0: -0.0967
+                      Spectral30B1: 0.0126
+                      Spectral30B2: 0
+                      Spectral30B3: 0.00223
+                      Spectral30B4: 0
+                      Spectral30B5: 0
+                      Spectral30B6: 1.086
+                      Id: 955415
+                      Name: Scene Documentation
+                      Description: null
+                      CompanyId: 1042
+                      Company: null
+                      OwnerId: 8903
+                      CreatedDate: '2025-11-25T16:21:07.213'
+                      LastModified: '2025-11-25T16:22:16.553'
+                      LastModifiedById: 8903
+                    Status: 0
+                    Distance: 0
+                    Id: 187749
+                    Name: Doc Generation
+                    Description: null
+                    CompanyId: 1042
+                    Company: null
+                    OwnerId: 8903
+                    CreatedDate: '2024-10-23T13:04:30.243'
+                    LastModified: '2024-10-23T13:04:30.243'
+                    LastModifiedById: 8903
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Note:
+    get:
+      tags:
+      - Projects
+      summary: Get notes for a project
+      description: 'Returns all notes for a project. Notes are attached at the project level.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+        '
+      operationId: getProjectNotes
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+              examples:
+                postman-notes:
+                  value:
+                  - id: 34516
+                    date: '2026-02-09T12:57:51.423'
+                    contents: Example Project Note.
+                    ownerId: 8903
+                    entityType: 1
+                    entityID: 187749
+                  - id: 34517
+                    date: '2026-02-09T12:58:23.2'
+                    contents: Second example Project Note.
+                    ownerId: 8903
+                    entityType: 1
+                    entityID: 187749
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - Projects
+      summary: Add a note to a project
+      description: "Creates a new note for a project. Returns the created note ID. Note is automatically associated with the project and current user.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `note` (body, required): The Note entity (EntityType and EntityID are set automatically).\n"
+      operationId: createProjectNote
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteCreate'
+            examples:
+              postman-projects-project-notes:
+                value:
+                  contents: Doc Demo Note
+      responses:
+        '200':
+          description: Created note ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+              examples:
+                postman-notes:
+                  value:
+                    id: 34517
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Note/{noteId}:
+    delete:
+      tags:
+      - Projects
+      summary: Delete a project note
+      description: "Deletes a note from a project by note ID. Returns true on success, false if delete fails.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `noteId` (path, required): The note ID to delete.\n"
+      operationId: deleteProjectNote
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: noteId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Remaining notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+              examples:
+                postman-notes:
+                  value:
+                  - id: 34516
+                    date: '2026-02-09T12:57:51.423'
+                    contents: Example Project Note.
+                    ownerId: 8903
+                    entityType: 1
+                    entityID: 187749
+                  - id: 34517
+                    date: '2026-02-09T12:58:23.2'
+                    contents: Second example Project Note.
+                    ownerId: 8903
+                    entityType: 1
+                    entityID: 187749
+                postman-notes-2:
+                  value: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    NoteCreate:
+      type: object
+      required:
+      - contents
+      properties:
+        contents:
+          type: string
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PVsystImportStartResult:
+      type: object
+      description: 'Returned when a PVsyst import is accepted. No project exists yet — poll `statusUrl`
+
+        until the job reaches a terminal status.
+
+        '
+      properties:
+        jobId:
+          type: integer
+          format: int64
+          description: 'Identifier for this import. Worth logging: it is the fastest way for support to
+
+            find a specific import.
+
+            '
+        statusUrl:
+          type: string
+          description: Relative URL to poll for the import status.
+      required:
+      - jobId
+    PVsystImportStatusResult:
+      type: object
+      description: The state and outcome of a PVsyst import job.
+      properties:
+        jobId:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum:
+          - Processing
+          - Completed
+          - Failed
+          description: '`Processing` — still running, check again shortly.
+
+            `Completed` — finished; `projectId` is the new project.
+
+            `Failed` — no project was created; `errorCode` says why.
+
+            '
+        originalFileName:
+          type:
+          - string
+          - 'null'
+          description: The uploaded ZIP filename.
+        projectId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: The created project. Null until the import completes successfully.
+        projectName:
+          type:
+          - string
+          - 'null'
+        summary:
+          type:
+          - string
+          - 'null'
+          description: 'One sentence describing the outcome in plain language, suitable to relay to a
+
+            person as-is without counting array lengths.
+
+            '
+        errorCode:
+          type:
+          - string
+          - 'null'
+          description: "Set only when `status` is `Failed`. One of:\n\n* `no-importable-variants` — not one variant could be imported; `skipped` lists\n  every file that needs fixing. Correct the export and send it again.\n* `invalid-zip` — the upload could not be read as a PVsyst export, or contained\n  no variants. Correct the export and send it again.\n* `import-error` — a fault on the PlantPredict side. Contact support with the\n  `jobId`; retrying the same ZIP will not help.\n"
+        error:
+          type:
+          - string
+          - 'null'
+          description: Free-form detail accompanying `errorCode`.
+        imported:
+          type:
+          - array
+          - 'null'
+          description: Variants that became predictions. Empty until the import finishes.
+          items:
+            $ref: '#/components/schemas/PVsystImportedVariant'
+        skipped:
+          type:
+          - array
+          - 'null'
+          description: 'Variants left out because a file they reference could not be used. Everything
+
+            that could be imported still was.
+
+            '
+          items:
+            $ref: '#/components/schemas/PVsystSkippedVariant'
+        failed:
+          type:
+          - array
+          - 'null'
+          description: Variants that errored during creation.
+          items:
+            $ref: '#/components/schemas/PVsystFailedVariant'
+      required:
+      - jobId
+      - status
+    Project:
+      type: object
+      required:
+      - name
+      - latitude
+      - longitude
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        elevation:
+          type: number
+          format: double
+        country:
+          type: string
+        countryCode:
+          type: string
+        stateProvince:
+          type: string
+        stateProvinceCode:
+          type: string
+        locality:
+          type: string
+        region:
+          type: string
+        standardOffsetFromUTC:
+          type: number
+        status:
+          type: integer
+          description: ProjectStatusEnum
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Active
+          - Archived
+          - VoltagePro
+        predictions:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+        companyId:
+          type: integer
+          readOnly: true
+        createdDate:
+          type: string
+          readOnly: true
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        contents:
+          type: string
+        ownerId:
+          type: integer
+        entityType:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Project
+          - Module
+          - Inverter
+          - Weather
+          - Prediction
+          - MultiJunction
+          description: EntityType
+        entityID:
+          type: integer
+    PVsystSkippedVariant:
+      type: object
+      description: 'A PVsyst variant that was not imported because one or more of the files it
+
+        references could not be used.
+
+        '
+      properties:
+        variantFile:
+          type:
+          - string
+          - 'null'
+        reason:
+          type:
+          - string
+          - 'null'
+          description: Plain-language explanation, suitable to show to a person.
+        blockedBy:
+          type:
+          - array
+          - 'null'
+          description: The specific file references that blocked this variant.
+          items:
+            $ref: '#/components/schemas/PVsystBlockingReference'
+    PVsystBlockingReference:
+      type: object
+      description: A file a variant references that could not be used.
+      properties:
+        category:
+          type:
+          - string
+          - 'null'
+          description: The kind of file, e.g. `module`, `inverter`, `weather`.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: The referenced filename, e.g. `CS7N-695TB-AG.PAN`.
+        problem:
+          type:
+          - string
+          - 'null'
+          description: Why it could not be used, e.g. `Not included in the ZIP.`
+    ProjectOverview:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        countryCode:
+          type: string
+        createdDate:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModified:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        elevation:
+          type: number
+          format: double
+        region:
+          type: string
+        standardOffsetFromUTC:
+          type: number
+        locality:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        stateProvinceCode:
+          type: string
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Active
+          - Archived
+          - VoltagePro
+          description: ProjectStatusEnum
+        predictions:
+          type: array
+          items:
+            type: object
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    PVsystFailedVariant:
+      type: object
+      description: A PVsyst variant that errored while the prediction was being created.
+      properties:
+        variantFile:
+          type:
+          - string
+          - 'null'
+        error:
+          type:
+          - string
+          - 'null'
+    PVsystImportedVariant:
+      type: object
+      description: A PVsyst variant that was imported as a prediction.
+      properties:
+        variantFile:
+          type:
+          - string
+          - 'null'
+          description: The PVsyst variant file, e.g. `Desert Ridge.VC0`.
+        predictionId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: The prediction created from this variant.
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Forbidden:
+      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
+
+        for this operation (e.g. status-change endpoints require elevated
+
+        privileges that not every API client is granted). Response body is
+
+        typically empty.
+
+        '
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

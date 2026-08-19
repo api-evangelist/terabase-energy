@@ -1,0 +1,7039 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Shade Engine API
+  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly
+    by having your Company Admin generate API credentials. If you do not know your Company Admin, contact
+    support@plantpredict.com for assistance.
+  contact:
+    name: PlantPredict Support
+    url: https://plantpredict.com/contact/
+    email: support@plantpredict.com
+  version: current
+security:
+- Bearer: []
+tags:
+- name: ShadeEngine
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/ProcessingStatus:
+    get:
+      tags:
+      - ShadeEngine
+      summary: Get Shade Engine Run information
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/ExportPVC:
+    get:
+      tags:
+      - ShadeEngine
+      summary: Get PVC export
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Properties/{month}:
+    get:
+      tags:
+      - ShadeEngine
+      summary: Get shade engine input data from blob storage using a prediction id, with optional include
+        of geometry (PVJ) data.
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: month
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: includePVJGeoms
+        in: query
+        description: ''
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Results:
+    get:
+      tags:
+      - ShadeEngine
+      summary: Get shade engine output data from blob storage using a prediction id
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: excludeEngineData
+        in: query
+        description: ''
+        schema:
+          type: boolean
+          default: true
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+    post:
+      tags:
+      - ShadeEngine
+      summary: Set shade engine output data in blob storage
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: ''
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputData'
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Run:
+    post:
+      tags:
+      - ShadeEngine
+      summary: Trigger the shade engine to run calculation using a prediction id
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: singleInverterId
+        in: query
+        description: ''
+        schema:
+          type: string
+          default: ''
+      responses:
+        '200':
+          description: OK
+  /ShadeScene/ConvertPVCtoPVJ:
+    post:
+      tags:
+      - ShadeEngine
+      summary: Convert a PVC to PVJ using the HTTP request's query string parameters and streamed uploaded
+        of file.
+      parameters:
+      - name: Latitude
+        in: query
+        schema:
+          type: number
+          format: double
+      - name: Longitude
+        in: query
+        schema:
+          type: number
+          format: double
+      - name: RotateShadingResult
+        in: query
+        schema:
+          type: boolean
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+  /ShadeScene/ConvertSHDtoPVJ:
+    post:
+      tags:
+      - ShadeEngine
+      parameters:
+      - name: Latitude
+        in: query
+        schema:
+          type: number
+          format: double
+      - name: Longitude
+        in: query
+        schema:
+          type: number
+          format: double
+      - name: RotateShadingResult
+        in: query
+        schema:
+          type: boolean
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Import/{propertiesKey}:
+    post:
+      tags:
+      - ShadeEngine
+      summary: Clones a shade scene from source to target
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: propertiesKey
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVPlant'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVPlant'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVPlant'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVPlant'
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene:
+    put:
+      tags:
+      - ShadeEngine
+      summary: This operation will update the Prediction shade scene properties without deleting any results
+        that may exist.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeSceneProperties'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeSceneProperties'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeSceneProperties'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.ShadeSceneProperties'
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags:
+      - ShadeEngine
+      summary: This operation will delete the Prediction shade scene properties.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/PVJData:
+    put:
+      tags:
+      - ShadeEngine
+      summary: Used to create a new 3D Scene from the supplied PVJData
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Objects:
+    put:
+      tags:
+      - ShadeEngine
+      summary: Update objects in an existing PVJData
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.UpdateShadingObjectsRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.UpdateShadingObjectsRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.UpdateShadingObjectsRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PlantPredict.Entities.UpdateShadingObjectsRequest'
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/InverterTranspositionFactors:
+    post:
+      tags:
+      - ShadeEngine
+      summary: This operation will set Inverter Transposition values.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        '200':
+          description: OK
+    get:
+      tags:
+      - ShadeEngine
+      summary: Get a list of Inverter Transposition factors for a given prediction.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TableRotation/Template:
+    get:
+      tags:
+      - ShadeEngine
+      summary: Used to get table rotation schedule template
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/ShadeTableData:
+    get:
+      tags:
+      - ShadeEngine
+      summary: This operation will download the shade table in CSV format.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    PlantPredict.Entities.Enums.MaxNumOfTablesPerColumnOptions:
+      enum:
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      type: integer
+      format: int32
+    PlantPredict.Entities.ShadeSceneProperties:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type:
+          - string
+          - 'null'
+        createdDateUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        createdById:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        sceneSurfaceArea:
+          type:
+          - number
+          - 'null'
+          format: double
+        dcFieldSurfaceArea:
+          type:
+          - number
+          - 'null'
+          format: double
+        collectorCount:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        objectCount:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        orientationTargetDCField:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        calculationSettingsTargetDCField:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        siteTableCount:
+          type: integer
+          format: int32
+        rotation:
+          type: boolean
+        customTableRotationScheduleName:
+          type:
+          - string
+          - 'null'
+        customTableRotationUploadDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        binType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ShadeSceneBinTypes'
+        collectorType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CollectorType'
+        trackerRotationModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.TrackerRotationModel'
+        shadingModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DirectBeamShadingModel'
+        fractionalShadingPercentage:
+          type:
+          - number
+          - 'null'
+          format: double
+        numberOfModuleFractions:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        shadeObjectType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ShadeObjectType'
+        siteExceedsTableLimit:
+          type: boolean
+        engineInputData:
+          $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineInputData'
+      additionalProperties: false
+    PlantPredict.Entities.InverterShadeResult:
+      type: object
+      properties:
+        inverter_Id:
+          type:
+          - string
+          - 'null'
+        percentComplete:
+          type: number
+          format: double
+        processingStatus:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ProcessingStatusEnum'
+        averageShadePercentage:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Types.GTeff:
+      type: object
+      properties:
+        gTeffB:
+          type: number
+          format: double
+        gTeffB_withElec:
+          type: number
+          format: double
+        gTeffD:
+          type: number
+          format: double
+        gTeffG:
+          type: number
+          format: double
+        transpositionLossFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+        beamTranspositionLossFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+        skyDiffuseTranspositionLossFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+        groundDiffuseTranspositionLossFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Types.IAMFactor:
+      required:
+      - factor
+      - incidenceAngle
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        incidenceAngle:
+          maximum: 90
+          minimum: 0
+          type: number
+          format: double
+        factor:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Inverter:
+      required:
+      - apparentPower
+      - maxAbsoluteVoltage
+      - maxCurrent
+      - maxElevation
+      - maxMPPVoltage
+      - minDCPowerThreshold
+      - minVoltage
+      - outputVoltage
+      - powerRated
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          maxLength: 250
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        companyId:
+          type: integer
+          format: int32
+        company:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.Company'
+        ownerId:
+          type: integer
+          format: int32
+        owner:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        createdDate:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        lastModifiedById:
+          type: integer
+          format: int32
+        lastModifiedBy:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        status:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.LibraryStatusEnum'
+        model:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        manufacturer:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        powerRated:
+          maximum: 100000
+          minimum: 0
+          type: number
+          format: double
+        apparentPower:
+          maximum: 100000
+          minimum: 0
+          type: number
+          format: double
+        minDCPowerThreshold:
+          maximum: 10000000
+          minimum: 0.01
+          type: number
+          format: double
+        minVoltage:
+          maximum: 3000
+          minimum: 1
+          type: number
+          format: double
+        maxMPPVoltage:
+          maximum: 5000
+          minimum: 1
+          type: number
+          format: double
+        maxAbsoluteVoltage:
+          maximum: 5000
+          minimum: 1
+          type: number
+          format: double
+        maxCurrent:
+          maximum: 100000
+          minimum: 0
+          type: number
+          format: double
+        maxElevation:
+          maximum: 9000
+          minimum: -500
+          type: number
+          format: double
+        outputVoltage:
+          maximum: 100000
+          minimum: 1
+          type: number
+          format: double
+        usekVACurves:
+          type: boolean
+        usePQCurves:
+          type: boolean
+        dataSource:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DataSourceType'
+        efficiencyCurves:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.EfficiencyCurve'
+        kVACurves:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.kVACurve'
+        pqCurves:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.PQCurve'
+        tempCorrectedPowerMax:
+          type: number
+          format: double
+        inverterType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.InverterType'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ESSDispatchCustomCommand:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.PowerPlants.NodalExportConfiguration:
+      required:
+      - exportArrays
+      - exportBlock
+      - exportDCFields
+      - exportInverters
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        exportBlock:
+          type: boolean
+        exportArrays:
+          type: boolean
+        exportInverters:
+          type: boolean
+        exportDCFields:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.Company:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        countryId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        country:
+          $ref: '#/components/schemas/PlantPredict.Entities.Country'
+        users:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        companyType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CompanyTypeEnum'
+        status:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CompanyStatusEnum'
+        configurationSettings:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ConfigurationSetting'
+        defaultSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.DefaultSettings'
+        createdDateUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        uuid:
+          type:
+          - string
+          - 'null'
+        subscriptionType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SubscriptionType'
+        monthlyLicenseFee:
+          type: number
+          format: double
+        subscriptionInterval:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SubscriptionInterval'
+        customerSegment:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CustomerSegment'
+        subscriptionExpirationDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        costCenter:
+          type:
+          - string
+          - 'null'
+        salesForceId:
+          type:
+          - string
+          - 'null'
+        maxUsers:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        migrationAgreementAcceptance:
+          type:
+          - boolean
+          - 'null'
+        allowAPIAccessOverride:
+          type: boolean
+        isAlphaTester:
+          type: boolean
+        allowMercatorAccess:
+          type: boolean
+        allowMcpServerAccess:
+          type: boolean
+        allowTerrainProExtensions:
+          type: boolean
+        allowPVRADARExtension:
+          type: boolean
+        pvradExtensionCredentialsGeneratedUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        allowPowerUQExtension:
+          type: boolean
+        powerUQCredentialsGeneratedUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        migrationAgreementResponseDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        superAdminMigrationAgreementAcceptance:
+          type:
+          - boolean
+          - 'null'
+        superAdminMigrationAgreementResponseDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        freeTrialExpirationDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        freeTrialRedeemedOnDateUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        canRedeemFreeTrial:
+          type: boolean
+          readOnly: true
+        autoRenew:
+          type: boolean
+        autoRenewUpdateDateUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        extensionsFreeTrialExpirationDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        isSSO:
+          type: boolean
+        cognito_SSO_IDP_Name:
+          type:
+          - string
+          - 'null'
+        hasDedicatedEngines:
+          type: boolean
+        engineQueueInfo:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.EngineQueueInfo'
+        stripeCustomerIdentifier:
+          type:
+          - string
+          - 'null'
+        isSubscriptionActive:
+          type: boolean
+          readOnly: true
+        contactName:
+          type:
+          - string
+          - 'null'
+        contactEmail:
+          type:
+          - string
+          - 'null'
+        activeUsers:
+          type: integer
+          format: int32
+        availableLicenses:
+          type: integer
+          format: int32
+        hasExperimentalFeatureAccess:
+          type: boolean
+          readOnly: true
+        hasApiAccess:
+          type: boolean
+          readOnly: true
+        allowTerrainProAccess:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ApplicationUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        normalizedUserName:
+          type:
+          - string
+          - 'null'
+        email:
+          type:
+          - string
+          - 'null'
+        normalizedEmail:
+          type:
+          - string
+          - 'null'
+        concurrencyStamp:
+          type:
+          - string
+          - 'null'
+        company:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.Company'
+        companyId:
+          type: integer
+          format: int32
+        firstName:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        lastName:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        jobTitle:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        createdByUserId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        createdByUser:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        status:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.UserStatusEnum'
+        eulaAcceptedDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        createdDateUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        settings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUserSettings'
+        costCenter:
+          type:
+          - string
+          - 'null'
+        migrationAgreementAcceptance:
+          type:
+          - boolean
+          - 'null'
+        migrationAgreementResponseDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        emailConfirmed:
+          type: boolean
+        passwordHash:
+          type:
+          - string
+          - 'null'
+        securityStamp:
+          type:
+          - string
+          - 'null'
+        phoneNumber:
+          type:
+          - string
+          - 'null'
+        phoneNumberConfirmed:
+          type: boolean
+        twoFactorEnabled:
+          type: boolean
+        lockoutEnd:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        lockoutEnabled:
+          type: boolean
+        accessFailedCount:
+          type: integer
+          format: int32
+        userName:
+          type:
+          - string
+          - 'null'
+        clientCredentialsCreatedBy:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        clientCredentialsCreatedByUser:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        clientCredentialsCreatedOnUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        uuid:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        apiUserUUID:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        apiUserAppId:
+          type:
+          - string
+          - 'null'
+        pvradarapiUserUUID:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        pvradarapiUserAppId:
+          type:
+          - string
+          - 'null'
+        terabaseAPIUserUUID:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        terabaseAPIUserAppId:
+          type:
+          - string
+          - 'null'
+        powerUQAPIUserUUID:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        powerUQAPIUserAppId:
+          type:
+          - string
+          - 'null'
+        userWeatherDownloads:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.UserWeatherDownload'
+        lastLoginDateUTC:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        roles:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUserRole'
+        logins:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUserLogin'
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.DefaultSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        environmentalConditions:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.EnvironmentalConditions'
+        powerPlantBuilder:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.PowerPlantBuilder'
+        simulationSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.SimulationSettings'
+        weatherAPISettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.WeatherAPISettings'
+        essSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ESSSettings'
+        financialModelParameters:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.FinancialModelDefaultParameters'
+        miscellaneousSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.MiscellaneousSettings'
+        designProSimulationSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.DesignProSimulationSettings'
+        designProSitePlanSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.DesignProSitePlanSettings'
+        systemDetailSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.SystemDetailSettings'
+        designProEpcCostSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.DesignProEpcCostSettings'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DCFieldBacktrackingType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.PVCableSizes:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.ESSChargeAlgorithm:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.DesignProSimulationSettings:
+      required:
+      - bifacialId
+      - calculateModuleTiltAngle
+      - columnGapFixedTilt
+      - columnGapMultistringTracker
+      - columnGapTracker
+      - embedmentDepthFixedTilt
+      - embedmentDepthMultistringTracker
+      - embedmentDepthTracker
+      - enableBacktrackingMultistringTracker
+      - enableBacktrackingTracker
+      - gapBetweenRacksFixedTilt
+      - gapBetweenRacksMultistringTracker
+      - gapBetweenRacksTracker
+      - halfCellMonoPercId
+      - inverterCentralId
+      - inverterStringId
+      - inverterType
+      - largeFormatModuleId
+      - maxEwBeamSlopeFixedTilt
+      - maxNumOfTablesPerColumnCentral
+      - maxNumOfTablesPerColumnString
+      - maxTtAxisSlopeMultistringTracker
+      - maxTtAxisSlopeTracker
+      - moduleTiltAngle
+      - moduleType
+      - motorTableGap
+      - numOfPVModulesPerRowsFixedTilt
+      - numOfPVModulesPerRowsTracker
+      - ocpdRatingCentral
+      - ocpdRatingCentral_1P
+      - ocpdRatingString
+      - ocpdRatingString_1P
+      - optionOneDcac
+      - optionOneGcr
+      - orientationFixedTilt
+      - orientationMultistringTracker
+      - orientationTracker
+      - pilesPerTableFixedTilt
+      - pilesPerTableTracker
+      - pileTypeFixedTilt
+      - pileTypeMultistringTracker
+      - pileTypeTracker
+      - powerFactorCentral
+      - powerFactorString
+      - pvModuleTiltMax
+      - pvModuleTiltMin
+      - rackingSystem
+      - revealWindowFixedTilt
+      - revealWindowMultistringTracker
+      - revealWindowTracker
+      - rowGapFixedTilt
+      - rowGapTracker
+      - shingledMonoPercId
+      - tableAxisRotationMaxMultistringTracker
+      - tableAxisRotationMaxTracker
+      - tableAxisRotationMinMultistringTracker
+      - tableAxisRotationMinTracker
+      - tableGapMultistringTracker
+      - thinFilmId
+      - ttExtensionMultistringTracker
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        moduleType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleTypes'
+        rackingSystem:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.RackingTypes'
+        inverterType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.InverterTypes'
+        largeFormatModuleId:
+          type: integer
+          format: int64
+        largeFormatModule:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        shingledMonoPercId:
+          type: integer
+          format: int64
+        shingledMonoPerc:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        thinFilmId:
+          type: integer
+          format: int64
+        thinFilm:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        halfCellMonoPercId:
+          type: integer
+          format: int64
+        halfCellMonoPerc:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        bifacialId:
+          type: integer
+          format: int64
+        bifacial:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        orientationTracker:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleOrientation'
+        columnGapTracker:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        rowGapTracker:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        numOfPVModulesPerRowsTracker:
+          maximum: 100
+          minimum: 1
+          type: integer
+          format: int32
+        pvModuleTiltMin:
+          maximum: 0
+          minimum: -90
+          type: integer
+          format: int32
+        pvModuleTiltMax:
+          maximum: 90
+          minimum: 0
+          type: integer
+          format: int32
+        tableAxisRotationMinTracker:
+          maximum: 0
+          minimum: -90
+          type: integer
+          format: int32
+        tableAxisRotationMaxTracker:
+          maximum: 90
+          minimum: 0
+          type: integer
+          format: int32
+        pilesPerTableTracker:
+          maximum: 24
+          minimum: 4
+          type: integer
+          format: int32
+        embedmentDepthTracker:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        pileTypeTracker:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PileTypes'
+        gapBetweenRacksTracker:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        maxTtAxisSlopeTracker:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        revealWindowTracker:
+          maximum: 9999
+          minimum: 0
+          type: number
+          format: double
+        enableBacktrackingTracker:
+          type: boolean
+        orientationMultistringTracker:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleOrientation'
+        columnGapMultistringTracker:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        motorTableGap:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        tableGapMultistringTracker:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        gapBetweenRacksMultistringTracker:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        ttExtensionMultistringTracker:
+          maximum: 2
+          minimum: 0
+          type: number
+          format: double
+        tableAxisRotationMinMultistringTracker:
+          maximum: 0
+          minimum: -90
+          type: integer
+          format: int32
+        tableAxisRotationMaxMultistringTracker:
+          maximum: 90
+          minimum: 0
+          type: integer
+          format: int32
+        embedmentDepthMultistringTracker:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        pileTypeMultistringTracker:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PileTypes'
+        maxTtAxisSlopeMultistringTracker:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        revealWindowMultistringTracker:
+          maximum: 9999
+          minimum: 0
+          type: number
+          format: double
+        enableBacktrackingMultistringTracker:
+          type: boolean
+        orientationFixedTilt:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleOrientation'
+        columnGapFixedTilt:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        rowGapFixedTilt:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        numOfPVModulesPerRowsFixedTilt:
+          maximum: 100
+          minimum: 1
+          type: integer
+          format: int32
+        pilesPerTableFixedTilt:
+          maximum: 16
+          minimum: 2
+          type: integer
+          format: int32
+        gapBetweenRacksFixedTilt:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        embedmentDepthFixedTilt:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        pileTypeFixedTilt:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PileTypes'
+        maxEwBeamSlopeFixedTilt:
+          maximum: 45
+          minimum: 0
+          type: number
+          format: double
+        revealWindowFixedTilt:
+          maximum: 9999
+          minimum: 0
+          type: number
+          format: double
+        calculateModuleTiltAngle:
+          type: boolean
+        moduleTiltAngle:
+          maximum: 90
+          minimum: 0
+          type: integer
+          format: int32
+        inverterCentralId:
+          type: integer
+          format: int64
+        inverterCentral:
+          $ref: '#/components/schemas/PlantPredict.Entities.Inverter'
+        powerFactorCentral:
+          maximum: 1
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        ocpdRatingCentral_1P:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.OcpdRatings_1P'
+        ocpdRatingCentral:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.OcpdRatings'
+        maxNumOfTablesPerColumnCentral:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.MaxNumOfTablesPerColumnOptions'
+        inverterStringId:
+          type: integer
+          format: int64
+        inverterString:
+          $ref: '#/components/schemas/PlantPredict.Entities.Inverter'
+        powerFactorString:
+          maximum: 1
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        ocpdRatingString_1P:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.OcpdRatings_1P'
+        ocpdRatingString:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.OcpdRatings'
+        maxNumOfTablesPerColumnString:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.MaxNumOfTablesPerColumnOptions'
+        optionOneDcac:
+          maximum: 1.7
+          minimum: 1
+          type: number
+          format: double
+        optionOneGcr:
+          maximum: 1
+          minimum: 0.2
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Module:
+      required:
+      - ashraeiamB0
+      - bandgapVoltage
+      - builtInVoltage
+      - cellTechnologyType
+      - cellToModuleTempDiff
+      - constructionType
+      - darkShuntResistance
+      - diodeIdealityFactorAtSTC
+      - exponentialDependencyOnShuntResistance
+      - faciality
+      - heatAbsorptionCoefAlphaT
+      - heatBalanceConductiveCoef
+      - heatBalanceConvectiveCoef
+      - length
+      - lightInducedDegradation
+      - linearDegradationRate
+      - linearTempDependenceOnGamma
+      - linearTempDependenceOnIsc
+      - moduleMismatchCoefficient
+      - moduleQuality
+      - moduleShadingResponse
+      - pvModel
+      - recombinationParameter
+      - referenceIrradiance
+      - referenceTemperature
+      - sandiaConductiveCoef
+      - sandiaConvectiveCoef
+      - saturationCurrentAtSTC
+      - seriesResistanceAtSTC
+      - shortCircuitCurrentAtSTC
+      - shuntResistanceAtSTC
+      - spectralResponse
+      - stcEfficiency
+      - stcMaxPower
+      - stcmppCurrent
+      - stcmppVoltage
+      - stcOpenCircuitVoltage
+      - stcOpenCircuitVoltageTempCoef
+      - stcPowerTempCoef
+      - stcShortCircuitCurrent
+      - stcShortCircuitCurrentTempCoef
+      - width
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          maxLength: 250
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        companyId:
+          type: integer
+          format: int32
+        company:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.Company'
+        ownerId:
+          type: integer
+          format: int32
+        owner:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        createdDate:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        lastModifiedById:
+          type: integer
+          format: int32
+        lastModifiedBy:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        status:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.LibraryStatusEnum'
+        model:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        manufacturer:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        length:
+          maximum: 10000
+          minimum: 0
+          type: number
+          format: double
+        width:
+          maximum: 10000
+          minimum: 0
+          type: number
+          format: double
+        weight:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        defaultOrientation:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleOrientation'
+        numberOfCellsInSeries:
+          maximum: 1000
+          minimum: 0
+          type: integer
+          format: int32
+        numberOfCellsInParallel:
+          maximum: 100
+          minimum: 0
+          type: integer
+          format: int32
+        stcShortCircuitCurrent:
+          maximum: 100
+          minimum: 0.1
+          type: number
+          format: double
+        stcOpenCircuitVoltage:
+          maximum: 1000
+          minimum: 0.4
+          type: number
+          format: double
+        stcmppCurrent:
+          maximum: 100
+          minimum: 0.1
+          type: number
+          format: double
+        stcmppVoltage:
+          maximum: 1000
+          minimum: 0.4
+          type: number
+          format: double
+        stcMaxPower:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        stcPowerTempCoef:
+          maximum: 3
+          minimum: -3
+          type: number
+          format: double
+        stcShortCircuitCurrentTempCoef:
+          maximum: 2
+          minimum: -0.3
+          type: number
+          format: double
+        stcOpenCircuitVoltageTempCoef:
+          maximum: 3
+          minimum: -3
+          type: number
+          format: double
+        stcEfficiency:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        minTolerance:
+          maximum: 15
+          minimum: -15
+          type:
+          - number
+          - 'null'
+          format: double
+        maxTolerance:
+          maximum: 15
+          minimum: -15
+          type:
+          - number
+          - 'null'
+          format: double
+        cellTechnologyType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CellTechnologyTypeEnum'
+        constructionType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ConstructionTypeEnum'
+        faciality:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.FacialityEnum'
+        bifacialityFactor:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        transmissionFactor:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        backSideMismatch:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        dataSource:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DataSourceType'
+        lightInducedDegradation:
+          maximum: 10
+          minimum: -10
+          type: number
+          format: double
+        moduleQuality:
+          maximum: 99
+          minimum: -200
+          type: number
+          format: double
+        moduleMismatchCoefficient:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        heatBalanceConvectiveCoef:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        heatBalanceConductiveCoef:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        sandiaConductiveCoef:
+          maximum: 0
+          minimum: -5
+          type: number
+          format: double
+        sandiaConvectiveCoef:
+          maximum: 0
+          minimum: -1
+          type: number
+          format: double
+        cellToModuleTempDiff:
+          maximum: 15
+          minimum: 0
+          type: number
+          format: double
+        saturationCurrentAtSTC:
+          type: number
+          format: double
+        seriesResistanceAtSTC:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        shuntResistanceAtSTC:
+          maximum: 100000
+          minimum: 0
+          type: number
+          format: double
+        diodeIdealityFactorAtSTC:
+          maximum: 5
+          minimum: 0.1
+          type: number
+          format: double
+        exponentialDependencyOnShuntResistance:
+          maximum: 100
+          minimum: 1
+          type: number
+          format: double
+        darkShuntResistance:
+          maximum: 1000000
+          minimum: 100
+          type: number
+          format: double
+        linearTempDependenceOnGamma:
+          maximum: 3
+          minimum: -3
+          type: number
+          format: double
+        shortCircuitCurrentAtSTC:
+          maximum: 100
+          minimum: 0.1
+          type: number
+          format: double
+        recombinationParameter:
+          maximum: 30
+          minimum: -1
+          type: number
+          format: double
+        builtInVoltage:
+          maximum: 3
+          minimum: 0
+          type: number
+          format: double
+        bandgapVoltage:
+          maximum: 4
+          minimum: 0.5
+          type: number
+          format: double
+        linearTempDependenceOnIsc:
+          maximum: 3
+          minimum: -1
+          type: number
+          format: double
+        heatAbsorptionCoefAlphaT:
+          maximum: 1
+          minimum: 0.1
+          type: number
+          format: double
+        referenceIrradiance:
+          maximum: 2000
+          minimum: 0
+          type: number
+          format: double
+        referenceTemperature:
+          maximum: 80
+          minimum: -10
+          type: number
+          format: double
+        aGamma:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        bGamma:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        cGamma:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        dGamma:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectralResponse:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SpectralResponseEnum'
+        pvModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PvModelType'
+        useDefaultSandiaIAM:
+          type: boolean
+        useDefaultTabularIAM:
+          type: boolean
+        sandiaSpectralA0:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaSpectralA1:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaSpectralA2:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaSpectralA3:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaSpectralA4:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB0:
+          maximum: 10
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB1:
+          maximum: 0
+          minimum: -2
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB2:
+          maximum: 2
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB3:
+          maximum: 0
+          minimum: -2
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB4:
+          maximum: 2
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        sandiaIAMB5:
+          maximum: 0
+          minimum: -2
+          type:
+          - number
+          - 'null'
+          format: double
+        ashraeiamB0:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        spectral2B0:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectral2B1:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectral2B2:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectral2B3:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectral2B4:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        spectral2B5:
+          maximum: 1
+          minimum: -1
+          type:
+          - number
+          - 'null'
+          format: double
+        iamFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.IAMFactor'
+        degradationModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleDegradationModel'
+        linearDegradationRate:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        nonLinearDegradationRates:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.NonLinearDegradationRate'
+        cellDesignType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CellDesignType'
+        useAntiReflectiveCoating:
+          type: boolean
+        refractiveIndex:
+          maximum: 1.7
+          minimum: 1.3
+          type: number
+          format: double
+        refractiveIndexOfARC:
+          maximum: 2.5
+          minimum: 1
+          type: number
+          format: double
+        glazingExtinctionCoef:
+          minimum: 0
+          type: number
+          format: double
+        glazingThickness:
+          minimum: 0
+          type: number
+          format: double
+        sandiaAFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+          readOnly: true
+        sandiaBFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+          readOnly: true
+        powerAtSTC:
+          type: number
+          format: double
+        powerAtSTCExcludingWiringLosses:
+          type: number
+          format: double
+        effectiveIrradianceResponse:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.EfficiencyDetails'
+        electricalShadingFractionalEffect:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        moduleShadingResponse:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleShadingResponse'
+        isMetastable:
+          type: boolean
+        metastabilityProperties:
+          $ref: '#/components/schemas/PlantPredict.Entities.MetastabilityProperties'
+      additionalProperties: false
+    OpenTK.Mathematics.Vector2:
+      type: object
+      properties:
+        length:
+          type: number
+          format: float
+          readOnly: true
+        lengthFast:
+          type: number
+          format: float
+          readOnly: true
+        lengthSquared:
+          type: number
+          format: float
+          readOnly: true
+        perpendicularRight:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        perpendicularLeft:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        yx:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+      additionalProperties: false
+    PlantPredict.Entities.TransmissionLine:
+      required:
+      - length
+      - numberOfConductorsPerPhase
+      - resistance
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        length:
+          maximum: 100
+          minimum: 0.1
+          type: number
+          format: double
+        resistance:
+          maximum: 2
+          minimum: 0.001
+          type: number
+          format: double
+        numberOfConductorsPerPhase:
+          maximum: 10
+          minimum: 1
+          type: integer
+          format: int32
+        ordinal:
+          type: integer
+          format: int32
+      additionalProperties: false
+    PlantPredict.Entities.DrawableFieldObject:
+      type: object
+      properties:
+        objectName:
+          type:
+          - string
+          - 'null'
+        mainVertices:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        occlusionVertices:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        objectNormalVectors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+      additionalProperties: false
+    PlantPredict.Entities.Types.EfficiencyCurve:
+      required:
+      - voltage
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        voltage:
+          maximum: 5000
+          minimum: 25
+          type: number
+          format: double
+        efficiencyPoints:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.EfficiencyPoint'
+      additionalProperties: false
+    PlantPredict.Entities.Types.TransformerOutput:
+      type: object
+      properties:
+        pacOut:
+          type: number
+          format: double
+        pLoss:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.BlockCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        weightedPOAI:
+          type: number
+          format: double
+        weightedBackPOAI:
+          type: number
+          format: double
+        blockPower:
+          type: number
+          format: double
+        totalGHIIrradianceOnModule:
+          type: number
+          format: double
+        totalPOAIrradianceOnModule:
+          type: number
+          format: double
+        effBackPOAIrrdainceOnModule:
+          type: number
+          format: double
+        correctedPOAILossAggregate:
+          type: number
+          format: double
+        hozShdGlobIrrLoss:
+          type: number
+          format: double
+        nearShdGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpElecShadingLossAggregate:
+          type: number
+          format: double
+        soilGlobIrrLossAggregate:
+          type: number
+          format: double
+        incAngGlobIrrLossAggregate:
+          type: number
+          format: double
+        spectralShiftGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpIrrLossAggregate:
+          type: number
+          format: double
+        modPmpStcLossAggregate:
+          type: number
+          format: double
+        modPmpStcAggregate:
+          type: number
+          format: double
+        modPmpTempLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpMismatchLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpLIDLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpModuleQualityLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpDcHealthLossAggregate:
+          type: number
+          format: double
+        invPowerEfficiencyLossAggregate:
+          type: number
+          format: double
+        coolingLossAggregate:
+          type: number
+          format: double
+        invPowerAcAggregate:
+          type: number
+          format: double
+        trackerMotorLossAggregate:
+          type: number
+          format: double
+        acDegradationLossAggregate:
+          type: number
+          format: double
+        acLeTIDLossAggregate:
+          type: number
+          format: double
+        mvTxLossAggregate:
+          type: number
+          format: double
+        collectorLossAggregate:
+          type: number
+          format: double
+        ohmicPowerLoss:
+          type: number
+          format: double
+        powerOffMppLossAggregate:
+          type: number
+          format: double
+        degradationLossAggregate:
+          type: number
+          format: double
+        leTIDLossAggregate:
+          type: number
+          format: double
+        dataAcquisitionAuxiliaryLoss:
+          type: number
+          format: double
+        powerDissipatedBytheSystem:
+          type: number
+          format: double
+        irradianceWeightedModTempAggregate:
+          type: number
+          format: double
+        dcFieldPmpBackMismatchLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregateNodal:
+          type: number
+          format: double
+        backSideIrradianceAggregate:
+          type: number
+          format: double
+        structureShadingLossAggregate:
+          type: number
+          format: double
+        sunSolveTransmissionGainOnRearAggregate:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DiffuseDirectDecompModelType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.EffectiveIrradianceAnalyzer:
+      type: object
+      properties:
+        gteffBeforeCorrection:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffFinal:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterTilt:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterHorizon:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterNearShading:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterSoiling:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterIAM:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        gTeffAfterSpectral:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.GTeff'
+        uiamValues:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.UIAM'
+        ushValues:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.Ush'
+        moduleMissmatchCoefficient:
+          type:
+          - number
+          - 'null'
+          format: double
+        dcHealthCoefficient:
+          type:
+          - number
+          - 'null'
+          format: double
+        totalFinalEffectiveIrradiance:
+          type: number
+          format: double
+          readOnly: true
+      additionalProperties: false
+    PlantPredict.Entities.DTO.ShadeTranspositionTimeSeries:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        transpositionFactor:
+          type: number
+          format: double
+        beamTranspositionFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+        skyDiffuseTranspositionFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+        groundDiffuseTranspositionFactor:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.PVPlant:
+      required:
+      - powerFactor
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PowerPlantCalculationResultDetail'
+        blocks:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVBlock'
+        transformers:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Transformer'
+        transmissionLines:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.TransmissionLine'
+        ess:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSSystem'
+        esS_Id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        exportSystem:
+          type: boolean
+        exportESS:
+          type: boolean
+        lgiaLimitTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        lgiaLimitTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useLGIALimitTimeSeries:
+          type: boolean
+        lgiaLimitTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        powerFactor:
+          type: number
+          format: double
+        lgiaLimitation:
+          maximum: 100000000
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        nighttimeDisconnect:
+          type: boolean
+        availabilityLoss:
+          maximum: 25
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        useCoolingTemp:
+          type: boolean
+        desiredDCACRatio:
+          type:
+          - number
+          - 'null'
+          format: double
+        powerPlantDesignType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PowerPlantDesignType'
+        customArrayConfig:
+          type:
+          - string
+          - 'null'
+        useCustomArrayConfig:
+          type: boolean
+        totalModuleArea:
+          type: number
+          format: double
+        maxMVTransformerVoltage:
+          type: number
+          format: double
+        maximumPlantOutput:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.UserWeatherDownload:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        userId:
+          type: integer
+          format: int32
+        weatherSource:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.WeatherSourceTypeAPIEnum'
+        downloadCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    PlantPredict.Entities.Enums.CellDesignType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.DCFeederConductorMaterials:
+      enum:
+      - 0
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.WindStowType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.ShadingObject:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        refId:
+          type:
+          - string
+          - 'null'
+        geometries:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingGeometry'
+        boundingGeometries:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingGeometry'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DataSourceType:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.InverterTypes:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.PowerPlants.PVDCField:
+      required:
+      - cellToModuleTempDiff
+      - dcHealth
+      - dcWiringLossAtSTC
+      - fieldDcPower
+      - heatBalanceConductiveCoef
+      - heatBalanceConvectiveCoef
+      - lateralIntermoduleGap
+      - lightInducedDegradation
+      - lockBacksideMismatch
+      - lockModuleAzimuth
+      - lockModulesHigh
+      - lockModulesWide
+      - lockModulesWiredInSeries
+      - lockMwAc
+      - lockNumberOfRows
+      - lockNumberOfSeriesStringsWiredInParallel
+      - lockPostHeight
+      - lockPostToPostSpacing
+      - maximumTrackingLimitAngleD
+      - minimumTrackingLimitAngleD
+      - moduleAzimuth
+      - moduleMismatchCoefficient
+      - moduleQuality
+      - modulesHigh
+      - modulesWide
+      - modulesWiredInSeries
+      - numberOfRows
+      - numberOfSeriesStringsWiredInParallel
+      - plannedModuleRating
+      - postToPostSpacing
+      - repeater
+      - sandiaConductiveCoef
+      - sandiaConvectiveCoef
+      - tablesRemovedForPCS
+      - tableToTableSpacing
+      - trackerLoadLoss
+      - trackerPitchAngleD
+      - trackerStowAngle
+      - trackingBacktrackingType
+      - trackingType
+      - verticalIntermoduleGap
+      type: object
+      properties:
+        repeater:
+          maximum: 10000
+          minimum: 1
+          type: integer
+          format: int32
+        id:
+          type: integer
+          format: int64
+        description:
+          maxLength: 25000
+          type:
+          - string
+          - 'null'
+        name:
+          maximum: 99
+          minimum: 1
+          type: integer
+          format: int32
+        moduleId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        module:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        trackingType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldTrackingTypeEnum'
+        moduleOrientation:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleOrientation'
+        irradianceOptimization:
+          type: boolean
+        irradianceOptimizationType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.IrradianceOptimizationType'
+        rotationSpeed:
+          type: number
+          format: double
+        nonIdealityFactor:
+          type: number
+          format: double
+        tablesRemovedForPCS:
+          maximum: 50
+          minimum: 0
+          type: number
+          format: double
+        transverseSlope:
+          type:
+          - number
+          - 'null'
+          format: double
+        baselineSlope:
+          type:
+          - number
+          - 'null'
+          format: double
+        northSouthRoadWidth:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        eastWestRoadWidth:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        modulesHigh:
+          maximum: 50
+          minimum: 1
+          type: integer
+          format: int32
+        modulesWide:
+          maximum: 200
+          minimum: 1
+          type: integer
+          format: int32
+        lateralIntermoduleGap:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        verticalIntermoduleGap:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        fieldLength:
+          maximum: 3000
+          minimum: 0
+          type: number
+          format: double
+        fieldWidth:
+          maximum: 3000
+          minimum: 0
+          type: number
+          format: double
+        collectorBandwidth:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        tableLength:
+          type: number
+          format: double
+          readOnly: true
+        tablesPerRow:
+          type: number
+          format: double
+        postToPostSpacing:
+          maximum: 50
+          minimum: 0
+          type: number
+          format: double
+        numberOfRows:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        tableToTableSpacing:
+          maximum: 50
+          minimum: 0
+          type: number
+          format: double
+        moduleAzimuth:
+          maximum: 360
+          minimum: 0
+          type: number
+          format: double
+        moduleTilt:
+          maximum: 90
+          minimum: 0
+          type: number
+          format: double
+        trackingBacktrackingType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldBacktrackingType'
+        trackerPitchAngleD:
+          type: number
+          format: double
+        minimumTrackingLimitAngleD:
+          maximum: 0
+          minimum: -90
+          type: number
+          format: double
+        maximumTrackingLimitAngleD:
+          maximum: 90
+          minimum: 0
+          type: number
+          format: double
+        nightTimeStowAngleD:
+          type:
+          - number
+          - 'null'
+          format: double
+        trackerStowAngle:
+          type: number
+          format: double
+        windStowType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.WindStowType'
+        arrayTechnologiesWindStowType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ArrayTechnologiesWindStowType'
+        windStowThreshold:
+          type:
+          - number
+          - 'null'
+          format: double
+        stowDwellTime:
+          maximum: 2147483647
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+          format: int32
+        windStowAngle:
+          type:
+          - number
+          - 'null'
+          format: double
+        isWindStowed:
+          type: boolean
+        minutesBelowThreshold:
+          type: number
+          format: double
+        postHeight:
+          maximum: 50
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        structureShading:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        backSideMismatch:
+          maximum: 100
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        fieldDcPower:
+          maximum: 20000
+          minimum: 1
+          type: number
+          format: double
+        modulesWiredInSeries:
+          maximum: 100
+          minimum: 1
+          type: integer
+          format: int32
+        numberOfSeriesStringsWiredInParallel:
+          maximum: 10000
+          minimum: 1
+          type: number
+          format: double
+        plannedModuleRating:
+          maximum: 1000
+          minimum: 10
+          type: number
+          format: double
+        modTempModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldModuleTemperatureModelType'
+        sandiaConductiveCoef:
+          maximum: 0
+          minimum: -5
+          type: number
+          format: double
+        sandiaConvectiveCoef:
+          maximum: 0
+          minimum: -1
+          type: number
+          format: double
+        cellToModuleTempDiff:
+          maximum: 15
+          minimum: 0
+          type: number
+          format: double
+        heatBalanceConductiveCoef:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        heatBalanceConvectiveCoef:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        nominalOperatingCellTemperature:
+          type: number
+          format: double
+        transmittanceAbsorptance:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        moduleMismatchCoefficient:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        moduleQuality:
+          maximum: 99
+          minimum: -200
+          type: number
+          format: double
+        lightInducedDegradation:
+          maximum: 30
+          minimum: -10
+          type: number
+          format: double
+        trackerLoadLoss:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        dcWiringLossAtSTC:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        dcHealth:
+          maximum: 10
+          minimum: -10
+          type: number
+          format: double
+        inverterIdShadeSource:
+          type:
+          - string
+          - 'null'
+        useSunSolveParameters:
+          type: boolean
+        sunSolveStructureShading:
+          type: number
+          format: double
+        sunSolveCombinedMismatch:
+          type: number
+          format: double
+        sunSolveTransmissionGain:
+          type: number
+          format: double
+        useTimeSeriesBifacialParameters:
+          type: boolean
+        sunSolveBifacialTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        sunSolveBifacialTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.SunSolveBifacialTimeSeries'
+        monthlySeasonalTiltFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.SeasonalTiltMonthlyFactor'
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.DCFieldCalculationResultDetail'
+        effectiveResistanceAtSTC:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+        uiamd:
+          type:
+          - number
+          - 'null'
+          format: double
+        uiamg:
+          type:
+          - number
+          - 'null'
+          format: double
+        ushD:
+          type:
+          - number
+          - 'null'
+          format: double
+        ushG:
+          type:
+          - number
+          - 'null'
+          format: double
+        moduleSurfaceTemperatureTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        moduleSurfaceTemperatureTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useModuleSurfaceTempTimeSeries:
+          type: boolean
+        moduleSurfaceTempTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        trackingAngleTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        trackingAngleTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        trackingAngleTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        windStowData:
+          $ref: '#/components/schemas/PlantPredict.Entities.DTO.ArrayWindStowResponse'
+        skyDiffuseIAM:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/System.Collections.Generic.KeyValuePair_2__System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e___System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e'
+        groundDiffuseIAM:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/System.Collections.Generic.KeyValuePair_2__System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e___System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e'
+        inverterTranspositions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Misc.ShadeEngine.SiteInverterTransposition'
+        transpositionTimeSeries:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.ShadeTranspositionTimeSeries'
+        groundCoverageRatio:
+          type: number
+          format: double
+        calculateDCFields:
+          type: boolean
+        shadeObjects:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DCFieldObject'
+        tableType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.TableType'
+        drawableFieldObjects:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DrawableFieldObject'
+        shadingAlgorithm:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ShadeAlgorithm'
+        linearShadowFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingFactor'
+        electricalShadowFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingFactor'
+        applyTrackingTimeSeries:
+          type: boolean
+          readOnly: true
+        ground:
+          $ref: '#/components/schemas/PlantPredict.Entities.GroundObject'
+        lockModuleAzimuth:
+          type: boolean
+        lockModulesHigh:
+          type: boolean
+        lockPostHeight:
+          type: boolean
+        lockModulesWide:
+          type: boolean
+        lockNumberOfSeriesStringsWiredInParallel:
+          type: boolean
+        lockModulesWiredInSeries:
+          type: boolean
+        lockPostToPostSpacing:
+          type: boolean
+        lockMwAc:
+          type: boolean
+        lockNumberOfRows:
+          type: boolean
+        lockBacksideMismatch:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.Misc.ShadeEngine.InverterTransposition:
+      type: object
+      properties:
+        inverterId:
+          type:
+          - string
+          - 'null'
+        transpositionFactor:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.WeatherAPISettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        meteonormSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.MeteonormAPISettings'
+        cprSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.CPRAPISettings'
+        solarGISSettings:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.SolarGISAPISettings'
+        arrayTechnologiesAPIKey:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.ShadingTable:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        refId:
+          type:
+          - string
+          - 'null'
+        table_Type:
+          type: integer
+          format: int32
+        inverter_Id:
+          type:
+          - string
+          - 'null'
+        group_Id:
+          type:
+          - string
+          - 'null'
+        table_Id:
+          type:
+          - string
+          - 'null'
+        geometries:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingGeometry'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ModuleOrientation:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.PowerPlantBuilder:
+      required:
+      - acCollectionLoss
+      - coolingLoad
+      - dasLoad
+      - dcHealth
+      - dcWiringLossAtSTC
+      - maximumTrackingLimitAngleD
+      - minimumTrackingLimitAngleD
+      - powerFactor
+      - structureShading
+      - trackerLoadLoss
+      - transformerFullLoadLoss
+      - transformerHighSideVoltage
+      - transformerNoLoadLoss
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        acCollectionLoss:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        dasLoad:
+          maximum: 5000
+          minimum: 0
+          type: number
+          format: double
+        coolingLoad:
+          maximum: 5000
+          minimum: 0
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          maximum: 66
+          minimum: 0
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        powerFactor:
+          maximum: 1
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        inverter:
+          $ref: '#/components/schemas/PlantPredict.Entities.Inverter'
+        inverter_Id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        dcacRatio:
+          type:
+          - number
+          - 'null'
+          format: double
+        dcWiringLossAtSTC:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        dcHealth:
+          maximum: 10
+          minimum: -10
+          type: number
+          format: double
+        trackerLoadLoss:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        minimumTrackingLimitAngleD:
+          maximum: 0
+          minimum: -90
+          type: number
+          format: double
+        maximumTrackingLimitAngleD:
+          maximum: 90
+          minimum: 0
+          type: number
+          format: double
+        structureShading:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        module_Id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        module:
+          $ref: '#/components/schemas/PlantPredict.Entities.Module'
+        dcFieldTrackingTypeEnum:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldTrackingTypeEnum'
+        tiltAngle:
+          type:
+          - number
+          - 'null'
+          format: double
+        gcr:
+          type:
+          - number
+          - 'null'
+          format: double
+        northernHemisphereAzimuth:
+          type: number
+          format: double
+        southernHemisphereAzimuth:
+          type: number
+          format: double
+        azimuth:
+          type:
+          - number
+          - 'null'
+          format: double
+        irradianceOptimization:
+          type: boolean
+        irradianceOptimizationType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.IrradianceOptimizationType'
+        rotationSpeed:
+          type: number
+          format: double
+        nonIdealityFactor:
+          type: number
+          format: double
+        postHeightCalculationMethod:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PostHeightCalculationMethodType'
+        postHeight:
+          type: number
+          format: double
+        modTempModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldModuleTemperatureModelType'
+        mapBuilderCreateDCAs:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.MapBuilderCreateDCOptions'
+        shadingAlgorithm:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ShadeAlgorithm'
+        setback:
+          type:
+          - number
+          - 'null'
+          format: double
+        northSouthRoadWidth:
+          type:
+          - number
+          - 'null'
+          format: double
+        eastWestRoadWidth:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.EnvironmentalConditions:
+      required:
+      - monthlyAlbedo
+      - monthlySoilingLoss
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        monthlySoilingLoss:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        monthlyAlbedo:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Types.kVAPoint:
+      required:
+      - kVA
+      - temperature
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        temperature:
+          maximum: 100
+          minimum: -100
+          type: number
+          format: double
+        kVA:
+          maximum: 20000
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.DTO.ShadeTranspositionFactor:
+      type: object
+      properties:
+        tableId:
+          type:
+          - string
+          - 'null'
+        bayId:
+          type: integer
+          format: int32
+        yearlyTranspositionFactorBayLevel:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.TimeSeries:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        predictionId:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.TimeSeriesType'
+        name:
+          type:
+          - string
+          - 'null'
+        detailsCount:
+          type: integer
+          format: int32
+        details:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.TimeSeriesDetailsDTO'
+        detailValues:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DirectBeamShadingModel:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 5
+      - 6
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.WeatherSourceTypeAPIEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      type: integer
+      format: int32
+    PlantPredict.Entities.ESS.ESSDispatchCustom:
+      required:
+      - command
+      - index
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        essDispatchCustomInfoId:
+          type: integer
+          format: int64
+        index:
+          type: integer
+          format: int32
+        command:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ESSDispatchCustomCommand'
+        inverterCapacityPct:
+          maximum: 1
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ESSSettings:
+      required:
+      - chargeAlgorithm
+      - factor
+      - hvacFullLoadLoss
+      - hvacNoLoadLoss
+      - inverterEfficiency
+      - mvFullLoadLoss
+      - mvNoLoadLoss
+      - roundtripDCEfficiencyCalendarDeg
+      - roundtripDCEfficiencyCycleDeg
+      - roundtripDCEfficiencyYear1
+      - usableEnergyCapacityCalendarDeg
+      - usableEnergyCapacityCycleDeg
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        factor:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        usableEnergyCapacityCalendarDeg:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        usableEnergyCapacityCycleDeg:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyYear1:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyCalendarDeg:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyCycleDeg:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        hvacNoLoadLoss:
+          maximum: 500
+          minimum: 0
+          type: number
+          format: double
+        hvacFullLoadLoss:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        mvNoLoadLoss:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        mvFullLoadLoss:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        mvCapacity:
+          maximum: 100000000
+          minimum: 0
+          type:
+          - number
+          - 'null'
+          format: double
+        inverterEfficiency:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        chargeAlgorithm:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ESSChargeAlgorithm'
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.PVBlock:
+      required:
+      - repeater
+      type: object
+      properties:
+        repeater:
+          maximum: 10000
+          minimum: 1
+          type: integer
+          format: int32
+        id:
+          type: integer
+          format: int64
+        description:
+          maxLength: 25000
+          type:
+          - string
+          - 'null'
+        name:
+          maximum: 199
+          minimum: 1
+          type: integer
+          format: int32
+        nodalExportOptions:
+          $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.NodalExportConfiguration'
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.BlockCalculationResultDetail'
+        arrays:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVArray'
+        energizationDate:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        useEnergizationDate:
+          type: boolean
+        numberOfModules:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Types.TransmissionLineOutput:
+      type: object
+      properties:
+        acPowerOutout:
+          type: number
+          format: double
+        dissipatedPower:
+          type: number
+          format: double
+        lineResistance:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.ShadingGeometry:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        refId:
+          type:
+          - string
+          - 'null'
+        points:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingGeometryPoint'
+      additionalProperties: false
+    PlantPredict.Entities.DTO.MountingAnglesDTO:
+      type: object
+      properties:
+        rotationAzimuth:
+          type: number
+          format: double
+        rotationAngle:
+          type: number
+          format: double
+        torqueTubeAxisTilt:
+          type: number
+          format: double
+        surfaceTilt:
+          type: number
+          format: double
+        surfaceAzimuth:
+          type: number
+          format: double
+        angleOfIncidence:
+          type: number
+          format: double
+        projection:
+          type: number
+          format: double
+        solarZenith:
+          type: number
+          format: double
+        solarAzimuth:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Country:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          maxLength: 250
+          minLength: 1
+          type: string
+        numeric:
+          type: integer
+          format: int32
+        alpha:
+          maxLength: 10
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.MVCableConductorMaterials:
+      enum:
+      - 0
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.CompanyStatusEnum:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.SpectralResponseEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.ProcessingStatusEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.PileTypes:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.FinancialModelDefaultParameters:
+      required:
+      - bonusDepreciationRate
+      - bosInput
+      - developmentCostPerWatt
+      - discountNPVPercentage
+      - federalTaxRate
+      - insuranceCapitalCostPercentage
+      - insuranceEscalatorPerYearPercentage
+      - itcEligibilityPercentage
+      - itcPercentage
+      - moduleCostPerWatt
+      - omYearlyEscalatorPercentage
+      - omYearOne
+      - postPPAPrice
+      - postPPAPriceEscalationPercentage
+      - ppaDuration
+      - ppaEscalatorPercentage
+      - ppaPrice
+      - projectLife
+      - solarLandLeaseCost
+      - solarLandLeaseEscalationPercentage
+      - solarPropertyTaxCost
+      - solarPropertyTaxEscalationPercentage
+      - solarSalvageValuePercentage
+      - stateTaxRate
+      - yearOneEnergyAdjustmentPercentage
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        bosInput:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        developmentCostPerWatt:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        moduleCostPerWatt:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        itcPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        yearOneEnergyAdjustmentPercentage:
+          maximum: 100
+          minimum: -100
+          type: number
+          format: double
+        ppaPrice:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        ppaEscalatorPercentage:
+          maximum: 20
+          minimum: 0
+          type: number
+          format: double
+        omYearOne:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        omYearlyEscalatorPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        ppaDuration:
+          maximum: 40
+          minimum: 0
+          type: integer
+          format: int32
+        postPPAPrice:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        postPPAPriceEscalationPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        projectLife:
+          maximum: 40
+          minimum: 0
+          type: integer
+          format: int32
+        discountNPVPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        itcEligibilityPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        solarSalvageValuePercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        insuranceCapitalCostPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        insuranceEscalatorPerYearPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        bonusDepreciationRate:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        stateTaxRate:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        federalTaxRate:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        solarLandLeaseCost:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        solarLandLeaseEscalationPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        solarPropertyTaxCost:
+          maximum: 1000000000000000
+          minimum: 0
+          type: number
+          format: double
+        solarPropertyTaxEscalationPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.TableType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.GroundObject:
+      required:
+      - slope
+      - slopeAzimuth
+      type: object
+      properties:
+        edgeOffset:
+          type: number
+          format: double
+        calculate:
+          type: boolean
+        color:
+          type:
+          - string
+          - 'null'
+        slope:
+          maximum: 30
+          minimum: -30
+          type: number
+          format: double
+        slopeAzimuth:
+          maximum: 360
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.PVInverter:
+      required:
+      - designDerate
+      - kVARating
+      - repeater
+      - setpointkW
+      type: object
+      properties:
+        repeater:
+          maximum: 10000
+          minimum: 1
+          type: integer
+          format: int32
+        id:
+          type: integer
+          format: int64
+        description:
+          maxLength: 25000
+          type:
+          - string
+          - 'null'
+        name:
+          maxLength: 1
+          type:
+          - string
+          - 'null'
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.InverterCalculationResultDetail'
+        dcFields:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVDCField'
+        inverterId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        inverter:
+          $ref: '#/components/schemas/PlantPredict.Entities.Inverter'
+        setpointkW:
+          maximum: 10000
+          minimum: 1
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+          readOnly: true
+        designDerate:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        kVARating:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+        derateTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        derateTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useDerateTimeSeries:
+          type: boolean
+        derateTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        setPointTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        setPointTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useSetPointTimeSeries:
+          type: boolean
+        setPointTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        vmppAdjustmentTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        vmppAdjustmentTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useVMPPTimeSeriesAdjustment:
+          type: boolean
+        imppAdjustmentTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        imppAdjustmentTimeSeries:
+          $ref: '#/components/schemas/PlantPredict.Entities.TimeSeries'
+        useIMPPTimeSeriesAdjustment:
+          type: boolean
+        vmppTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        imppTimeSeriesDetails:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+            format: double
+        dcacRatio:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DCFieldModuleTemperatureModelType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.NonLinearDegradationRate:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        year:
+          type: integer
+          format: int32
+        degradationRate:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.CustomerSegment:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.DCFieldObjectSide:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.ACVoltageAndCurrentAndPower:
+      type: object
+      properties:
+        voltage:
+          type: number
+          format: double
+        current:
+          type: number
+          format: double
+        power:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.OcpdRatings_1P:
+      enum:
+      - 100
+      - 250
+      - 320
+      - 400
+      - 500
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.DesignProSitePlanSettings:
+      required:
+      - setback
+      - setbackA
+      - setbackB
+      - setbackFromSiteBoundary
+      - setbackFromSolarArrays
+      - showLabels
+      - widthInternalRoad
+      - widthLinearExclusion
+      - widthPerimeterRoad
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        widthPerimeterRoad:
+          maximum: 10000
+          minimum: 0.5
+          type: number
+          format: double
+        setbackFromSolarArrays:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        setbackFromSiteBoundary:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        widthInternalRoad:
+          maximum: 10000
+          minimum: 0.6
+          type: number
+          format: double
+        setbackA:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        setbackB:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        setback:
+          maximum: 10000
+          minimum: 0
+          type: number
+          format: double
+        widthLinearExclusion:
+          maximum: 10000
+          minimum: 1
+          type: number
+          format: double
+        showLabels:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.Types.Ush:
+      type: object
+      properties:
+        ushB:
+          type: number
+          format: double
+        ushB_Elec:
+          type: number
+          format: double
+        ushD:
+          type: number
+          format: double
+        ushG:
+          type: number
+          format: double
+        ushGb:
+          type: number
+          format: double
+        ushGd:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.PVArray:
+      required:
+      - acCollectionLoss
+      - coolingLoad
+      - dasLoad
+      - repeater
+      - transformerFullLoadLoss
+      - transformerHighSideVoltage
+      - transformerkVARating
+      - transformerNoLoadLoss
+      type: object
+      properties:
+        repeater:
+          maximum: 10000
+          minimum: 1
+          type: integer
+          format: int32
+        id:
+          type: integer
+          format: int64
+        description:
+          maxLength: 25000
+          type:
+          - string
+          - 'null'
+        name:
+          maximum: 199
+          minimum: 1
+          type: integer
+          format: int32
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.ArrayCalculationResultDetail'
+        inverters:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.PowerPlants.PVInverter'
+        acCollectionLoss:
+          maximum: 30
+          minimum: 0
+          type: number
+          format: double
+        dasLoad:
+          maximum: 5000
+          minimum: 0
+          type: number
+          format: double
+        coolingLoad:
+          maximum: 5000
+          minimum: 0
+          type: number
+          format: double
+        additionalLosses:
+          maximum: 20000
+          minimum: 0
+          type: number
+          format: double
+          default: 0
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          maximum: 20000
+          minimum: 0
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          maximum: 66
+          minimum: 0
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        totalModules:
+          type: integer
+          format: int32
+        totalModuleArea:
+          type: number
+          format: double
+        trackerMotorLosses:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ModuleTypes:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      type: integer
+      format: int32
+    PlantPredict.Entities.DCFieldObject:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type:
+          - string
+          - 'null'
+        width:
+          type: number
+          format: double
+        height:
+          type: number
+          format: double
+        depth:
+          type: number
+          format: double
+        matchGroundSlope:
+          type: boolean
+        dcFieldSide:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFieldObjectSide'
+        offset:
+          type: number
+          format: double
+        shift:
+          type: number
+          format: double
+        heightShift:
+          type: number
+          format: double
+        color:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.Types.ACCollectionSystem:
+      type: object
+      properties:
+        acPowerOutput:
+          type: number
+          format: double
+        powerLoss:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.ShadeEngineOutputTimestamp:
+      type: object
+      properties:
+        weatherIndex:
+          type: integer
+          format: int32
+        averageShadePercentage:
+          type: number
+          format: double
+        averageShadeElectricalEffectPercentage:
+          type: number
+          format: double
+        inverterShadeResults:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.InverterShadeResult'
+      additionalProperties: false
+    PlantPredict.Entities.UIShadeData:
+      type: object
+      properties:
+        averageBeamShade:
+          type: number
+          format: double
+        averageShadingElectricalEffect:
+          type: number
+          format: double
+        averageTransposition:
+          type: number
+          format: double
+        averageCombined:
+          type: number
+          format: double
+        tables:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.TableSceneData'
+        inverterShadeResults:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.InverterShadeResult'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.MapBuilderCreateDCOptions:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.kVACurve:
+      required:
+      - elevation
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        elevation:
+          maximum: 5000
+          minimum: 0
+          type: number
+          format: double
+        kVAPoints:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.kVAPoint'
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.EngineQueueInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        predictionEngineQueueName:
+          type:
+          - string
+          - 'null'
+        reportEngineQueueName:
+          type:
+          - string
+          - 'null'
+        shadeEngineQueueName:
+          type:
+          - string
+          - 'null'
+        weatherDownloadServQueueName:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.ShadeTableData:
+      type: object
+      properties:
+        shadedFractions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadedFraction'
+      additionalProperties: false
+    PlantPredict.Entities.SeasonalTiltMonthlyFactor:
+      required:
+      - month
+      - tilt
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        month:
+          type: integer
+          format: int32
+        tilt:
+          maximum: 90
+          minimum: 0
+          type: number
+          format: double
+        monthName:
+          type:
+          - string
+          - 'null'
+          readOnly: true
+      additionalProperties: false
+    PlantPredict.Entities.Enums.RackingTypes:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    ? System.Collections.Generic.KeyValuePair_2__System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e___System.Double__System.Private.CoreLib__Version_8.0.0.0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e
+    : type: object
+      properties:
+        key:
+          type: number
+          format: double
+        value:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.SunSolveBifacialTimeSeries:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        predictionId:
+          type: integer
+          format: int64
+        name:
+          type:
+          - string
+          - 'null'
+        detailsCount:
+          type: integer
+          format: int32
+        details:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.SunSolveBifacialTimeSeriesDetailsDTO'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ArrayTechnologiesWindStowType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.ShadeAlgorithm:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.UserStatusEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.ESS.ESSDispatchTableMonth:
+      required:
+      - hour0
+      - hour1
+      - hour10
+      - hour11
+      - hour12
+      - hour13
+      - hour14
+      - hour15
+      - hour16
+      - hour17
+      - hour18
+      - hour19
+      - hour2
+      - hour20
+      - hour21
+      - hour22
+      - hour23
+      - hour3
+      - hour4
+      - hour5
+      - hour6
+      - hour7
+      - hour8
+      - hour9
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        hour0:
+          type: boolean
+        hour1:
+          type: boolean
+        hour2:
+          type: boolean
+        hour3:
+          type: boolean
+        hour4:
+          type: boolean
+        hour5:
+          type: boolean
+        hour6:
+          type: boolean
+        hour7:
+          type: boolean
+        hour8:
+          type: boolean
+        hour9:
+          type: boolean
+        hour10:
+          type: boolean
+        hour11:
+          type: boolean
+        hour12:
+          type: boolean
+        hour13:
+          type: boolean
+        hour14:
+          type: boolean
+        hour15:
+          type: boolean
+        hour16:
+          type: boolean
+        hour17:
+          type: boolean
+        hour18:
+          type: boolean
+        hour19:
+          type: boolean
+        hour20:
+          type: boolean
+        hour21:
+          type: boolean
+        hour22:
+          type: boolean
+        hour23:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.SolarGISAPISettings:
+      type: object
+      properties:
+        key:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        tmyKey:
+          type:
+          - string
+          - 'null'
+        version:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SolarGISVersion'
+      additionalProperties: false
+    PlantPredict.Entities.ShadingFactor:
+      type: object
+      properties:
+        weatherIndex:
+          type: integer
+          format: int32
+        shadowFactorResult:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.MetastabilityProperties:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        metastabilityVoltageScaleFactor:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        c0:
+          type: number
+          format: double
+        c1:
+          type: number
+          format: double
+        c2:
+          type: number
+          format: double
+        c3:
+          type: number
+          format: double
+        c4:
+          type: number
+          format: double
+        c5:
+          type: number
+          format: double
+        c6:
+          type: number
+          format: double
+        c7:
+          type: number
+          format: double
+        c8:
+          type: number
+          format: double
+        c9:
+          type: number
+          format: double
+        c10:
+          type: number
+          format: double
+        c11:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ConstructionTypeEnum:
+      enum:
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.ESS.ESSDispatchCustomInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        fileName:
+          type:
+          - string
+          - 'null'
+        uploadedTimeStamp:
+          type: string
+          format: date-time
+        dispatchCustom:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchCustom'
+      additionalProperties: false
+    OpenTK.Mathematics.Vector3:
+      type: object
+      properties:
+        length:
+          type: number
+          format: float
+          readOnly: true
+        lengthFast:
+          type: number
+          format: float
+          readOnly: true
+        lengthSquared:
+          type: number
+          format: float
+          readOnly: true
+        xy:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        xz:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        yx:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        yz:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        zx:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        zy:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector2'
+        xzy:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        yxz:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        yzx:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        zxy:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+        zyx:
+          $ref: '#/components/schemas/OpenTK.Mathematics.Vector3'
+      additionalProperties: false
+    PlantPredict.Entities.ConfigurationSetting:
+      required:
+      - name
+      - value
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          maxLength: 50
+          minLength: 1
+          type: string
+        value:
+          maxLength: 1000
+          minLength: 1
+          type: string
+        companyId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+      additionalProperties: false
+    PlantPredict.Entities.DTO.TimeSeriesDetailsDTO:
+      type: object
+      properties:
+        timeSeriesId:
+          type: integer
+          format: int64
+        index:
+          type: integer
+          format: int32
+        value:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ShadeObjectType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.CollectorType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.DCVoltageAndCurrentAndPower:
+      type: object
+      properties:
+        voltage:
+          type: number
+          format: double
+        current:
+          type: number
+          format: double
+        power:
+          type: number
+          format: double
+        iParameters:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            type: number
+            format: double
+        vParameters:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            type: number
+            format: double
+        voc:
+          type: number
+          format: double
+        isc:
+          type: number
+          format: double
+        initialVoltage:
+          type: number
+          format: double
+        initialCurrent:
+          type: number
+          format: double
+        initialPower:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DiffuseShadingModel:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.ShadeEngineOutputData:
+      type: object
+      properties:
+        engineShadeData:
+          $ref: '#/components/schemas/PlantPredict.Entities.EngineShadeData'
+        uiShadeData:
+          $ref: '#/components/schemas/PlantPredict.Entities.UIShadeData'
+        shadeTableData:
+          $ref: '#/components/schemas/PlantPredict.Entities.ShadeTableData'
+        shadeEngineOutputTimestamp:
+          $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputTimestamp'
+        transpositionFactors:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.ShadeTranspositionFactor'
+        hasScheduledData:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ApplicationUserRole:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int32
+        roleId:
+          type: integer
+          format: int32
+        user:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+        role:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationRole'
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ApplicationRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type:
+          - string
+          - 'null'
+        normalizedName:
+          type:
+          - string
+          - 'null'
+        concurrencyStamp:
+          type:
+          - string
+          - 'null'
+        users:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUserRole'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.CompanyTypeEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.CellTechnologyTypeEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.DCFeederCableSizes:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.InverterType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.PowerPlants.PowerPlantCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        totalPowerGeneratedBeforeTransformerTransmissionLosses:
+          type: number
+          format: double
+        totalPowerGeneratedAfterTransformerTransmissionLosses:
+          type: number
+          format: double
+        totalPowerGeneratedAfterAvailabilityLoss:
+          type: number
+          format: double
+        totalGHIIrrdainceOnModule:
+          type: number
+          format: double
+        totalPOAIrrdainceOnModule:
+          type: number
+          format: double
+        effBackPOAIrrdainceOnModule:
+          type: number
+          format: double
+        plantOutputLimit:
+          type: number
+          format: double
+        transformerOutputs:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.TransformerOutput'
+        transmissionLineOutputs:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.TransmissionLineOutput'
+        correctedPOAILossAggregate:
+          type: number
+          format: double
+        hozShdGlobIrrLoss:
+          type: number
+          format: double
+        nearShdGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpElecShadingLossAggregate:
+          type: number
+          format: double
+        soilGlobIrrLossAggregate:
+          type: number
+          format: double
+        incAngGlobIrrLossAggregate:
+          type: number
+          format: double
+        spectralShiftGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpIrrLossAggregate:
+          type: number
+          format: double
+        modPmpStcLossAggregate:
+          type: number
+          format: double
+        modPmpStcAggregate:
+          type: number
+          format: double
+        modPmpTempLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpMismatchLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpLIDLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpModuleQualityLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpDcHealthLossAggregate:
+          type: number
+          format: double
+        invPowerEfficiencyLossAggregate:
+          type: number
+          format: double
+        coolingLossAggregate:
+          type: number
+          format: double
+        invPowerAcAggregate:
+          type: number
+          format: double
+        trackerMotorLossAggregate:
+          type: number
+          format: double
+        acDegradationLossAggregate:
+          type: number
+          format: double
+        acLeTIDLossAggregate:
+          type: number
+          format: double
+        mvTxLossAggregate:
+          type: number
+          format: double
+        collectorLossAggregate:
+          type: number
+          format: double
+        ohmicPowerLoss:
+          type: number
+          format: double
+        powerOffMppLossAggregate:
+          type: number
+          format: double
+        degradationLossAggregate:
+          type: number
+          format: double
+        leTIDLossAggregate:
+          type: number
+          format: double
+        dataAcquisitionAuxiliaryLoss:
+          type: number
+          format: double
+        powerDissipatedBytheSystem:
+          type: number
+          format: double
+        irradianceWeightedModTempAggregate:
+          type: number
+          format: double
+        dcFieldPmpBackMismatchLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregateNodal:
+          type: number
+          format: double
+        backSideIrradianceAggregate:
+          type: number
+          format: double
+        structureShadingLossAggregate:
+          type: number
+          format: double
+        sunSolveTransmissionGainOnRearAggregate:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.ShadingGeometryPoint:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+        y:
+          type: number
+          format: double
+        z:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.MVCableSizes:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.PowerPlantDesignType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.MeteonormAPISettings:
+      type: object
+      properties:
+        key:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.ShadedFraction:
+      type: object
+      properties:
+        zenith:
+          type: number
+          format: double
+        azimuth:
+          type: number
+          format: double
+        shadeFraction:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.CircumsolarTreatmentType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.InverterInputOutput:
+      type: object
+      properties:
+        inverterInputOutputId:
+          type: integer
+          format: int32
+        dcVoltageAndCurrentAndPower:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.DCVoltageAndCurrentAndPower'
+        acVoltageAndCurrentAndPower:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.ACVoltageAndCurrentAndPower'
+        initialInverterRegion:
+          type: integer
+          format: int32
+        calculatedInverterRegion:
+          type: integer
+          format: int32
+        efficiency:
+          type: number
+          format: double
+        offMppPowerLoss:
+          type: number
+          format: double
+        inverterInternalLoss:
+          type: number
+          format: double
+        degradationLoss:
+          type: number
+          format: double
+        leTIDLoss:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.TimeSeriesType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.PredictionStatusSettingsEnum:
+      enum:
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Misc.ShadeEngine.SiteInverterTransposition:
+      type: object
+      properties:
+        timeStamp:
+          type: string
+          format: date-time
+        inverterTranspositions:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Misc.ShadeEngine.InverterTransposition'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.AirMassModelType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.SolarGISVersion:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.TranspositionModelType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.UpdateShadingObjectsRequest:
+      type: object
+      properties:
+        objects:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingObject'
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ApplicationUserSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        unitOfMeasure:
+          type:
+          - string
+          - 'null'
+        solcastAPIKey:
+          type:
+          - string
+          - 'null'
+        solcastUserId:
+          type:
+          - string
+          - 'null'
+        theme:
+          type:
+          - string
+          - 'null'
+        themeQuickChange:
+          type:
+          - boolean
+          - 'null'
+        unitsQuickChange:
+          type:
+          - boolean
+          - 'null'
+        darkModeAnnouncementSeen:
+          type:
+          - boolean
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DegradationModel:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.UIAM:
+      type: object
+      properties:
+        uiamb:
+          type: number
+          format: double
+        uiamd:
+          type: number
+          format: double
+        uiamg:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.SimulationSettings:
+      required:
+      - errorIntAnnVar
+      - errorModelAcc
+      - errorMonAcc
+      - errorSensAcc
+      - errorSpaVar
+      - linearDegradationRate
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        errorModelAcc:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        errorSensAcc:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        errorIntAnnVar:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        errorMonAcc:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        errorSpaVar:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        transpositionModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.TranspositionModelType'
+        diffuseDirectDecompModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DiffuseDirectDecompModelType'
+        useMeteoDni:
+          type: boolean
+        airMassModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.AirMassModelType'
+        soilingModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SoilingModelType'
+        modTempModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleTemperatureModelType'
+        spectralShiftModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.SpectralShiftModel'
+        incAngleModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.IncidenceAngleModelType'
+        directBeamShadingModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DirectBeamShadingModel'
+        degradationModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DegradationModel'
+        diffuseShadingModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DiffuseShadingModel'
+        defaultDegradation:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DefaultDegradation'
+        circumsolarTreatment:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.CircumsolarTreatmentType'
+        linearDegradationRate:
+          maximum: 5
+          minimum: 0
+          type: number
+          format: double
+        firstYearDegradation:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.Types.Tracking:
+      type: object
+      properties:
+        sunAzimuthAngle:
+          type: number
+          format: double
+        sunZenithAngle:
+          type: number
+          format: double
+        moduleTiltAngle:
+          type: number
+          format: double
+        moduleTrackerAngle:
+          type:
+          - number
+          - 'null'
+          format: double
+        moduleAzimuthAngle:
+          type: number
+          format: double
+        angleOfIncidence:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.DefaultDegradation:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.ShadeSceneBinTypes:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Types.PQCurve:
+      required:
+      - temperature
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        temperature:
+          maximum: 100
+          minimum: -100
+          type: number
+          format: double
+        pqPoints:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.Types.PQPoint'
+      additionalProperties: false
+    PlantPredict.Entities.ESS.ESSCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        month:
+          type: integer
+          format: int32
+        day:
+          type: integer
+          format: int32
+        hour:
+          type: integer
+          format: int32
+        isTargetHour:
+          type: boolean
+        totalPowerGeneratedAfterAvailabilityLoss:
+          type: number
+          format: double
+        batteryMaxCapacity:
+          type: number
+          format: double
+        batteryDCRTE:
+          type: number
+          format: double
+        batterySOC:
+          type: number
+          format: double
+        batteryDCPower_4:
+          type: number
+          format: double
+        batteryACCharge_3:
+          type: number
+          format: double
+        batteryACDischarge_3:
+          type: number
+          format: double
+        battery_ACCharge_2:
+          type: number
+          format: double
+        battery_ACDischarge_2:
+          type: number
+          format: double
+        batteryRTE_CalendarDeg:
+          type: number
+          format: double
+        batteryRTE_CycleDeg:
+          type: number
+          format: double
+        batteryMVXfmrNoLoadLoss:
+          type: number
+          format: double
+        usableEnergyCap_CycleDeg:
+          type: number
+          format: double
+        usableEnergyCap_CalendarDeg:
+          type: number
+          format: double
+        pV_exceeding_interconnect_6:
+          type: number
+          format: double
+        availableExcesstoCharge_4:
+          type: number
+          format: double
+        availableCapacitytoDischarge_6:
+          type: number
+          format: double
+        availableCapacitytoDischarge_4:
+          type: number
+          format: double
+        pvmvXfmrOutputAdjusted_1:
+          type: number
+          format: double
+        pvmvXfmrOutputAdjusted_1_LGIALimited:
+          type: number
+          format: double
+        pvpvsCombined_7:
+          type: number
+          format: double
+        availableCapacitytoChargefromNonExcess_4:
+          type: number
+          format: double
+        inverterEfficiencyLoss:
+          type: number
+          format: double
+        mvTransformersLoss:
+          type: number
+          format: double
+        hvacLoss:
+          type: number
+          format: double
+        dcRoundtripEfficiencyLoss:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.SubscriptionType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      format: int32
+    PlantPredict.Entities.DTO.WindStowTimeSeriesResponse:
+      type: object
+      properties:
+        adjustedTimeStamp:
+          type: string
+          format: date-time
+        moduleTrackerAngle:
+          type: number
+          format: double
+        moduleTrackerAngleWindStow:
+          type: number
+          format: double
+        windGust:
+          type: number
+          format: double
+        windDirection:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.LibraryStatusEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      type: integer
+      format: int32
+    PlantPredict.Entities.DTO.EfficiencyDetails:
+      type: object
+      properties:
+        irradiance:
+          type: number
+          format: double
+        temperature:
+          type: number
+          format: double
+        relativeEfficiency:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ModuleShadingResponse:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.PowerPlants.DCFieldCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        incidenceAngle:
+          type: number
+          format: double
+        cellTemperature:
+          type: number
+          format: double
+        cellTemperatureOpenCircuit:
+          type: number
+          format: double
+        moduleSurfaceTemperature:
+          type: number
+          format: double
+        oneModulePowerAt25C:
+          type: number
+          format: double
+        oneModulePowerAt25CExcludingDCWiringLosses:
+          type: number
+          format: double
+        dcFieldPowerAt25CScaledfromGref:
+          type: number
+          format: double
+        dcFieldPowerAt25CScaledfromGrefExcludingDCWiringLosses:
+          type: number
+          format: double
+        dcFieldPowerAt25C:
+          type: number
+          format: double
+        dcFieldPowerAt25CExcludingDCWiringLosses:
+          type: number
+          format: double
+        openCircuitDCVoltage:
+          type: number
+          format: double
+        openCircuitFromCellTemperatureOpenCircuit:
+          type: number
+          format: double
+        shortCircuitCurrent:
+          type: number
+          format: double
+        initialVoltage:
+          type: number
+          format: double
+        initialCurrent:
+          type: number
+          format: double
+        initialPower:
+          type: number
+          format: double
+        voltage:
+          type: number
+          format: double
+        current:
+          type: number
+          format: double
+        dcPower:
+          type: number
+          format: double
+        dcLossDueToElecShading:
+          type: number
+          format: double
+        cellTemperature_withElec:
+          type: number
+          format: double
+        moduleSurfaceTemperature_withElec:
+          type: number
+          format: double
+        spectralShiftFactor:
+          type: number
+          format: double
+        globalPOAIrradiance:
+          type: number
+          format: double
+        threeDimensionalTranspositionLosses:
+          type: number
+          format: double
+        globalBackPOAI:
+          type: number
+          format: double
+        aveGroundGHI:
+          type: number
+          format: double
+        effectiveGlobalBackPOAI:
+          type: number
+          format: double
+        eia:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.EffectiveIrradianceAnalyzer'
+        iParameters:
+          type:
+          - object
+          - 'null'
+          additionalProperties:
+            type: number
+            format: double
+        transposition:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.Tracking'
+        irradianceHorizontal:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.IrradianceHorizontal'
+        mountingAngles:
+          $ref: '#/components/schemas/PlantPredict.Entities.DTO.MountingAnglesDTO'
+        hasMetastability:
+          type: boolean
+        laggedMovingAverages:
+          $ref: '#/components/schemas/PlantPredict.Entities.LaggedMovingAverages'
+        metastabilityResultsDetail:
+          $ref: '#/components/schemas/PlantPredict.Entities.DTO.MetastabilityResultsDetail'
+        hozShdGlobIrrLoss:
+          type: number
+          format: double
+        nearShdGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpElecShadingLossAggregate:
+          type: number
+          format: double
+        soilGlobIrrLossAggregate:
+          type: number
+          format: double
+        incAngGlobIrrLossAggregate:
+          type: number
+          format: double
+        spectralShiftGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpIrrLossAggregate:
+          type: number
+          format: double
+        modPmpStcLossAggregate:
+          type: number
+          format: double
+        modPmpStcAggregate:
+          type: number
+          format: double
+        modPmpTempLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpMismatchLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpModuleQualityLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpDcHealthLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpLIDLossAggregate:
+          type: number
+          format: double
+        ohmicPowerLoss:
+          type: number
+          format: double
+        totalPOAIrrdainceOnModule:
+          type: number
+          format: double
+        correctedPOAILossAggregate:
+          type: number
+          format: double
+        irradianceWeightedModTempAggregate:
+          type: number
+          format: double
+        effBackPOAIrrdainceOnModule:
+          type: number
+          format: double
+        dcFieldPmpBackMismatchLossAggregate:
+          type: number
+          format: double
+        backSideIrradiance:
+          type:
+          - number
+          - 'null'
+          format: double
+        structureShadingLoss:
+          type:
+          - number
+          - 'null'
+          format: double
+        backSideMismatchLoss:
+          type:
+          - number
+          - 'null'
+          format: double
+        biFacialityLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregateNodal:
+          type: number
+          format: double
+        backSideIrradianceAggregate:
+          type: number
+          format: double
+        structureShadingLossAggregate:
+          type: number
+          format: double
+        sunSolveTransmissionGainOnRear:
+          type:
+          - number
+          - 'null'
+          format: double
+        sunSolveTransmissionGainOnRearAggregate:
+          type: number
+          format: double
+        dcWithLinearShadingPower:
+          type: number
+          format: double
+        string3hrShortCircuitCurrent:
+          type: number
+          format: double
+        backIrradianceAfterBiFaciality:
+          type: number
+          format: double
+        combinedCoefficient:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.DTO.ArrayWindStowResponse:
+      type: object
+      properties:
+        token:
+          type:
+          - string
+          - 'null'
+        key:
+          type:
+          - string
+          - 'null'
+        email:
+          type:
+          - string
+          - 'null'
+        minimumTrackingLimitAngleD:
+          type: number
+          format: double
+        maximumTrackingLimitAngleD:
+          type: number
+          format: double
+        nightTimeStowAngleD:
+          type: number
+          format: double
+        windStowType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ArrayTechnologiesWindStowType'
+        timeSeriesData:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.DTO.WindStowTimeSeriesResponse'
+      additionalProperties: false
+    PlantPredict.Entities.ESS.ESSSystem:
+      required:
+      - essInputs
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        essInputs:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSInputs'
+        pvsCombinedOutput:
+          type: number
+          format: double
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSCalculationResultDetail'
+      additionalProperties: false
+    PlantPredict.Entities.Types.IrradianceHorizontal:
+      type: object
+      properties:
+        directNormalIrradiance:
+          type: number
+          format: double
+        diffuseHorizontalIrradiance:
+          type: number
+          format: double
+        globalHorizontalIrradiance:
+          type: number
+          format: double
+        extraterrestrialDirectNormalIrradiance:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.EngineShadeData:
+      type: object
+      properties:
+        timestamps:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineOutputTimestamp'
+      additionalProperties: false
+    PlantPredict.Entities.LaggedMovingAverages:
+      type: object
+      properties:
+        sevenDayLaggedMovingAvgEffPOAI:
+          type: number
+          format: double
+        sixHourLaggedMovingAvgEffPOAI:
+          type: number
+          format: double
+        sevenDayLaggedMovingAvgTcell:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.IrradianceOptimizationType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.ShadeEngineInput:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        weatherIndex:
+          type: integer
+          format: int32
+        dni:
+          type:
+          - number
+          - 'null'
+          format: double
+        albedo:
+          type:
+          - number
+          - 'null'
+          format: double
+        apparentZenith:
+          type: number
+          format: double
+        azimuth:
+          type: number
+          format: double
+        rotationAngle:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.ESS.ESSInputs:
+      required:
+      - chargeAlgorithm
+      - factor
+      - hvacFullLoadLoss
+      - hvacNoLoadLoss
+      - inverterCapacity
+      - inverterEfficiency
+      - mvCapacity
+      - mvFullLoadLoss
+      - mvNoLoadLoss
+      - nameplateEnergyCapacity
+      - roundtripDCEfficiencyCalendarDeg
+      - roundtripDCEfficiencyCycleDeg
+      - roundtripDCEfficiencyYear1
+      - usableEnergyCapacityCalendarDeg
+      - usableEnergyCapacityCycleDeg
+      - usableEnergyCapacityYear1
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        inverterCapacity:
+          maximum: 100000000
+          minimum: 0
+          type: number
+          format: double
+        nameplateEnergyCapacity:
+          maximum: 100000000
+          minimum: 0
+          type: number
+          format: double
+        usableEnergyCapacityYear1:
+          maximum: 100000000
+          minimum: 0
+          type: number
+          format: double
+        usableEnergyCapacityCalendarDeg:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        usableEnergyCapacityCycleDeg:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyYear1:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyCalendarDeg:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        roundtripDCEfficiencyCycleDeg:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        hvacNoLoadLoss:
+          maximum: 500
+          minimum: 0
+          type: number
+          format: double
+        hvacFullLoadLoss:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        mvNoLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        mvFullLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        mvCapacity:
+          maximum: 100000000
+          minimum: 0
+          type: number
+          format: double
+        inverterEfficiency:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        factor:
+          maximum: 1
+          minimum: 0
+          type: number
+          format: double
+        chargeAlgorithm:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ESSChargeAlgorithm'
+        dispatchTable:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTable'
+        essDispatchCustomInfo:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchCustomInfo'
+      additionalProperties: false
+    PlantPredict.Entities.Transformer:
+      required:
+      - fullLoadLoss
+      - highSideVoltage
+      - noLoadLoss
+      - rating
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        rating:
+          maximum: 10000
+          minimum: 0.1
+          type: number
+          format: double
+        highSideVoltage:
+          maximum: 1000
+          minimum: 1
+          type: number
+          format: double
+        noLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        fullLoadLoss:
+          maximum: 10
+          minimum: 0
+          type: number
+          format: double
+        ordinal:
+          type: integer
+          format: int32
+      additionalProperties: false
+    PlantPredict.Entities.Enums.PvModelType:
+      enum:
+      - 0
+      - 1
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.DCFieldTrackingTypeEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.ShadeEngineInputData:
+      type: object
+      properties:
+        pvjData:
+          $ref: '#/components/schemas/PlantPredict.Entities.PVJData'
+        engineInputs:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadeEngineInput'
+      additionalProperties: false
+    PlantPredict.Entities.ESS.ESSDispatchTable:
+      required:
+      - april
+      - august
+      - december
+      - february
+      - january
+      - july
+      - june
+      - march
+      - may
+      - november
+      - october
+      - september
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        january:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        february:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        march:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        april:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        may:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        june:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        july:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        august:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        september:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        october:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        november:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+        december:
+          $ref: '#/components/schemas/PlantPredict.Entities.ESS.ESSDispatchTableMonth'
+      additionalProperties: false
+    PlantPredict.Entities.Types.PQPoint:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        activePowerP:
+          type: number
+          format: double
+        reactivePowerQ:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.IncidenceAngleModelType:
+      enum:
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.FacialityEnum:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.SoilingModelType:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.TableSceneData:
+      type: object
+      properties:
+        inverterId:
+          type:
+          - string
+          - 'null'
+        rackId:
+          type:
+          - string
+          - 'null'
+        bayId:
+          type: integer
+          format: int32
+        averageShadePercentage:
+          type: number
+          format: double
+        averageShadeElectricalEffectPercentage:
+          type: number
+          format: double
+        isolatedAverageShadeElectricalEffectPercentage:
+          type: number
+          format: double
+        averageCombinedPercentage:
+          type: number
+          format: double
+        transpositionPercentage:
+          type: number
+          format: double
+        inverterShadePercentage:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.SubscriptionInterval:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.DTO.MetastabilityResultsDetail:
+      type: object
+      properties:
+        poa:
+          type: number
+          format: double
+        movingAverage7dIrr:
+          type: number
+          format: double
+        movingAverage7dTemp:
+          type: number
+          format: double
+        movingAverage6hIrr:
+          type: number
+          format: double
+        metastabilityFactor:
+          type: number
+          format: double
+        vmpScalar:
+          type: number
+          format: double
+        impScalar:
+          type: number
+          format: double
+        vmpAdjustment:
+          type: number
+          format: double
+        impAdjustment:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.ApplicationUserLogin:
+      type: object
+      properties:
+        loginProvider:
+          type:
+          - string
+          - 'null'
+        providerKey:
+          type:
+          - string
+          - 'null'
+        providerDisplayName:
+          type:
+          - string
+          - 'null'
+        userId:
+          type: integer
+          format: int32
+        user:
+          $ref: '#/components/schemas/PlantPredict.Entities.Authentication.ApplicationUser'
+      additionalProperties: false
+    PlantPredict.Entities.DTO.SunSolveBifacialTimeSeriesDetailsDTO:
+      type: object
+      properties:
+        sunSolveBifacialTimeSeriesId:
+          type: integer
+          format: int64
+        index:
+          type: integer
+          format: int32
+        structureShading:
+          type: number
+          format: double
+        combinedMismatch:
+          type: number
+          format: double
+        transmissionGain:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.SpectralShiftModel:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.PVStringConductorMaterials:
+      enum:
+      - 0
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.TrackerRotationModel:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.SystemDetailSettings:
+      required:
+      - availabilityLoss
+      - fullLoadLoss
+      - highSideVoltage
+      - length
+      - noLoadLoss
+      - numberOfConductorsPerPhase
+      - rating
+      - resistance
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        rating:
+          type: number
+          format: double
+        highSideVoltage:
+          type: number
+          format: double
+        noLoadLoss:
+          type: number
+          format: double
+        fullLoadLoss:
+          type: number
+          format: double
+        length:
+          type: number
+          format: double
+        resistance:
+          type: number
+          format: double
+        numberOfConductorsPerPhase:
+          type: integer
+          format: int32
+        availabilityLoss:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PowerPlants.ArrayCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        energized:
+          type: boolean
+        totalACInverterPowerOutput:
+          type: number
+          format: double
+        degradationCoefficient:
+          type:
+          - number
+          - 'null'
+          format: double
+        powerAfterDegradation:
+          type: number
+          format: double
+        acDegradationLoss:
+          type: number
+          format: double
+        acLeTIDLoss:
+          type: number
+          format: double
+        acPowerIntoTransformer:
+          type: number
+          format: double
+        transformerLosses:
+          type: number
+          format: double
+        transformerOutputPower:
+          type: number
+          format: double
+        totalGHIIrrdainceOnModule:
+          type: number
+          format: double
+        totalPOAIrrdainceOnModule:
+          type: number
+          format: double
+        acCollectionSystem:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.ACCollectionSystem'
+        weightedPOAI:
+          type: number
+          format: double
+        weightedBackPOAI:
+          type: number
+          format: double
+        triggerNighttimeDisconnect:
+          type: boolean
+        correctedPOAILossAggregate:
+          type: number
+          format: double
+        hozShdGlobIrrLoss:
+          type: number
+          format: double
+        nearShdGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpElecShadingLossAggregate:
+          type: number
+          format: double
+        soilGlobIrrLossAggregate:
+          type: number
+          format: double
+        incAngGlobIrrLossAggregate:
+          type: number
+          format: double
+        spectralShiftGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpIrrLossAggregate:
+          type: number
+          format: double
+        modPmpStcLossAggregate:
+          type: number
+          format: double
+        modPmpStcAggregate:
+          type: number
+          format: double
+        modPmpTempLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpMismatchLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpLIDLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpModuleQualityLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpDcHealthLossAggregate:
+          type: number
+          format: double
+        invPowerEfficiencyLossAggregate:
+          type: number
+          format: double
+        coolingLossAggregate:
+          type: number
+          format: double
+        invPowerAcAggregate:
+          type: number
+          format: double
+        trackerMotorLossAggregate:
+          type: number
+          format: double
+        acDegradationLossAggregate:
+          type: number
+          format: double
+        acLeTIDLossAggregate:
+          type: number
+          format: double
+        mvTxLossAggregate:
+          type: number
+          format: double
+        collectorLossAggregate:
+          type: number
+          format: double
+        ohmicPowerLoss:
+          type: number
+          format: double
+        powerOffMppLossAggregate:
+          type: number
+          format: double
+        degradationLossAggregate:
+          type: number
+          format: double
+        leTIDLossAggregate:
+          type: number
+          format: double
+        dataAcquisitionAuxiliaryLoss:
+          type: number
+          format: double
+        powerDissipatedBytheSystem:
+          type: number
+          format: double
+        irradianceWeightedModTempAggregate:
+          type: number
+          format: double
+        effBackPOAIrrdainceOnModule:
+          type: number
+          format: double
+        dcFieldPmpBackMismatchLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregateNodal:
+          type: number
+          format: double
+        backSideIrradianceAggregate:
+          type: number
+          format: double
+        structureShadingLossAggregate:
+          type: number
+          format: double
+        sunSolveTransmissionGainOnRearAggregate:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ModuleTemperatureModelType:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.MiscellaneousSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        predictionStatus:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PredictionStatusSettingsEnum'
+        weatherStatus:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PredictionStatusSettingsEnum'
+        inverterStatus:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PredictionStatusSettingsEnum'
+        moduleStatus:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PredictionStatusSettingsEnum'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.PostHeightCalculationMethodType:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.PowerPlants.InverterCalculationResultDetail:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        timeStamp:
+          type: string
+          format: date-time
+        acPowerLimitInput:
+          type: number
+          format: double
+        acPowerLimitFinal:
+          type: number
+          format: double
+        totalGHIIrrdainceOnModule:
+          type: number
+          format: double
+        totalPOAIrrdainceOnModule:
+          type: number
+          format: double
+        invInputOutput:
+          $ref: '#/components/schemas/PlantPredict.Entities.Types.InverterInputOutput'
+        weightedPOAI:
+          type: number
+          format: double
+        weightedBackPOAI:
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+        correctedPOAILossAggregate:
+          type: number
+          format: double
+        hozShdGlobIrrLoss:
+          type: number
+          format: double
+        nearShdGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpElecShadingLossAggregate:
+          type: number
+          format: double
+        soilGlobIrrLossAggregate:
+          type: number
+          format: double
+        incAngGlobIrrLossAggregate:
+          type: number
+          format: double
+        spectralShiftGlobIrrLossAggregate:
+          type: number
+          format: double
+        modPmpIrrLossAggregate:
+          type: number
+          format: double
+        modPmpStcLossAggregate:
+          type: number
+          format: double
+        modPmpStcAggregate:
+          type: number
+          format: double
+        modPmpTempLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpMismatchLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpLIDLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpModuleQualityLossAggregate:
+          type: number
+          format: double
+        dcFieldPmpDcHealthLossAggregate:
+          type: number
+          format: double
+        invPowerEfficiencyLossAggregate:
+          type: number
+          format: double
+        invPowerAcAggregate:
+          type: number
+          format: double
+        ohmicPowerLoss:
+          type: number
+          format: double
+        powerOffMppLossAggregate:
+          type: number
+          format: double
+        irradianceWeightedModTempAggregate:
+          type: number
+          format: double
+        degradationLossAggregate:
+          type: number
+          format: double
+        leTIDLossAggregate:
+          type: number
+          format: double
+        degradationStabilizationCofficient:
+          type: number
+          format: double
+        effBackPOAIrrdainceOnModule:
+          type: number
+          format: double
+        dcFieldPmpBackMismatchLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregate:
+          type: number
+          format: double
+        biFacialityLossAggregateNodal:
+          type: number
+          format: double
+        backSideIrradianceAggregate:
+          type: number
+          format: double
+        structureShadingLossAggregate:
+          type: number
+          format: double
+        sunSolveTransmissionGainOnRearAggregate:
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.Types.EfficiencyPoint:
+      required:
+      - efficiency
+      - power
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        power:
+          maximum: 100000
+          minimum: 0
+          type: number
+          format: double
+        efficiency:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+      additionalProperties: false
+    PlantPredict.Entities.PVJData:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        originLatitude:
+          type:
+          - number
+          - 'null'
+          format: double
+        originLongitude:
+          type:
+          - number
+          - 'null'
+          format: double
+        shadeSceneSurfaceArea:
+          type:
+          - number
+          - 'null'
+          format: double
+        shadingObjectCount:
+          type: integer
+          format: int32
+        shadingTableCount:
+          type: integer
+          format: int32
+        shadingElectricalEffectModel:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ModuleShadingResponse'
+        fractionalShadingPercent:
+          type: number
+          format: double
+        useRotationAngleSchedule:
+          type: boolean
+        boundingBoxType:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.ShadeObjectType'
+        numberOfModuleFractions:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        tables:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingTable'
+        objects:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PlantPredict.Entities.ShadingObject'
+      additionalProperties: false
+    PlantPredict.Entities.Authentication.CPRAPISettings:
+      type: object
+      properties:
+        apiKey:
+          type:
+          - string
+          - 'null'
+        userName:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        password:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+        licenseNumber:
+          maxLength: 100
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.Enums.ModuleDegradationModel:
+      enum:
+      - 0
+      - 1
+      - 2
+      type: integer
+      format: int32
+    PlantPredict.Entities.Enums.OcpdRatings:
+      enum:
+      - 16
+      - 25
+      - 32
+      - 63
+      - 100
+      - 250
+      - 320
+      - 400
+      type: integer
+      format: int32
+    PlantPredict.Entities.Authentication.DesignProEpcCostSettings:
+      required:
+      - dcFeederCableCost
+      - dcFeederCableCostOverride
+      - dcFeederCableSize
+      - dcFeederCableSizeOverride
+      - dcFeederConductorMaterial
+      - dcFeederConductorMaterialOverride
+      - gradingCost
+      - gradingCostOverride
+      - interconnectionCost
+      - interconnectionCostOverride
+      - inverterMaterialCost
+      - inverterMaterialCostOverride
+      - moduleCost
+      - moduleCostOverride
+      - mvCableConductorMaterial
+      - mvCableConductorMaterialOverride
+      - mvCableCost
+      - mvCableCostOverride
+      - mvCableSize
+      - mvCableSizeOverride
+      - mvTransformerMaterialCost
+      - mvTransformerMaterialCostOverride
+      - otherCosts
+      - otherCostsOverride
+      - otherFixedCosts
+      - otherFixedCostsOverride
+      - pileMaterialCost
+      - pileMaterialCostOverride
+      - pvCableSize
+      - pvCableSizeOverride
+      - pvStringCableCost
+      - pvStringCableCostOverride
+      - pvStringConductorMaterial
+      - pvStringConductorMaterialOverride
+      - rackingMaterialCost
+      - rackingMaterialCostOverride
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        moduleCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        moduleCostOverride:
+          type: boolean
+        pileMaterialCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        pileMaterialCostOverride:
+          type: boolean
+        rackingMaterialCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        rackingMaterialCostOverride:
+          type: boolean
+        inverterMaterialCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        inverterMaterialCostOverride:
+          type: boolean
+        mvTransformerMaterialCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        mvTransformerMaterialCostOverride:
+          type: boolean
+        interconnectionCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        interconnectionCostOverride:
+          type: boolean
+        pvStringCableCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        pvStringCableCostOverride:
+          type: boolean
+        pvStringConductorMaterial:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PVStringConductorMaterials'
+        pvStringConductorMaterialOverride:
+          type: boolean
+        pvCableSize:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.PVCableSizes'
+        pvCableSizeOverride:
+          type: boolean
+        dcFeederCableCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        dcFeederCableCostOverride:
+          type: boolean
+        dcFeederConductorMaterial:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFeederConductorMaterials'
+        dcFeederConductorMaterialOverride:
+          type: boolean
+        dcFeederCableSize:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.DCFeederCableSizes'
+        dcFeederCableSizeOverride:
+          type: boolean
+        mvCableCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        mvCableCostOverride:
+          type: boolean
+        mvCableConductorMaterial:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.MVCableConductorMaterials'
+        mvCableConductorMaterialOverride:
+          type: boolean
+        mvCableSize:
+          $ref: '#/components/schemas/PlantPredict.Entities.Enums.MVCableSizes'
+        mvCableSizeOverride:
+          type: boolean
+        gradingCost:
+          maximum: 100
+          minimum: 0
+          type: number
+          format: double
+        gradingCostOverride:
+          type: boolean
+        otherCosts:
+          maximum: 1000
+          minimum: 0
+          type: number
+          format: double
+        otherCostsOverride:
+          type: boolean
+        otherFixedCosts:
+          maximum: 1000000000
+          minimum: 0
+          type: number
+          format: double
+        otherFixedCostsOverride:
+          type: boolean
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer
+        {token}"'
+      name: Authorization
+      in: header

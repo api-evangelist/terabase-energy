@@ -1,0 +1,101 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Power Plant API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "PowerPlant",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get power plant",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieves the power plant configuration for a prediction. Returns full PVPlant entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Create power plant",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a power plant for a prediction. May attach X-Message header with configuration warnings.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The PVPlant entity to create.\n"
+        },
+        {
+          "info": {
+            "name": "Update power plant",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the power plant for a prediction. May attach X-Message header with warnings (e.g., energization date, 3D shading, post height).\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The updated PVPlant entity.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

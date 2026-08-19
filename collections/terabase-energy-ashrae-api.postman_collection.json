@@ -1,0 +1,619 @@
+{
+  "item": [
+    {
+      "id": "628bbb69-e55a-474d-89db-b40bca2a85c6",
+      "name": "ASHRAE",
+      "description": {
+        "content": "ASHRAE climate station lookup",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "cb9216c5-529b-4b6b-b5a2-3970bf2082f1",
+          "name": "Get nearest ASHRAE station by coordinates",
+          "request": {
+            "name": "Get nearest ASHRAE station by coordinates",
+            "description": {
+              "content": "### GET /ASHRAE\n\nReturns the closest ASHRAE station based on the specified coordinates. The station with the shortest distance from the latitude and longitude is returned.\n\n**Parameters:**\n- `Latitude` (query, required): Latitude coordinate.\n- `Longitude` (query, required): Longitude coordinate.\n- `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "ASHRAE"
+              ],
+              "host": [
+                "{{ASHRAE-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "Latitude",
+                  "value": "<number>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "Longitude",
+                  "value": "<number>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7045391c-07cf-4047-b388-dd107aae8f09",
+              "name": "ASHRAE station data",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE"
+                  ],
+                  "host": [
+                    "{{ASHRAE-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"stationName\": \"TRAVERSE CITY CHERRY CAPITAL, MI, USA\",\n  \"wmo\": \"726387\",\n  \"cool996\": 31.5,\n  \"min50Year\": -32,\n  \"max50Year\": 38.4,\n  \"distance\": 3823.050281721237,\n  \"latitude\": 44.741,\n  \"longitude\": -85.583,\n  \"minAnnualMeanDBTemp\": -21.4,\n  \"version\": 2021,\n  \"elevation\": 188,\n  \"timeZone\": -5\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "41bbe8ec-4973-4d40-b920-52fec07d6f65",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE"
+                  ],
+                  "host": [
+                    "{{ASHRAE-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "25b0c867-f561-4680-9832-5896045922a6",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE"
+                  ],
+                  "host": [
+                    "{{ASHRAE-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "61754464-8c97-41ac-8c8e-037ad3b93620",
+          "name": "Get a specific ASHRAE station by name",
+          "request": {
+            "name": "Get a specific ASHRAE station by name",
+            "description": {
+              "content": "### GET /ASHRAE/GetStation\n\nReturns the closest ASHRAE station matching the provided name and shortest distance from the specified coordinates.\n\n**Parameters:**\n- `StationName` (query, required): Name of the ASHRAE station to match.\n- `Latitude` (query, required): Latitude coordinate.\n- `Longitude` (query, required): Longitude coordinate.\n- `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "ASHRAE",
+                "GetStation"
+              ],
+              "host": [
+                "{{ASHRAE-GetStation-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "StationName",
+                  "value": "<string>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "Latitude",
+                  "value": "<number>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "Longitude",
+                  "value": "<number>",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "Version",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "43bd8315-2f3c-4921-bc78-2aa228689882",
+              "name": "ASHRAE station data",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE",
+                    "GetStation"
+                  ],
+                  "host": [
+                    "{{ASHRAE-GetStation-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "StationName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Version",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"stationName\": \"HARBOR SPRINGS, MI, USA\",\n  \"wmo\": \"722145\",\n  \"cool996\": 28.3,\n  \"min50Year\": -34.7,\n  \"max50Year\": 34.3,\n  \"distance\": 0.23219238787982716,\n  \"latitude\": 45.426,\n  \"longitude\": -84.913,\n  \"minAnnualMeanDBTemp\": -23.5,\n  \"version\": 2021,\n  \"elevation\": 206,\n  \"timeZone\": -5\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0ba8a0a2-bf4a-4428-9d43-bcccbeb749eb",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE",
+                    "GetStation"
+                  ],
+                  "host": [
+                    "{{ASHRAE-GetStation-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "StationName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Version",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "da3caef3-30ea-477d-ba5b-07d4316a52b8",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE",
+                    "GetStation"
+                  ],
+                  "host": [
+                    "{{ASHRAE-GetStation-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "StationName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Version",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "8eaff751-91d8-4cec-ba5f-b8da1dec2a63",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE",
+                    "GetStation"
+                  ],
+                  "host": [
+                    "{{ASHRAE-GetStation-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "StationName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Version",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "58e8b2d9-7449-4a80-b82c-b540a1569a5b",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ASHRAE",
+                    "GetStation"
+                  ],
+                  "host": [
+                    "{{ASHRAE-GetStation-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "StationName",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "Latitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "Version",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "ASHRAE-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "ASHRAE-GetStation-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "2827731f-f9fb-436a-81d9-9cea03a0bebd",
+    "name": "Terabase Energy ASHRAE API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged ASHRAE across 2 of this provider's published API definitions: terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

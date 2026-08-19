@@ -1,0 +1,337 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Modules API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Modules",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all accessible modules",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module"
+          },
+          "docs": "Gets all available modules and their corresponding properties."
+        },
+        {
+          "info": {
+            "name": "Create a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new module from the provided body contents."
+        },
+        {
+          "info": {
+            "name": "Get module overview list",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module/ModuleOverview"
+          },
+          "docs": "Gets all available modules and with only critical meta data for properties."
+        },
+        {
+          "info": {
+            "name": "Get default IAM curve for a given ASHRAE IAM coefficient",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module/DefaultIAM",
+            "params": [
+              {
+                "name": "ASHRAEIAM",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns the default incidence-angle modifier (IAM) curve for a given ASHRAE b₀ coefficient. Use this when defining a new module without measured IAM data; the curve is shared across all modules of the same construction type."
+        },
+        {
+          "info": {
+            "name": "Parse a PAN file and return module data",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/ImportPANFile",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "This endpoint will convern a .PAN file and its contents into a JSON structure which is compatible with PlantPredict. The response can be used as the body in a POST request to create a new module."
+        },
+        {
+          "info": {
+            "name": "Create a module from parsed PAN file data",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/CreatePANFileModule",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new module library entry from parsed PVsyst PAN file data. The raw `.pan` file must be parsed client-side; this endpoint accepts the structured JSON form rather than the file itself. Equivalent to a manual module entry but pre-populated with PVsyst's parameter set."
+        },
+        {
+          "info": {
+            "name": "Generate single-diode parameters from basic datasheet values",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/GenerateSingleDiodeParametersDefault",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Derives a complete single-diode model from a minimal set of datasheet values (STC power, voltages, currents, temperature coefficients, cell technology). A good starting point when you don't have measured IV curves to work from. For finer control over the solver and curve-fitting, use `POST /Module/Generator/GenerateSingleDiodeParametersAdvanced` instead."
+        },
+        {
+          "info": {
+            "name": "Advanced generation of single-diode parameters",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/GenerateSingleDiodeParametersAdvanced",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Same goal as `generateSingleDiodeDefault` but accepts a full `Module` payload — letting you override solver constraints (shunt resistance, recombination parameter, series resistance, etc.) and tune the fit before persisting."
+        },
+        {
+          "info": {
+            "name": "Optimize series resistance for effective irradiance response",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/OptimizeSeriesResistance",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Iteratively refines a module's series resistance so the model's effective-irradiance response matches measured behaviour. Typically called after `generateSingleDiodeAdvanced` when the resulting low-irradiance performance diverges from expectations."
+        },
+        {
+          "info": {
+            "name": "Calculate effective irradiance response",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/CalculateEffectiveIrradianceResponse",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Computes the module's predicted relative efficiency vs. irradiance at a fixed temperature. Returned as an array of (irradiance, relative-efficiency) points suitable for plotting against measured low-light curves."
+        },
+        {
+          "info": {
+            "name": "Generate IV curve for a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/GenerateIVCurve",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generates a synthetic IV curve at the requested irradiance and temperature for a fully-parameterized module. The number of points is controlled via `numIVPoints` in the payload (default 100). Useful for visual QA of a single-diode parameter set."
+        },
+        {
+          "info": {
+            "name": "Process IV curve data",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/ProcessIVCurves",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Takes a list of measured IV curves (each a list of `{voltage, current}` pairs at a known irradiance/temperature) and extracts the key operating points — `Isc`, `Imp`, `Voc`, `Vmp`, `Pmax` — for each curve. Used as preprocessing before single-diode parameter derivation."
+        },
+        {
+          "info": {
+            "name": "Process key IV points for module parameter derivation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Module/Generator/ProcessKeyIVPoints",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Takes pre-extracted IV operating points across multiple irradiance/temperature conditions and computes derived parameters (temperature coefficients, fill factors, etc.) used as inputs to the single-diode solvers. Lighter-weight alternative to `processIVCurves` when you already have the key points."
+        },
+        {
+          "info": {
+            "name": "Get a module by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Gets the specific module from the provided Id."
+        },
+        {
+          "info": {
+            "name": "Update a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates an existing module using the request body. **All fields are required**, even if they haven’t changed. The module will be overwritten with the values you provide, any fields left out may replace existing values with empty/default ones."
+        },
+        {
+          "info": {
+            "name": "Delete a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Permanently removes a module from the company library. Fails if the module is referenced by any active prediction's PowerPlant; reassign or delete dependents first."
+        },
+        {
+          "info": {
+            "name": "Export a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId/Export",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a module library entry in a portable format suitable for re-import into another PlantPredict company or use in external modeling tools."
+        },
+        {
+          "info": {
+            "name": "Get notes for a module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId/Note",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the audit-trail notes attached to a module — creation, edits, status changes, and freeform user comments — in reverse chronological order."
+        },
+        {
+          "info": {
+            "name": "Delete a module note",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Module/:moduleId/Note/:noteId",
+            "params": [
+              {
+                "name": "moduleId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "noteId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a single note from a module's audit trail. Permanent; intended for cleaning up accidental entries rather than rewriting history."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

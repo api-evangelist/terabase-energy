@@ -1,0 +1,214 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Time Series API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "TimeSeries",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List time series data sets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns all time series data for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Create new time series",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Adds time series data via JSON. Requires TimeSeriesDTO with Details array.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `timeSeriesData` (body, required): TimeSeriesDTO with Details array (non-empty).\n"
+        },
+        {
+          "info": {
+            "name": "Upload time series CSV",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Updates time series data via file upload. Replaces existing data with the uploaded file contents.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `file` (form, required): The CSV or data file to upload.\n"
+        },
+        {
+          "info": {
+            "name": "Download time series CSV template",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData/Template",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a CSV template for time series data upload. Use to understand the expected format.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Get time series details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId/Details",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the specified time series data properties, including timestamp details."
+        },
+        {
+          "info": {
+            "name": "Download time series as CSV",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the specified time series data properties, including timestamp details except as a .csv binary stream."
+        },
+        {
+          "info": {
+            "name": "Delete a time series",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a time series data entry by ID. Note: Time series inputs with active assignments to a power plant cannot be deleted.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `timeSeriesId` (path, required): The time series entry ID to delete.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

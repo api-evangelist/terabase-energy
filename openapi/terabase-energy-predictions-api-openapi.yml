@@ -1,0 +1,1961 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Predictions API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Predictions
+  description: Energy prediction configuration and execution
+paths:
+  /Project/{projectId}/Prediction:
+    get:
+      tags:
+      - Predictions
+      summary: List predictions for a project
+      description: 'Returns all predictions for a project. Predictions do not include power plant data; use the Power Plant operation for sub-entities.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+        '
+      operationId: listPredictions
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Array of predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prediction'
+              examples:
+                postman-predictions:
+                  value:
+                  - status: 2
+                    start: '2005-01-01T00:00:00'
+                    end: '2005-12-31T23:00:00'
+                    startIndex: 0
+                    endIndex: 0
+                    yearRepeater: 1
+                    transpositionModel: 1
+                    perezCoefficients: 0
+                    diffuseDirectDecompModel: 3
+                    circumsolarTreatment: 0
+                    diffuseDirectDecompModelExecuted: false
+                    useMeteoDni: false
+                    useMeteoPOAI: false
+                    useBacksidePOAI: false
+                    useLeapYears: false
+                    useWeatherFileAlbedoData: false
+                    useMetastability: false
+                    enableLeTID: false
+                    airMassModel: 0
+                    soilingModel: 0
+                    modTempModel: 0
+                    incAngleModel: 5
+                    directBeamShadingModel: 5
+                    degradationModel: 0
+                    diffuseShadingModel: 1
+                    linearDegradationRate: 0.5
+                    firstYearDegradation: false
+                    nonLinearDegradationRates: []
+                    lightAndElevatedTemperatureDegradationRates: []
+                    errorModelAcc: 2.9
+                    errorSensAcc: 5
+                    errorIntAnnVar: 3
+                    errorMonAcc: 2
+                    errorSpaVar: 2
+                    spectralShiftModel: 2
+                    spectralWeatherType: 0
+                    powerPlantId: 1185523
+                    monthlyFactors:
+                    - month: 1
+                      monthName: Jan
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 2
+                      monthName: Feb
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 3
+                      monthName: Mar
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 4
+                      monthName: Apr
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 5
+                      monthName: May
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 6
+                      monthName: Jun
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 7
+                      monthName: Jul
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 8
+                      monthName: Aug
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 9
+                      monthName: Sep
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 10
+                      monthName: Oct
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 11
+                      monthName: Nov
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 12
+                      monthName: Dec
+                      soilingLoss: 2
+                      albedo: 0.2
+                    horizonDetails: []
+                    ashraeStation: RIVERPORT MUNICIPAL AP, ST, USA
+                    ashraeVersion: 2021
+                    cool996: 32.5
+                    max50Year: 39.4
+                    min50Year: -30.3
+                    minAnnualMeanDBTemp: -19.1
+                    elevation: 184
+                    timeZone: -5
+                    weatherId: 230763
+                    projectId: 187749
+                    shadeScenePropertiesId: 4297
+                    shadeEngineRunInfo_Id: 6806
+                    shading3DModel: 0
+                    tabtEngineRunInfo_Id: 802
+                    percentComplete: 0
+                    processingStatus: 0
+                    processingStep: 0
+                    processingMessage: Unknown
+                    pValues: []
+                    isReadOnly: false
+                    pValuesString: ''
+                    nodalData: false
+                    hasTimeSeriesData: false
+                    isBatch: false
+                    batchStepVariable: []
+                    batchQualified: true
+                    logicVersion: 12
+                    mapBuilderCreateDCAs: 0
+                    useMapBuilder: false
+                    scenePropertiesKey: 00000000-0000-0000-0000-000000000000
+                    setback: 0
+                    targetDC: 0
+                    weatherLocked: false
+                    electricalShadingFractionalEffect: 100
+                    numberOfModuleFractions: 0
+                    numOfBlocks: 0
+                    numOfWeatherDetails: 0
+                    hasObjectShading: false
+                    numOfShadingObjects: 0
+                    reportsId: 941620
+                    canImportAlbedoData: false
+                    useSpectral30: false
+                    spectral30B0: -0.0967
+                    spectral30B1: 0.0126
+                    spectral30B2: 0
+                    spectral30B3: 0.00223
+                    spectral30B4: 0
+                    spectral30B5: 0
+                    spectral30B6: 1.086
+                    id: 955415
+                    name: Baseline Yield Study
+                    companyId: 1042
+                    ownerId: 8903
+                    createdDate: '2025-11-25T16:21:07.213'
+                    lastModified: '2025-11-25T16:22:16.553'
+                    lastModifiedById: 8903
+                  - status: 2
+                    start: '2005-01-01T00:00:00'
+                    end: '2005-12-31T23:00:00'
+                    lastPublishedDateToQueue: '2026-02-06T13:01:30.893'
+                    startIndex: 0
+                    endIndex: 0
+                    yearRepeater: 1
+                    transpositionModel: 1
+                    perezCoefficients: 0
+                    diffuseDirectDecompModel: 3
+                    circumsolarTreatment: 0
+                    diffuseDirectDecompModelExecuted: false
+                    useMeteoDni: false
+                    useMeteoPOAI: false
+                    useBacksidePOAI: false
+                    useLeapYears: false
+                    useWeatherFileAlbedoData: false
+                    useMetastability: false
+                    enableLeTID: false
+                    airMassModel: 0
+                    soilingModel: 0
+                    modTempModel: 0
+                    incAngleModel: 5
+                    directBeamShadingModel: 5
+                    degradationModel: 0
+                    diffuseShadingModel: 1
+                    linearDegradationRate: 0.5
+                    firstYearDegradation: false
+                    nonLinearDegradationRates: []
+                    lightAndElevatedTemperatureDegradationRates: []
+                    errorModelAcc: 2.9
+                    errorSensAcc: 5
+                    errorIntAnnVar: 3
+                    errorMonAcc: 2
+                    errorSpaVar: 2
+                    spectralShiftModel: 2
+                    spectralWeatherType: 0
+                    powerPlantId: 1187255
+                    monthlyFactors:
+                    - month: 1
+                      monthName: Jan
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 2
+                      monthName: Feb
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 3
+                      monthName: Mar
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 4
+                      monthName: Apr
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 5
+                      monthName: May
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 6
+                      monthName: Jun
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 7
+                      monthName: Jul
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 8
+                      monthName: Aug
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 9
+                      monthName: Sep
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 10
+                      monthName: Oct
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 11
+                      monthName: Nov
+                      soilingLoss: 2
+                      albedo: 0.2
+                    - month: 12
+                      monthName: Dec
+                      soilingLoss: 2
+                      albedo: 0.2
+                    horizonDetails:
+                    - azimuth: 0
+                      elevation: 2.3
+                    - azimuth: 7.5
+                      elevation: 2.3
+                    - azimuth: 15
+                      elevation: 2.3
+                    - azimuth: 22.5
+                      elevation: 2.3
+                    - azimuth: 30
+                      elevation: 2.3
+                    - azimuth: 37.5
+                      elevation: 2.3
+                    - azimuth: 45
+                      elevation: 1.5
+                    - azimuth: 52.5
+                      elevation: 1.5
+                    - azimuth: 60
+                      elevation: 1.5
+                    - azimuth: 67.5
+                      elevation: 1.5
+                    - azimuth: 75
+                      elevation: 1.9
+                    - azimuth: 82.5
+                      elevation: 1.9
+                    - azimuth: 90
+                      elevation: 1.9
+                    - azimuth: 97.5
+                      elevation: 2.3
+                    - azimuth: 105
+                      elevation: 2.3
+                    - azimuth: 112.5
+                      elevation: 1.9
+                    - azimuth: 120
+                      elevation: 1.9
+                    - azimuth: 127.5
+                      elevation: 1.9
+                    - azimuth: 135
+                      elevation: 1.9
+                    - azimuth: 142.5
+                      elevation: 1.1
+                    - azimuth: 150
+                      elevation: 0.8
+                    - azimuth: 157.5
+                      elevation: 0.4
+                    - azimuth: 165
+                      elevation: 0.4
+                    - azimuth: 172.5
+                      elevation: 0
+                    - azimuth: 180
+                      elevation: 0
+                    - azimuth: 187.5
+                      elevation: 0.4
+                    - azimuth: 195
+                      elevation: 0.4
+                    - azimuth: 202.5
+                      elevation: 0.8
+                    - azimuth: 210
+                      elevation: 0.4
+                    - azimuth: 217.5
+                      elevation: 0
+                    - azimuth: 225
+                      elevation: 0
+                    - azimuth: 232.5
+                      elevation: 0
+                    - azimuth: 240
+                      elevation: 0
+                    - azimuth: 247.5
+                      elevation: 0
+                    - azimuth: 255
+                      elevation: 0
+                    - azimuth: 262.5
+                      elevation: 0
+                    - azimuth: 270
+                      elevation: 0.8
+                    - azimuth: 277.5
+                      elevation: 1.1
+                    - azimuth: 285
+                      elevation: 0.8
+                    - azimuth: 292.5
+                      elevation: 0.8
+                    - azimuth: 300
+                      elevation: 0.4
+                    - azimuth: 307.5
+                      elevation: 1.1
+                    - azimuth: 315
+                      elevation: 1.1
+                    - azimuth: 322.5
+                      elevation: 2.3
+                    - azimuth: 330
+                      elevation: 2.3
+                    - azimuth: 337.5
+                      elevation: 2.3
+                    - azimuth: 345
+                      elevation: 2.3
+                    - azimuth: 352.5
+                      elevation: 2.3
+                    - azimuth: 360
+                      elevation: 2.3
+                    ashraeStation: PRAIRIE RIDGE RGNL AP, ST, USA
+                    ashraeVersion: 2021
+                    cool996: 37.6
+                    max50Year: 45.4
+                    min50Year: -28.9
+                    minAnnualMeanDBTemp: -17.2
+                    elevation: 229
+                    timeZone: -6
+                    weatherId: 139907
+                    projectId: 187749
+                    shading3DModel: 0
+                    percentComplete: 100
+                    processingStatus: 0
+                    processingStep: 40
+                    processingMessage: Unknown
+                    pValues: []
+                    isReadOnly: false
+                    pValuesString: ''
+                    nodalData: false
+                    hasTimeSeriesData: false
+                    isBatch: false
+                    batchStepVariable: []
+                    batchQualified: true
+                    logicVersion: 10
+                    mapBuilderCreateDCAs: 0
+                    useMapBuilder: false
+                    scenePropertiesKey: 00000000-0000-0000-0000-000000000000
+                    setback: 0
+                    targetDC: 0
+                    weatherLocked: false
+                    electricalShadingFractionalEffect: 100
+                    numberOfModuleFractions: 0
+                    numOfBlocks: 1
+                    numOfWeatherDetails: 8760
+                    hasObjectShading: false
+                    numOfShadingObjects: 0
+                    reportsId: 943796
+                    canImportAlbedoData: false
+                    runningOnVMName: ''
+                    runCompletedDateTimeUTC: '2026-02-06T13:01:41.323'
+                    useSpectral30: false
+                    spectral30B0: -0.0967
+                    spectral30B1: 0.0126
+                    spectral30B2: 0
+                    spectral30B3: 0.00223
+                    spectral30B4: 0
+                    spectral30B5: 0
+                    spectral30B6: 1.086
+                    id: 957032
+                    name: Site B – Fixed-Tilt Baseline (v10)
+                    description: Cloned from prior baseline study and updated for fixed-tilt layout; created for comparative analysis.
+                    companyId: 1042
+                    ownerId: 8903
+                    createdDate: '2026-02-06T14:19:24.517'
+                    lastModified: '2026-02-06T14:19:24.517'
+                    lastModifiedById: 8903
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - Predictions
+      summary: Create a prediction
+      description: 'Creates a new prediction under the given project. The prediction starts in `status: 0` (Draft) and must subsequently be associated with a `PowerPlant` via `POST .../PowerPlant` before it can be run. Most model parameters can be left at their defaults; see the `Prediction` schema for the complete list and their enum values.'
+      operationId: createPrediction
+      x-doc-source: drafted
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prediction'
+            examples:
+              postman-projects-prediction-prediction:
+                value:
+                  name: Postman Doc Sample
+                  status: 1
+                  pValues: []
+                  horizonDetails: []
+                  nonLinearDegradationRates: []
+                  plantDesignTemperatures: []
+                  yearRepeater: 1
+                  airMassModel: 0
+                  modTempModel: 0
+                  incAngleModel: 5
+                  directBeamShadingModel: 5
+                  degradationModel: 0
+                  diffuseShadingModel: 1
+                  transpositionModel: 1
+                  diffuseDirectDecompModel: 3
+                  max50Year: 39.4
+                  min50Year: -30.3
+                  cool996: 32.5
+                  minAnnualMeanDBTemp: -19.1
+                  elevation: 184
+                  timeZone: -5
+                  ashraeStation: TOLEDO CGS, OH, USA
+                  ashraeWMO: '997295'
+                  ashraeDistance: 7.079021066538359
+                  monthlyFactors:
+                  - month: 1
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 2
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 3
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 4
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 5
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 6
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 7
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 8
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 9
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 10
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 11
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  - month: 12
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                  spectralShiftModel: 2
+                  soilingModel: 0
+                  useMeteoDni: false
+                  firstYearDegradation: false
+                  linearDegradationRate: 0.5
+                  errorIntAnnVar: 3
+                  errorSensAcc: 5
+                  errorMonAcc: 2
+                  errorSpaVar: 2
+                  errorModelAcc: 2.9
+                  logicVersion: 11
+                  ashraeVersion: 2021
+                  originalAshraeStation: TOLEDO CGS, OH, USA
+                  originalAshraeWMO: '997295'
+                  originalAshraeDistance: 7.079021066538359
+                  originalCool996: 32.5
+                  originalMax50Year: 39.4
+                  originalMin50Year: -30.3
+                  originalMinAnnualMeanDBTemp: -19.1
+                  originalTimeZone: -5
+                  originalElevation: 184
+                  circumsolarTreatment: 0
+      responses:
+        '200':
+          description: Created prediction ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+              examples:
+                postman-prediction:
+                  value:
+                    id: 726228
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags:
+      - Predictions
+      summary: Update a prediction
+      description: "Updates an existing prediction. May attach an X-Message header with a non-blocking warning about the updated entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `prediction` (body, required): The updated prediction entity.\n"
+      operationId: updatePrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prediction'
+            examples:
+              postman-projects-prediction-prediction:
+                value:
+                  name: Postman Doc Sample - Name Update
+                  description: Sample Description PUT
+                  status: 1
+                  yearRepeater: 1
+                  transpositionModel: 1
+                  perezCoefficients: 0
+                  diffuseDirectDecompModel: 3
+                  circumsolarTreatment: 0
+                  diffuseDirectDecompModelExecuted: false
+                  useMeteoDni: false
+                  useMeteoPOAI: false
+                  useBacksidePOAI: false
+                  useLeapYears: false
+                  useWeatherFileAlbedoData: false
+                  useMetastability: false
+                  enableLeTID: false
+                  airMassModel: 0
+                  soilingModel: 0
+                  modTempModel: 0
+                  incAngleModel: 5
+                  directBeamShadingModel: 5
+                  degradationModel: 0
+                  diffuseShadingModel: 1
+                  linearDegradationRate: 0.5
+                  firstYearDegradation: false
+                  nonLinearDegradationRates: []
+                  lightAndElevatedTemperatureDegradationRates: []
+                  errorModelAcc: 2.9
+                  errorSensAcc: 5
+                  errorIntAnnVar: 3
+                  errorMonAcc: 2
+                  errorSpaVar: 2
+                  siteResultList: null
+                  spectralShiftModel: 2
+                  spectralWeatherType: 0
+                  powerPlantId: null
+                  monthlyFactors:
+                  - id: 39132062
+                    month: 1
+                    monthName: Jan
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132063
+                    month: 2
+                    monthName: Feb
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132064
+                    month: 3
+                    monthName: Mar
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132065
+                    month: 4
+                    monthName: Apr
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132066
+                    month: 5
+                    monthName: May
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132067
+                    month: 6
+                    monthName: Jun
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132068
+                    month: 7
+                    monthName: Jul
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132069
+                    month: 8
+                    monthName: Aug
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132070
+                    month: 9
+                    monthName: Sep
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132071
+                    month: 10
+                    monthName: Oct
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132072
+                    month: 11
+                    monthName: Nov
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  - id: 39132073
+                    month: 12
+                    monthName: Dec
+                    soilingLoss: 2.2
+                    albedo: 0.3
+                    spectralShift: null
+                  horizonDetails: []
+                  ashraeStation: TOLEDO CGS, OH, USA
+                  ashraeVersion: 2021
+                  heat996: null
+                  cool996: 32.5
+                  max50Year: 39.4
+                  min50Year: -30.3
+                  minAnnualMeanDBTemp: -19.1
+                  weather: null
+                  weatherId: null
+                  projectId: 133005
+                  pValues: []
+                  pValuesString: ''
+                  logicVersion: 11
+                  setback: 0
+                  targetDC: 0
+                  weatherLocked: false
+                  electricalShadingFractionalEffect: 100
+                  useSpectral30: false
+                  spectral30B0: -0.0967
+                  spectral30B1: 0.0126
+                  spectral30B2: 0.00223
+                  spectral30B3: 1.086
+                  id: 957033
+      responses:
+        '200':
+          description: Update result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionUpdateResponse'
+              examples:
+                postman-prediction:
+                  value:
+                    changesMade: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}:
+    get:
+      tags:
+      - Predictions
+      summary: Get a prediction
+      description: "Retrieves a single prediction by project and prediction ID. Does not include the power plant; use the Power Plant endpoint for that.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getPrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Prediction entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prediction'
+              examples:
+                postman-prediction:
+                  value:
+                    powerPlant: null
+                    status: 2
+                    start: '2005-01-01T00:00:00'
+                    end: '2005-12-31T23:00:00'
+                    lastPublishedDateToQueue: null
+                    startIndex: 0
+                    endIndex: 0
+                    yearRepeater: 1
+                    transpositionModel: 1
+                    perezCoefficients: 0
+                    diffuseDirectDecompModel: 3
+                    circumsolarTreatment: 0
+                    diffuseDirectDecompModelExecuted: false
+                    useMeteoDni: false
+                    useMeteoPOAI: false
+                    useBacksidePOAI: false
+                    useLeapYears: false
+                    useWeatherFileAlbedoData: false
+                    useMetastability: false
+                    enableLeTID: false
+                    airMassModel: 0
+                    soilingModel: 0
+                    modTempModel: 0
+                    incAngleModel: 5
+                    directBeamShadingModel: 5
+                    degradationModel: 0
+                    diffuseShadingModel: 1
+                    linearDegradationRate: 0.5
+                    firstYearDegradation: false
+                    nonLinearDegradationRates: []
+                    lightAndElevatedTemperatureDegradationRates: []
+                    errorModelAcc: 2.9
+                    errorSensAcc: 5
+                    errorIntAnnVar: 3
+                    errorMonAcc: 2
+                    errorSpaVar: 2
+                    siteResultList: null
+                    spectralShiftModel: 2
+                    spectralWeatherType: 0
+                    powerPlantId: 1185523
+                    monthlyFactors:
+                    - id: 49207459
+                      month: 1
+                      monthName: Jan
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207460
+                      month: 2
+                      monthName: Feb
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207461
+                      month: 3
+                      monthName: Mar
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207462
+                      month: 4
+                      monthName: Apr
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207463
+                      month: 5
+                      monthName: May
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207464
+                      month: 6
+                      monthName: Jun
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207465
+                      month: 7
+                      monthName: Jul
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207466
+                      month: 8
+                      monthName: Aug
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207467
+                      month: 9
+                      monthName: Sep
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207468
+                      month: 10
+                      monthName: Oct
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207469
+                      month: 11
+                      monthName: Nov
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    - id: 49207470
+                      month: 12
+                      monthName: Dec
+                      soilingLoss: 2
+                      albedo: 0.2
+                      spectralShift: null
+                    horizonDetails: []
+                    ashraeStation: TOLEDO CGS, OH, USA
+                    ashraeVersion: 2021
+                    heat996: null
+                    cool996: 32.5
+                    max50Year: 39.4
+                    min50Year: -30.3
+                    minAnnualMeanDBTemp: -19.1
+                    elevation: 184
+                    timeZone: -5
+                    weather: null
+                    weatherId: 230763
+                    project:
+                      latitude: 41.6528052
+                      longitude: -83.5378674
+                      country: United States
+                      countryCode: US
+                      stateProvince: Ohio
+                      stateProvinceCode: OH
+                      locality: Toledo
+                      region: North America
+                      elevation: 178.5460357666016
+                      standardOffsetFromUTC: -5
+                      predictions: []
+                      status: 0
+                      distance: 0
+                      id: 187749
+                      name: Doc Generation
+                      description: null
+                      companyId: 1042
+                      company: null
+                      ownerId: 8903
+                      owner: null
+                      createdDate: '2024-10-23T13:04:30.243'
+                      lastModified: '2024-10-23T13:04:30.243'
+                      lastModifiedById: 8903
+                      lastModifiedBy: null
+                    projectId: 187749
+                    resultSummary: null
+                    resultSummaryId: null
+                    financialModelParameters: null
+                    financialModelParametersId: null
+                    cashflowSummaryResult: null
+                    cashflowSummaryResultId: null
+                    shadeSceneProperties:
+                      id: 4297
+                      name: Custom Shade Scene
+                      createdDateUTC: '2025-11-25T17:16:52.387'
+                      createdById: 8903
+                      sceneSurfaceArea: 34952.621141703195
+                      dcFieldSurfaceArea: 14461.598249999997
+                      collectorCount: 177
+                      objectCount: 0
+                      orientationTargetDCField: 3387869
+                      calculationSettingsTargetDCField: 3387869
+                      siteTableCount: 177
+                      rotation: false
+                      customTableRotationScheduleName: null
+                      customTableRotationUploadDate: null
+                      binType: 2
+                      collectorType: 0
+                      trackerRotationModel: 0
+                      shadingModel: 6
+                      fractionalShadingPercentage: 100
+                      numberOfModuleFractions: 3
+                      shadeObjectType: 1
+                      siteExceedsTableLimit: false
+                      engineInputData: null
+                    shadeScenePropertiesId: 4297
+                    shadeEngineRunInfo:
+                      id: 6806
+                      runId: 955415-XJRPTVDWQZ
+                      percentComplete: 0
+                      processingStatus: 0
+                      lastPublishedDateToQueue: '2025-11-25T16:59:49.907'
+                      runStartedDateTimeUTC: '2025-11-25T16:59:50.513'
+                      runCompletedDateTimeUTC: '2025-11-25T17:00:32.183'
+                      isInverterMultiRun: false
+                      inverterRunSuccesses: 0
+                      inverterRunFailures: 0
+                      inverterRunInfo: null
+                    shadeEngineRunInfo_Id: 6806
+                    shading3DModel: 0
+                    tabtEngineRunInfo:
+                      id: 802
+                      runId: 955415-DJYHQLJVVN
+                      percentComplete: 100
+                      engineProcessingStatus: 3
+                      optimizationProcessingStatus: 0
+                      transpositionProcessingStatus: 3
+                      lastPublishedDateToQueue: '2025-11-25T16:57:55.91'
+                      runStartedDateTimeUTC: '2025-11-25T16:57:56.69'
+                      runCompletedDateTimeUTC: '2025-11-25T16:58:01.973'
+                    tabtEngineRunInfo_Id: 802
+                    percentComplete: 0
+                    processingStatus: 0
+                    processingStep: 0
+                    processingMessage: Unknown
+                    resultDetail: null
+                    pValues: []
+                    isReadOnly: false
+                    pValuesString: ''
+                    nodalData: false
+                    hasTimeSeriesData: false
+                    isBatch: false
+                    batchPredictionId: null
+                    childPredictions: []
+                    batchStepVariable: []
+                    batchQualified: true
+                    logicVersion: 12
+                    mapKML: null
+                    mapBuilderCreateDCAs: 0
+                    useMapBuilder: false
+                    mapDesignData: null
+                    setback: 0
+                    targetDC: 0
+                    weatherLocked: false
+                    electricalShadingFractionalEffect: 100
+                    numberOfModuleFractions: 0
+                    timeSeriesData: []
+                    numOfBlocks: 0
+                    numOfWeatherDetails: 0
+                    hasObjectShading: false
+                    numOfShadingObjects: 0
+                    reports: null
+                    reportsId: 941620
+                    canImportAlbedoData: true
+                    queueMessageId: null
+                    queuePopReceipt: null
+                    runningOnVMName: null
+                    runCompletedDateTimeUTC: null
+                    useSpectral30: false
+                    spectral30B0: -0.0967
+                    spectral30B1: 0.0126
+                    spectral30B2: 0
+                    spectral30B3: 0.00223
+                    spectral30B4: 0
+                    spectral30B5: 0
+                    spectral30B6: 1.086
+                    id: 955415
+                    name: Scene Documentation
+                    description: null
+                    companyId: 1042
+                    company: null
+                    ownerId: 8903
+                    owner: null
+                    createdDate: '2025-11-25T16:21:07.213'
+                    lastModified: '2025-11-25T16:22:16.553'
+                    lastModifiedById: 8903
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+      - Predictions
+      summary: Delete a prediction
+      description: "Deletes a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to delete.\n"
+      operationId: deletePrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/Overview:
+    get:
+      tags:
+      - Predictions
+      summary: Get prediction overview
+      description: "Returns a summary overview of a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getPredictionOverview
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Prediction overview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  ownerId:
+                    type: integer
+                  projectId:
+                    type: integer
+                  isBatch:
+                    type: boolean
+                  createdDate:
+                    type: string
+                    description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+                  lastModified:
+                    type: string
+                    description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+                  status:
+                    type: integer
+                  weather:
+                    type: object
+                  powerPlant:
+                    type: object
+                  resultSummary:
+                    type: object
+                  statistics:
+                    type: object
+              examples:
+                postman-overview:
+                  value:
+                    id: 955415
+                    name: Baseline Yield Study
+                    ownerId: 8903
+                    projectId: 187749
+                    isBatch: false
+                    batchQualified: true
+                    createdDate: '2025-11-25T16:21:07.213'
+                    lastModified: '2025-11-25T16:22:16.553'
+                    weather:
+                      id: 230763
+                      name: Meteonorm - 39.742N - 104.991W
+                    status: 2
+                    useMapBuilder: false
+                    powerPlant:
+                      id: 1185523
+                      inverters:
+                      - name: Central Inverter 2.5 MW
+                      modules:
+                      - name: Mono PERC Module 560 W (1500V)
+                    resultSummary:
+                      id: 0
+                      globalHorizontalIrradiance: 1421.63
+                      avgTiltAngle: 0
+                    batchComponents: {}
+                    batchStepVariables: []
+                    statistics:
+                      acSize: 2.6125
+                      dcSize: 3.135
+                      dcacRatio: 1.2
+                      groundCoverageRatio: 40
+                      avgMountingType: 1
+                      avgRowSpacing: 5.695
+                      avgWattage: 560
+                      avgAzimuth: 180
+                      arrayCount: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/Run:
+    post:
+      tags:
+      - Predictions
+      summary: Run a prediction
+      description: "Queues a prediction to run. Validates weather data and queue status before queuing. Export options can be customized.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to run.\n    \n- `expOptions` (body, optional): ExportOptions to customize export behavior. If omitted, stored options are used.\n"
+      operationId: runPrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Run accepted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/Cancel:
+    post:
+      tags:
+      - Predictions
+      summary: Cancel a running prediction
+      description: "Cancels a running or queued prediction. Returns success message when cancellation completes.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to cancel.\n"
+      operationId: cancelPrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              examples:
+                postman-cancel-success:
+                  value: Prediction cancelled successfully.
+        '400':
+          description: Cannot cancel (e.g. already complete)
+          content:
+            text/plain:
+              examples:
+                postman-cancel-failure:
+                  value: A successfully completed prediction cannot be cancelled.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/Status:
+    post:
+      tags:
+      - Predictions
+      summary: Change status of one or more predictions
+      description: "Updates the status of one or more predictions for a project. May trigger report regeneration for completed predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `assets` (body, required): List of Asset objects with prediction IDs and new status values.\n"
+      operationId: changePredictionStatus
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusChangeItem'
+            examples:
+              postman-projects-prediction-status-change:
+                value:
+                - id: 726234
+                  status: 2
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/Export:
+    get:
+      tags:
+      - Predictions
+      summary: Export a prediction
+      description: "Exports a prediction as JSON. Returns the full project/prediction data for the specified prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to export.\n"
+      operationId: exportPrediction
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Exported prediction data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionIds}/ExportMulti:
+    get:
+      tags:
+      - Predictions
+      summary: Export and compare multiple predictions
+      description: "Exports a comparison report file for a comma-separated list of prediction IDs. Returns an octet-stream file.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionIds` (path, required): Comma-separated list of prediction IDs.\n    \n- `includeNightTimeLosses` (query, optional): Include nighttime losses in export. Default: false.\n    \n- `includeDetails` (query, optional): Include detailed data. Default: true.\n"
+      operationId: exportPredictionComparison
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionIds
+        in: path
+        required: true
+        description: Comma-separated prediction IDs (e.g. 957063,957032)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Comparison export data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/GetAlbedoData:
+    get:
+      tags:
+      - Predictions
+      summary: Get albedo data for a prediction
+      description: "Retrieves monthly albedo data for the prediction from NSRDB/NASA. Used for bifacial calculations.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getPredictionAlbedoData
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Monthly albedo data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyFactor'
+              examples:
+                postman-albedo-data:
+                  value:
+                  - id: 24929003
+                    month: 1
+                    monthName: Jan
+                    soilingLoss: 2
+                    albedo: 0.6435
+                    spectralShift: 1
+                  - id: 24929004
+                    month: 2
+                    monthName: Feb
+                    soilingLoss: 2
+                    albedo: 0.5389
+                    spectralShift: 1
+                  - id: 24929005
+                    month: 3
+                    monthName: Mar
+                    soilingLoss: 2
+                    albedo: 0.3216
+                    spectralShift: 1
+                  - id: 24929006
+                    month: 4
+                    monthName: Apr
+                    soilingLoss: 2
+                    albedo: 0.1793
+                    spectralShift: 1
+                  - id: 24929007
+                    month: 5
+                    monthName: May
+                    soilingLoss: 2
+                    albedo: 0.1323
+                    spectralShift: 1
+                  - id: 24929008
+                    month: 6
+                    monthName: Jun
+                    soilingLoss: 2
+                    albedo: 0.14
+                    spectralShift: 1
+                  - id: 24929009
+                    month: 7
+                    monthName: Jul
+                    soilingLoss: 2
+                    albedo: 0.14
+                    spectralShift: 1
+                  - id: 24929010
+                    month: 8
+                    monthName: Aug
+                    soilingLoss: 2
+                    albedo: 0.1387
+                    spectralShift: 1
+                  - id: 24929011
+                    month: 9
+                    monthName: Sep
+                    soilingLoss: 2
+                    albedo: 0.1353
+                    spectralShift: 1
+                  - id: 24929012
+                    month: 10
+                    monthName: Oct
+                    soilingLoss: 2
+                    albedo: 0.13
+                    spectralShift: 1
+                  - id: 24929013
+                    month: 11
+                    monthName: Nov
+                    soilingLoss: 2
+                    albedo: 0.204
+                    spectralShift: 1
+                  - id: 24929014
+                    month: 12
+                    monthName: Dec
+                    soilingLoss: 2
+                    albedo: 0.4829
+                    spectralShift: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/PowerPlant/ExportOptions:
+    put:
+      tags:
+      - Predictions
+      summary: Update export options for a prediction's power plant
+      description: Sets which sub-systems are included when results for this prediction are exported (e.g. nodal-level vs. aggregate, AC system, ESS, custom array configurations). Has no effect on the simulation itself — only on what the export endpoints subsequently return.
+      operationId: updateExportOptions
+      x-doc-source: drafted
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportOptions'
+            examples:
+              postman-projects-prediction-update-export-options:
+                value:
+                  exportSystem: true
+                  exportESS: true
+                  nodalExportOptions:
+                  - name: 1
+                    exportBlock: true
+                    exportArrays: true
+                    exportInverters: true
+                    exportDCFields: true
+                  - name: 2
+                    exportBlock: true
+                    exportArrays: true
+                    exportInverters: true
+                    exportDCFields: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
+    ExportOptions:
+      type: object
+      properties:
+        exportSystem:
+          type: boolean
+        exportESS:
+          type: boolean
+        nodalExportOptions:
+          type: object
+          description: The System Details page allows you to specify interconnection-related parameters including system availability, power plant output limits, and high-voltage (HV) transformation and transmission line details. These settings affect losses between the plant collection point and the energy meter (point of interconnection).
+          x-doc-source: docs-only:user-guide/ui/system-details.mdx
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    Prediction:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        status:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          x-enum-varnames:
+          - DraftPrivate
+          - DraftShared
+          - Analysis
+          - Bid
+          - Contract
+          - Development
+          - AsBuilt
+          - Warranty
+          - Archived
+          - StringSizing
+          description: PredictionStatusEnum
+        projectId:
+          type: integer
+        powerPlantId:
+          type:
+          - integer
+          - 'null'
+        weatherId:
+          type:
+          - integer
+          - 'null'
+        start:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        end:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        yearRepeater:
+          type: integer
+        transpositionModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Hay
+          - Perez
+          description: TranspositionModelType
+        perezCoefficients:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          x-enum-varnames:
+          - PlantPredict
+          - AllSitesComposite1990
+          - AllSitesComposite1988
+          - SandiaComposite1988
+          - USAComposite1988
+          - France1988
+          - Pheonix1988
+          - Elmonte1988
+          - Osage1988
+          - Albuquerque1988
+          - CapeCanaveral1988
+          - Albany1988
+          description: PerezCoefficientsEnum
+        diffuseDirectDecompModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          x-enum-varnames:
+          - Erbs
+          - Reindl
+          - DIRINT
+          - None
+          description: DiffuseDirectDecompModelType
+        circumsolarTreatment:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Diffuse
+          - Direct
+          description: CircumsolarTreatmentType
+        airMassModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - BirdHulstrom
+          - KastenSandia
+          description: AirMassModelType
+        soilingModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - MonthlyOverride
+          - WeatherFile
+          - None
+          description: SoilingModelType
+        modTempModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          x-enum-varnames:
+          - HeatBalance
+          - Sandia
+          - NOCT
+          - DCFieldDefined
+          description: ModuleTemperatureModelType
+        incAngleModel:
+          type: integer
+          enum:
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Sandia
+          - ASHRAE
+          - None
+          - TabularIAM
+          - PhysicalIAM
+          description: IncidenceAngleModelType
+        directBeamShadingModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 5
+          - 6
+          x-enum-varnames:
+          - Linear
+          - None
+          - V2DimensionRetired
+          - FractionalElectricalShading
+          - ModuleFileDefinedShading
+          - StepFractionalElectricalShading
+          description: DirectBeamShadingModel
+        degradationModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          x-enum-varnames:
+          - None
+          - SteppedAC
+          - LinearAC
+          - LinearDC
+          - NonLinearDC
+          description: DegradationModel
+        diffuseShadingModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - None
+          - SchaarPanchula
+          description: DiffuseShadingModel
+        spectralShiftModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          x-enum-varnames:
+          - None
+          - V1ParamPwatOrSandia
+          - V2ParamPwatAndAM
+          - MonthlyOverride
+          description: SpectralShiftModel
+        linearDegradationRate:
+          type: number
+        firstYearDegradation:
+          type: boolean
+        errorModelAcc:
+          type: number
+        errorSensAcc:
+          type: number
+        errorIntAnnVar:
+          type: number
+        errorMonAcc:
+          type: number
+        errorSpaVar:
+          type: number
+        useMeteoDni:
+          type: boolean
+        useMeteoPOAI:
+          type: boolean
+        useBacksidePOAI:
+          type: boolean
+        useLeapYears:
+          type: boolean
+        useWeatherFileAlbedoData:
+          type: boolean
+        useMetastability:
+          type: boolean
+        enableLeTID:
+          type: boolean
+        max50Year:
+          type: number
+        min50Year:
+          type: number
+        cool996:
+          type: number
+        minAnnualMeanDBTemp:
+          type:
+          - number
+          - 'null'
+        elevation:
+          type:
+          - number
+          - 'null'
+        timeZone:
+          type:
+          - number
+          - 'null'
+        ashraeStation:
+          type: string
+        ashraeWMO:
+          type: string
+        ashraeDistance:
+          type: number
+        ashraeVersion:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Version2013
+          - Version2021
+          description: AshraeVersionEnum
+        logicVersion:
+          type: integer
+          enum:
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          x-enum-varnames:
+          - Version3
+          - Version4
+          - Version5
+          - Version6
+          - Version7
+          - Version8
+          - Version9
+          - Version10
+          - Version11
+          - Version12
+          - Version13Beta
+          description: PredictionVersionEnum
+        pValues:
+          type: array
+          items:
+            type: object
+        horizonDetails:
+          type: array
+          items:
+            type: object
+        nonLinearDegradationRates:
+          type: array
+          items:
+            type: object
+        monthlyFactors:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyFactor'
+    MonthlyFactor:
+      type: object
+      properties:
+        id:
+          type: integer
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        monthName:
+          type: string
+        soilingLoss:
+          type: number
+        albedo:
+          type: number
+        spectralShift:
+          type:
+          - number
+          - 'null'
+  responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    Forbidden:
+      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
+
+        for this operation (e.g. status-change endpoints require elevated
+
+        privileges that not every API client is granted). Response body is
+
+        typically empty.
+
+        '
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
+
+        Wait and retry. The PlantPredict API does not currently emit
+
+        `Retry-After`; back off with an exponential schedule (start at 30s).
+
+        Response body is typically empty.
+
+        '
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

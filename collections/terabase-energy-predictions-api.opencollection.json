@@ -1,0 +1,320 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Predictions API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Predictions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List predictions for a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns all predictions for a project. Predictions do not include power plant data; use the Power Plant operation for sub-entities.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n"
+        },
+        {
+          "info": {
+            "name": "Create a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new prediction under the given project. The prediction starts in `status: 0` (Draft) and must subsequently be associated with a `PowerPlant` via `POST .../PowerPlant` before it can be run. Most model parameters can be left at their defaults; see the `Prediction` schema for the complete list and their enum values."
+        },
+        {
+          "info": {
+            "name": "Update a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates an existing prediction. May attach an X-Message header with a non-blocking warning about the updated entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `prediction` (body, required): The updated prediction entity.\n"
+        },
+        {
+          "info": {
+            "name": "Get a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieves a single prediction by project and prediction ID. Does not include the power plant; use the Power Plant endpoint for that.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to delete.\n"
+        },
+        {
+          "info": {
+            "name": "Get prediction overview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/Overview",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a summary overview of a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Run a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Queues a prediction to run. Validates weather data and queue status before queuing. Export options can be customized.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to run.\n    \n- `expOptions` (body, optional): ExportOptions to customize export behavior. If omitted, stored options are used.\n"
+        },
+        {
+          "info": {
+            "name": "Cancel a running prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/Cancel",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancels a running or queued prediction. Returns success message when cancellation completes.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to cancel.\n"
+        },
+        {
+          "info": {
+            "name": "Change status of one or more predictions",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/Status",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the status of one or more predictions for a project. May trigger report regeneration for completed predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `assets` (body, required): List of Asset objects with prediction IDs and new status values.\n"
+        },
+        {
+          "info": {
+            "name": "Export a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/Export",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Exports a prediction as JSON. Returns the full project/prediction data for the specified prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to export.\n"
+        },
+        {
+          "info": {
+            "name": "Export and compare multiple predictions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionIds/ExportMulti",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionIds",
+                "value": "",
+                "type": "path",
+                "description": "Comma-separated prediction IDs (e.g. 957063,957032)"
+              }
+            ]
+          },
+          "docs": "Exports a comparison report file for a comma-separated list of prediction IDs. Returns an octet-stream file.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionIds` (path, required): Comma-separated list of prediction IDs.\n    \n- `includeNightTimeLosses` (query, optional): Include nighttime losses in export. Default: false.\n    \n- `includeDetails` (query, optional): Include detailed data. Default: true.\n"
+        },
+        {
+          "info": {
+            "name": "Get albedo data for a prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/GetAlbedoData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieves monthly albedo data for the prediction from NSRDB/NASA. Used for bifacial calculations.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Update export options for a prediction's power plant",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/PowerPlant/ExportOptions",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Sets which sub-systems are included when results for this prediction are exported (e.g. nodal-level vs. aggregate, AC system, ESS, custom array configurations). Has no effect on the simulation itself — only on what the export endpoints subsequently return."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

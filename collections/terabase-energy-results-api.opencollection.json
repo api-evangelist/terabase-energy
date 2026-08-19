@@ -1,0 +1,142 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Results API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Results",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get prediction result summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ResultSummary",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns summary results for a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Get detailed energy results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ResultDetails",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns detailed results for a prediction. Includes granular simulation output data.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Get average energy results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/AverageEnergy",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns average energy for a prediction that has completed with results.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+        },
+        {
+          "info": {
+            "name": "Get nodal JSON results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/NodalJson",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "blockNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "arrayNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "inverterName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "dcFieldNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "nodalParameters",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of output parameter names to include"
+              }
+            ]
+          },
+          "docs": "Returns time-series nodal data. Scope is determined by the combination of query parameters:\n- No params → System level\n- blockNumber → Block level\n- blockNumber + arrayNumber → Array level\n- blockNumber + arrayNumber + inverterName → Inverter level\n- blockNumber + arrayNumber + inverterName + dcFieldNumber → DC Field level\n\nUse `nodalParameters` to filter to specific output columns (comma-separated).\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

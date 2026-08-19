@@ -1,0 +1,231 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict TABT Engine API
+  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly
+    by having your Company Admin generate API credentials. If you do not know your Company Admin, contact
+    support@plantpredict.com for assistance.
+  contact:
+    name: PlantPredict Support
+    url: https://plantpredict.com/contact/
+    email: support@plantpredict.com
+  version: current
+security:
+- Bearer: []
+tags:
+- name: TABTEngine
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/TABT/ProcessingStatus:
+    get:
+      tags:
+      - TABTEngine
+      summary: Get TABT Engine Run information
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/TABT/Run:
+    post:
+      tags:
+      - TABTEngine
+      summary: Trigger the TABT engine to run calculation using a prediction id
+      parameters:
+      - name: projectId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/TerrainAwareEngineInputs:
+    get:
+      tags:
+      - TABTEngine
+      summary: Get the stored Terrain Aware Engine Inputs for a given prediction
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TableRotation:
+    get:
+      tags:
+      - TABTEngine
+      summary: Get table rotation schedule
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: dateTime
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+    put:
+      tags:
+      - TABTEngine
+      summary: Used to upload table schedules for entire site
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags:
+      - TABTEngine
+      summary: This operation will delete the table rotation schedule for the specified prediction.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TableRotation/Download:
+    get:
+      tags:
+      - TABTEngine
+      summary: This operation will download the table rotation schedule.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TranspositionFactors:
+    get:
+      tags:
+      - TABTEngine
+      summary: This operation will get Transposition values.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+  /Project/{projectId}/Prediction/{predictionId}/TABT/TranspositionTimeSeries:
+    get:
+      tags:
+      - TABTEngine
+      summary: This operation will get Transposition values.
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer
+        {token}"'
+      name: Authorization
+      in: header

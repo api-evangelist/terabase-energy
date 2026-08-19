@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Terabase Energy System API
+  version: '1.0'
+  description: 'Operations tagged System across 2 of this provider''s published API definitions: terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+tags:
+- name: System
+  description: System version and maintenance status
+paths:
+  /System/Version:
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
+    get:
+      tags:
+      - System
+      summary: Get API version
+      description: Returns the deployed API version string. **Public endpoint** — no authentication required. Useful as a health check and for compatibility-gating in client code.
+      operationId: getVersion
+      x-doc-source: drafted
+      security: []
+      responses:
+        '200':
+          description: Version string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+              examples:
+                postman-version:
+                  value:
+                    version: 11.16.0.30116
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /System/MaintenanceMode:
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
+    get:
+      tags:
+      - System
+      summary: Get maintenance mode status
+      description: Returns the current system maintenance mode status.
+      operationId: getMaintenanceStatus
+      x-doc-source: postman
+      security: []
+      responses:
+        '200':
+          description: Maintenance mode flag
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maintenanceMode:
+                    type: boolean
+              examples:
+                postman-maintenance:
+                  value:
+                    maintenanceMode: false
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+      name: Authorization
+      in: header
+x-refined-from:
+- terabase-energy-plantpredict-openapi-original.yaml
+- terabase-energy-plantpredict-swagger-v1-original.json

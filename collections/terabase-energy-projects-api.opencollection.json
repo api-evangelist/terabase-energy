@@ -1,0 +1,343 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Projects API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Projects",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List projects (paginated)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project",
+            "params": [
+              {
+                "name": "skip",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "top",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of projects for which the user has access. Supports optional pagination parameters.\n\n**Parameters:**\n\n- `skip` (query, optional): Number of records to skip for pagination.\n    \n- `top` (query, optional): Maximum number of records to return.\n"
+        },
+        {
+          "info": {
+            "name": "Create a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project",
+            "params": [
+              {
+                "name": "enableMeteonormDownload",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new project. Returns the created project ID. May attach an X-Message header with a non-blocking warning about the new entity.\n\n**Parameters:**\n\n- `project` (body, required): The project entity to create.\n    \n- `enableMeteonormDownload` (query, optional): Whether to enable Meteonorm weather data download. Default: false.\n"
+        },
+        {
+          "info": {
+            "name": "Get current user's projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/My",
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns all projects owned by the current user. Optionally filter by status.\n\n**Parameters:**\n\n- `status` (query, optional): Filter by project status (ProjectStatusEnum).\n"
+        },
+        {
+          "info": {
+            "name": "Get current user's projects including their predictions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/ProjectsAndPredictions/My"
+          },
+          "docs": "Returns all projects owned by the current user, including their associated predictions. No parameters required."
+        },
+        {
+          "info": {
+            "name": "Search projects by geographic radius",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/Search",
+            "params": [
+              {
+                "name": "latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchRadius",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns projects within a geographic radius of a latitude/longitude point. Only projects the user has access to are included.\n\n**Parameters:**\n\n- `latitude` (query, required): Center point latitude.\n    \n- `longitude` (query, required): Center point longitude.\n    \n- `searchRadius` (query, required): Search radius in miles.\n"
+        },
+        {
+          "info": {
+            "name": "List projects filtered by status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/ByStatus",
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "skip",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "top",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of projects filtered by status. Only projects the user has access to are included.\n\n**Parameters:**\n\n- `status` (query, optional): Filter by project status (ProjectStatusEnum).\n    \n- `skip` (query, optional): Number of records to skip for pagination.\n    \n- `top` (query, optional): Maximum number of records to return.\n"
+        },
+        {
+          "info": {
+            "name": "Change status of one or more projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/Status",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the status of a single or multiple projects. Requires a list of assets with IDs and target statuses.\n\n**Parameters:**\n\n- `assets` (body, required): List of Asset objects containing project IDs and new status values.\n"
+        },
+        {
+          "info": {
+            "name": "Import a PVsyst project from a ZIP export",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/Import/PVsyst",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Imports a PVsyst project export directly, without using the web application.\n\nSend the ZIP exactly as PVsyst produced it. The import runs asynchronously and can\ntake several minutes, so this returns `202 Accepted` immediately with a job ID. Poll\n`GET /Project/Import/PVsyst/{jobId}` with that ID until the status is `Completed`\nor `Failed`.\n\nEvery variant whose referenced module, inverter and weather files are in the ZIP —\nor which match a record already in your library — is imported. A variant th"
+        },
+        {
+          "info": {
+            "name": "Check the progress and outcome of a PVsyst import",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/Import/PVsyst/:jobId",
+            "params": [
+              {
+                "name": "jobId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Poll this with the ID returned by `POST /Project/Import/PVsyst`. Checking once every\n10 seconds is plenty; a large export can take several minutes.\n\n`status` is `Processing` while the import is running, then `Completed` or `Failed`.\nOn `Completed`, `projectId` is the created project and `imported` lists the variants\nthat became predictions. `skipped` lists variants that were left out, each naming the\nfile references that could not be used, so an incomplete export can be corrected and\nsent again."
+        },
+        {
+          "info": {
+            "name": "Get a project by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieves a single project by its ID. The user must have access to the project within their company context.\n\n**Parameters:**\n\n- `id` (path, required): The unique identifier of the project.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a project by ID. The user must have permission to delete the project.\n\n**Parameters:**\n\n- `id` (path, required): The unique identifier of the project to delete.\n"
+        },
+        {
+          "info": {
+            "name": "Get project overview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Overview",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a summary overview of a project by ID. For the full project entity, use the non-overview GET endpoint.\n\n**Parameters:**\n\n- `projectId` (path, required): The unique identifier of the project.\n"
+        },
+        {
+          "info": {
+            "name": "Export a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Export",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Exports a project as JSON. Returns the full project data for backup or import elsewhere.\n\n**Parameters:**\n\n- `projectId` (path, required): The unique identifier of the project to export.\n"
+        },
+        {
+          "info": {
+            "name": "Get notes for a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Note",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns all notes for a project. Notes are attached at the project level.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n"
+        },
+        {
+          "info": {
+            "name": "Add a note to a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Note",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new note for a project. Returns the created note ID. Note is automatically associated with the project and current user.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `note` (body, required): The Note entity (EntityType and EntityID are set automatically).\n"
+        },
+        {
+          "info": {
+            "name": "Delete a project note",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Note/:noteId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "noteId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a note from a project by note ID. Returns true on success, false if delete fails.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `noteId` (path, required): The note ID to delete.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

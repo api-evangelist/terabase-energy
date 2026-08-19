@@ -1,0 +1,258 @@
+{
+  "item": [
+    {
+      "id": "00026098-4382-40b0-877e-96589f9e2748",
+      "name": "System",
+      "description": {
+        "content": "System version and maintenance status",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "030093a3-9016-47e7-a900-b0e10150f179",
+          "name": "Get API version",
+          "request": {
+            "name": "Get API version",
+            "description": {
+              "content": "Returns the deployed API version string. **Public endpoint** — no authentication required. Useful as a health check and for compatibility-gating in client code.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "System",
+                "Version"
+              ],
+              "host": [
+                "{{System-Version-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "91710cb8-7df2-42c5-88d9-ccb31b316b1a",
+              "name": "Version string",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "System",
+                    "Version"
+                  ],
+                  "host": [
+                    "{{System-Version-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"version\": \"11.16.0.30116\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e0a05235-881e-4559-9618-5de6b7c2f484",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "System",
+                    "Version"
+                  ],
+                  "host": [
+                    "{{System-Version-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a5f57b85-766f-4516-9f8d-10d3a92bd546",
+          "name": "Get maintenance mode status",
+          "request": {
+            "name": "Get maintenance mode status",
+            "description": {
+              "content": "Returns the current system maintenance mode status.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "System",
+                "MaintenanceMode"
+              ],
+              "host": [
+                "{{System-MaintenanceMode-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "772e11ab-5b79-4bbf-8dfa-b3336c790c63",
+              "name": "Maintenance mode flag",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "System",
+                    "MaintenanceMode"
+                  ],
+                  "host": [
+                    "{{System-MaintenanceMode-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"maintenanceMode\": false\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4c96c3bf-900d-4389-a2f9-5caae71bec6b",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "System",
+                    "MaintenanceMode"
+                  ],
+                  "host": [
+                    "{{System-MaintenanceMode-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "System-Version-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "System-MaintenanceMode-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "b5cb46a1-e4db-4801-b3b0-2b829f8dec7d",
+    "name": "Terabase Energy System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged System across 2 of this provider's published API definitions: terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

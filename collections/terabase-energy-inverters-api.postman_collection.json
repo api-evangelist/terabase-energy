@@ -1,0 +1,2599 @@
+{
+  "item": [
+    {
+      "id": "52e0ab32-6ed5-41d6-9289-e623d6df59d8",
+      "name": "Inverters",
+      "description": {
+        "content": "Inverter library management",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "62cbaf4d-71b4-40be-971e-dd7db014b4c6",
+          "name": "List all accessible inverters",
+          "request": {
+            "name": "List all accessible inverters",
+            "description": {
+              "content": "# Get All Inverters\n\nReturns a list of all available Inverters in the system.\n\n## Overview\n\nThis endpoint retrieves a comprehensive list of all inverter configurations stored in the database. Each inverter entry contains detailed technical specifications, power ratings, voltage limits, efficiency curves, and metadata about ownership and modification history.\n\n## Response Fields\n\n### Status & Identification\n\n- **id** - Unique identifier for the inverter record\n    \n- **name** - Display name of the inverter (typically includes manufacturer, model, and specifications)\n    \n- **status** - Current status of the inverter record:\n    - `2` - Active/Published\n        \n    - `5` - Archived\n        \n    - `6` - Legacy/Deprecated\n        \n- **description** - Optional notes or additional information about the inverter configuration\n    \n\n### Manufacturer & Model Information\n\n- **manufacturer** - Inverter manufacturer name (e.g., \"ABB\")\n    \n- **model** - Specific model identifier (e.g., \"PVS800-57-1000kW-C\")\n    \n- **inverterType** - Classification of inverter type:\n    - `2` - Central inverter\n        \n    - Other values may represent string or micro inverters\n        \n\n### Power Specifications\n\n- **powerRated** - Rated AC power output in kilowatts (kW)\n    \n- **apparentPower** - Apparent power capacity in kilovolt-amperes (kVA)\n    \n- **minDCPowerThreshold** - Minimum DC power threshold in watts (W) for operation\n    \n- **outputVoltage** - AC output voltage in volts (V)\n    \n\n### Voltage & Current Limits\n\n- **minVoltage** - Minimum DC input voltage in volts (V)\n    \n- **maxMPPVoltage** - Maximum power point tracking voltage in volts (V)\n    \n- **maxAbsoluteVoltage** - Maximum absolute DC voltage limit in volts (V)\n    \n- **maxCurrent** - Maximum DC input current in amperes (A)\n    \n\n### Environmental & Physical Constraints\n\n- **maxElevation** - Maximum operating elevation in meters above sea level\n    \n\n### Curve Settings & Data Configuration\n\n- **usekVACurves** - Boolean flag indicating whether kVA derating curves are enabled\n    \n- **usePQCurves** - Boolean flag indicating whether power quality curves are enabled\n    \n- **dataSource** - Source identifier for the inverter data:\n    - `2` - Standard/manufacturer data\n        \n    - Other values may indicate custom or imported data\n        \n- **efficiencyCurves** - Array of efficiency curve data points (null if not configured)\n    \n- **kVACurves** - Array of kVA derating curve data (null if not configured)\n    \n- **pqCurves** - Array of power quality curve data (null if not configured)\n    \n\n### Ownership & Company Information\n\n- **companyId** - ID of the company that owns this inverter configuration\n    \n- **company** - Company object (typically null in list responses)\n    \n- **ownerId** - User ID of the inverter configuration owner\n    \n- **owner** - Owner user object (typically null in list responses)\n    \n\n### Audit & Modification Tracking\n\n- **createdDate** - ISO 8601 timestamp when the inverter was created\n    \n- **lastModified** - ISO 8601 timestamp of the most recent modification\n    \n- **lastModifiedById** - User ID of the person who last modified the record\n    \n- **lastModifiedBy** - Detailed user object containing:\n    - **id** - User ID\n        \n    - **email** - User email address\n        \n    - **firstName** / **lastName** - User's name\n        \n    - **jobTitle** - User's job title\n        \n    - **companyId** - User's company affiliation\n        \n    - **status** - User account status (0 = system account, 1 = active)\n        \n    - **createdDateUtc** - When the user account was created\n        \n    - **lastLoginDateUTC** - Most recent login timestamp\n        \n    - **uuid** - Unique user identifier\n        \n    - **migrationAgreementAcceptance** - Agreement acceptance flag\n        \n    - **clientCredentialsCreatedOnUTC** - API credentials creation timestamp\n        \n    - **roles** / **logins** - Arrays of user roles and login records\n        \n\n## Usage Notes\n\n- The response returns an array of inverter objects\n    \n- Inverters with `status: 3` are currently active and available for use\n    \n- Archived or deprecated inverters (`status: 5` or `6`) may still appear in results for historical reference\n    \n- Curve data (`efficiencyCurves`, `kVACurves`, `pqCurves`) is typically null in list responses and must be retrieved individually if needed\n    \n- User and company objects in the response are often null in list views to reduce payload size\n    \n- Multiple inverters may share the same model name but have different IDs and configurations\n    \n- The `lastModifiedBy` object provides full audit trail information for tracking changes\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "77beca8c-9aaa-4cce-b47e-8117ee8b94aa",
+              "name": "Array of inverters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"status\": 6,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": false,\n    \"usePQCurves\": false,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 132,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": null,\n    \"companyId\": 1,\n    \"company\": null,\n    \"ownerId\": 742,\n    \"owner\": null,\n    \"createdDate\": \"2016-08-12T21:39:16.06\",\n    \"lastModified\": \"2017-02-23T00:45:37.47\",\n    \"lastModifiedById\": 742,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1,\n      \"firstName\": \"System\",\n      \"lastName\": \"Account\",\n      \"jobTitle\": \"System\",\n      \"createdByUserId\": null,\n      \"createdByUser\": null,\n      \"status\": 0,\n      \"createdDateUtc\": \"2016-09-01T00:00:00\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": null,\n      \"uuid\": null,\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": null,\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 742,\n      \"normalizedUserName\": null,\n      \"email\": \"FS108328@FIRSTSOLAR.COM\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"976622b5-3695-43b1-84db-823499eebbf0\"\n    }\n  },\n  {\n    \"status\": 5,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": false,\n    \"usePQCurves\": false,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 711,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": null,\n    \"companyId\": 1,\n    \"company\": null,\n    \"ownerId\": 742,\n    \"owner\": null,\n    \"createdDate\": \"2017-02-23T00:45:37.45\",\n    \"lastModified\": \"2017-02-23T00:45:37.45\",\n    \"lastModifiedById\": 742,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1,\n      \"firstName\": \"System\",\n      \"lastName\": \"Account\",\n      \"jobTitle\": \"System\",\n      \"createdByUserId\": null,\n      \"createdByUser\": null,\n      \"status\": 0,\n      \"createdDateUtc\": \"2016-09-01T00:00:00\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": null,\n      \"uuid\": null,\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": null,\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 742,\n      \"normalizedUserName\": null,\n      \"email\": \"FS108328@FIRSTSOLAR.COM\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"c3c3e3e9-add2-4f51-b23d-fc9ad96a584a\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10332,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5093,\n    \"owner\": null,\n    \"createdDate\": \"2025-11-21T15:24:54.293\",\n    \"lastModified\": \"2025-11-21T15:24:54.293\",\n    \"lastModifiedById\": 5093,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:48:03.647\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2025-09-24T18:21:27.657\",\n      \"uuid\": \"626e7c4e-0a96-4af0-996c-c5e979c25df1\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-02-02T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5093,\n      \"normalizedUserName\": null,\n      \"email\": \"jmilam@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"9744b672-ed90-44f0-8b4e-ac9c2926240f\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10333,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5093,\n    \"owner\": null,\n    \"createdDate\": \"2025-11-21T10:31:46.4\",\n    \"lastModified\": \"2025-11-21T10:31:46.4\",\n    \"lastModifiedById\": 5093,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:48:03.647\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2025-09-24T18:21:27.657\",\n      \"uuid\": \"626e7c4e-0a96-4af0-996c-c5e979c25df1\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-02-02T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5093,\n      \"normalizedUserName\": null,\n      \"email\": \"jmilam@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"1eb43180-5df0-471a-9367-94bae3bfeefa\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10334,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5093,\n    \"owner\": null,\n    \"createdDate\": \"2025-11-21T10:32:48.2\",\n    \"lastModified\": \"2025-11-21T10:32:48.2\",\n    \"lastModifiedById\": 5093,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:48:03.647\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2025-09-24T18:21:27.657\",\n      \"uuid\": \"626e7c4e-0a96-4af0-996c-c5e979c25df1\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-02-02T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5093,\n      \"normalizedUserName\": null,\n      \"email\": \"jmilam@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"3c17d76b-87d8-4690-8d4c-23d1c7ecd4a6\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10335,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5093,\n    \"owner\": null,\n    \"createdDate\": \"2025-11-21T10:40:03.99\",\n    \"lastModified\": \"2025-11-21T10:40:03.99\",\n    \"lastModifiedById\": 5093,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:48:03.647\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2025-09-24T18:21:27.657\",\n      \"uuid\": \"626e7c4e-0a96-4af0-996c-c5e979c25df1\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-02-02T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5093,\n      \"normalizedUserName\": null,\n      \"email\": \"jmilam@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"9a499c2e-0a9a-45a4-b096-118f1f039c8f\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10336,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5093,\n    \"owner\": null,\n    \"createdDate\": \"2025-11-21T10:46:00.417\",\n    \"lastModified\": \"2025-11-21T10:46:00.417\",\n    \"lastModifiedById\": 5093,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:48:03.647\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2025-09-24T18:21:27.657\",\n      \"uuid\": \"626e7c4e-0a96-4af0-996c-c5e979c25df1\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-02-02T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5093,\n      \"normalizedUserName\": null,\n      \"email\": \"jmilam@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"d73e037f-4444-47b5-a299-8c257ff9767a\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": false,\n    \"usePQCurves\": false,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 10370,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": null,\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5094,\n    \"owner\": null,\n    \"createdDate\": \"2026-01-28T13:22:53.497\",\n    \"lastModified\": \"2026-01-28T13:22:53.497\",\n    \"lastModifiedById\": 5094,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jason\",\n      \"lastName\": \"Jacobs\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:49:23.147\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2023-09-15T15:48:57.297\",\n      \"uuid\": \"83ff4266-9d81-4eff-82fd-75031b5f1dc8\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-01-30T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5094,\n      \"normalizedUserName\": null,\n      \"email\": \"jjacobs@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"495ee35f-64ec-40e2-933d-efd9ac84707c\"\n    }\n  },\n  {\n    \"status\": 2,\n    \"model\": \"PVS800-57-1000kW-C\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1000,\n    \"apparentPower\": 1000,\n    \"minDCPowerThreshold\": 5000,\n    \"minVoltage\": 600,\n    \"maxMPPVoltage\": 850,\n    \"maxAbsoluteVoltage\": 1100,\n    \"maxCurrent\": 1710,\n    \"maxElevation\": 2000,\n    \"outputVoltage\": 400,\n    \"usekVACurves\": true,\n    \"usePQCurves\": true,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 9111,\n    \"name\": \"ABB PVS800 57 1000kW C\",\n    \"description\": \"This are some inverter test notes\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 5094,\n    \"owner\": null,\n    \"createdDate\": \"2023-01-12T14:14:44.26\",\n    \"lastModified\": \"2025-11-20T16:16:33.297\",\n    \"lastModifiedById\": 5094,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1042,\n      \"firstName\": \"Jason\",\n      \"lastName\": \"Jacobs\",\n      \"jobTitle\": \"Software Developer\",\n      \"createdByUserId\": 5091,\n      \"createdByUser\": null,\n      \"status\": 1,\n      \"createdDateUtc\": \"2021-09-23T19:49:23.147\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": \"2023-09-15T15:48:57.297\",\n      \"uuid\": \"83ff4266-9d81-4eff-82fd-75031b5f1dc8\",\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": \"2026-01-30T00:00:00\",\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 5094,\n      \"normalizedUserName\": null,\n      \"email\": \"jjacobs@terabase.energy\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"07239ceb-f38b-4117-92af-a989ed2f224f\"\n    }\n  },\n  {\n    \"status\": 5,\n    \"model\": \"PVS980-58-1840kW-6 RevE\",\n    \"manufacturer\": \"ABB\",\n    \"powerRated\": 1840,\n    \"apparentPower\": 2024,\n    \"minDCPowerThreshold\": 10000,\n    \"minVoltage\": 862,\n    \"maxMPPVoltage\": 1500,\n    \"maxAbsoluteVoltage\": 1500,\n    \"maxCurrent\": 1925,\n    \"maxElevation\": 4000,\n    \"outputVoltage\": 608,\n    \"usekVACurves\": true,\n    \"usePQCurves\": false,\n    \"dataSource\": 6,\n    \"efficiencyCurves\": null,\n    \"kVACurves\": null,\n    \"pqCurves\": null,\n    \"inverterType\": 2,\n    \"id\": 918,\n    \"name\": \"ABB PVS980-58-1840kW-6\",\n    \"description\": null,\n    \"companyId\": 1,\n    \"company\": null,\n    \"ownerId\": 742,\n    \"owner\": null,\n    \"createdDate\": \"2017-03-28T16:08:33.96\",\n    \"lastModified\": \"2021-05-19T19:14:38.2\",\n    \"lastModifiedById\": 742,\n    \"lastModifiedBy\": {\n      \"company\": null,\n      \"companyId\": 1,\n      \"firstName\": \"System\",\n      \"lastName\": \"Account\",\n      \"jobTitle\": \"System\",\n      \"createdByUserId\": null,\n      \"createdByUser\": null,\n      \"status\": 0,\n      \"createdDateUtc\": \"2016-09-01T00:00:00\",\n      \"settings\": null,\n      \"costCenter\": null,\n      \"migrationAgreementAcceptance\": true,\n      \"clientCredentialsCreatedOnUTC\": null,\n      \"uuid\": null,\n      \"userWeatherDownloads\": null,\n      \"lastLoginDateUTC\": null,\n      \"roles\": [],\n      \"logins\": [],\n      \"id\": 742,\n      \"normalizedUserName\": null,\n      \"email\": \"FS108328@FIRSTSOLAR.COM\",\n      \"normalizedEmail\": null,\n      \"concurrencyStamp\": \"545c6e6a-2675-49c3-9707-b097d802fec2\"\n    }\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cd7f9931-deaf-4d76-b2ab-cc4e93dbe4df",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "fca88392-9270-4fcb-ae91-980c8f1de3ae",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ab3345da-c3ff-4ccc-9b9f-278e0edea14c",
+          "name": "Create an inverter",
+          "request": {
+            "name": "Create an inverter",
+            "description": {
+              "content": "Creates a new inverter from the provided body. Response is the ID of the newley created inverter asset.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"manufacturer\": \"<string>\",\n  \"model\": \"<string>\",\n  \"powerRated\": \"<number>\",\n  \"description\": \"<string,null>\",\n  \"status\": \"<integer>\",\n  \"apparentPower\": \"<number>\",\n  \"minDCPowerThreshold\": \"<number>\",\n  \"minVoltage\": \"<number>\",\n  \"maxMPPVoltage\": \"<number>\",\n  \"maxAbsoluteVoltage\": \"<number>\",\n  \"maxCurrent\": \"<number>\",\n  \"maxElevation\": \"<number>\",\n  \"outputVoltage\": \"<number>\",\n  \"usekVACurves\": \"<boolean>\",\n  \"usePQCurves\": \"<boolean>\",\n  \"dataSource\": \"<integer>\",\n  \"inverterType\": \"<integer>\",\n  \"efficiencyCurves\": \"<array,null>\",\n  \"kVACurves\": \"<array,null>\",\n  \"pqCurves\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "367d3944-9681-41fb-94c8-150fce7887e0",
+              "name": "Created inverter ID",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 23210,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161181,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161182,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 161183,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 161184,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161185,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 161186,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 23211,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161187,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 161188,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 161189,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 161190,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161191,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 161192,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 23212,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161193,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 161194,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 161195,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 161196,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161197,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 161198,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 8240,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 44146,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44147,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44148,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44149,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 44150,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 10372\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5499ccf2-f89d-4e2d-a637-47e806ad2cff",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 23210,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161181,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161182,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 161183,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 161184,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161185,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 161186,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 23211,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161187,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 161188,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 161189,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 161190,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161191,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 161192,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 23212,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161193,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 161194,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 161195,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 161196,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161197,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 161198,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 8240,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 44146,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44147,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44148,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44149,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 44150,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e368968e-793a-4304-9c70-82ff53093189",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 23210,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161181,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161182,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 161183,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 161184,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161185,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 161186,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 23211,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161187,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 161188,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 161189,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 161190,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161191,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 161192,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 23212,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161193,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 161194,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 161195,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 161196,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161197,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 161198,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 8240,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 44146,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44147,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44148,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44149,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 44150,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "94c29463-acf0-4bf5-88da-9a4e8ecfadea",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 23210,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161181,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161182,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 161183,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 161184,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161185,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 161186,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 23211,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161187,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 161188,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 161189,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 161190,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 161191,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 161192,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 23212,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 161193,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 161194,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 161195,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 161196,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 161197,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 161198,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 8240,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 44146,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44147,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44148,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 44149,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 44150,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bf8a5f55-3e64-40e5-8a9a-8817750b9c5a",
+          "name": "Get inverter overview list",
+          "request": {
+            "name": "Get inverter overview list",
+            "description": {
+              "content": "# Inverter Overview\n\nReturns a list of all available Inverters however with simplified data properties.\n\n## Overview\n\nThis endpoint provides a lightweight version of the full inverter list, returning essential inverter information without the complete technical specifications and detailed configuration data. It's optimized for scenarios where you need a quick overview of available inverters without the overhead of fetching complete inverter records.\n\n## Response Fields\n\nThe simplified response includes the following fields for each inverter:\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `id` | integer | Unique identifier for the inverter |\n| `ownerId` | integer | ID of the user or organization that owns this inverter configuration |\n| `name` | string | Display name for the inverter |\n| `status` | integer | Current status of the inverter record (1=Draft, 2=In Review, 3=Active, 4=Archived) |\n| `lastModified` | string (ISO 8601) | Timestamp of the last modification to this inverter record |\n| `lastModifiedBy` | object | User who last modified the record |\n| `lastModifiedBy.firstName` | string | First name of the user who last modified the record |\n| `lastModifiedBy.lastName` | string | Last name of the user who last modified the record |\n| `model` | string | Manufacturer's model number/name for the inverter |\n| `manufacturer` | string | Name of the inverter manufacturer |\n| `powerRated` | number | Rated power output of the inverter in kW |\n| `outputVoltage` | number | Output voltage of the inverter in volts |\n| `minVoltage` | number | Minimum operating voltage in volts |\n| `maxMPPVoltage` | number | Maximum Power Point (MPP) voltage in volts |\n| `inverterType` | integer | Type classification of the inverter (1=String Inverter, 2=Central Inverter) |\n\n## Excluded Fields\n\nCompared to the full inverter endpoint, this simplified overview **excludes**:\n\n- Detailed efficiency curves and performance data\n    \n- Complete electrical specifications and ratings\n    \n- Thermal characteristics and derating factors\n    \n- Advanced configuration parameters\n    \n- Certification and compliance documentation\n    \n- Extended metadata and custom fields\n    \n\n## Use Cases\n\n### When to Use This Endpoint\n\n- **Dashboard displays** - Populating dropdown lists or selection menus\n    \n- **Quick searches** - Finding inverters by name or manufacturer without loading full details\n    \n- **List views** - Displaying tables of available inverters with basic information\n    \n- **Performance optimization** - Reducing payload size and response time for overview screens\n    \n- **Mobile applications** - Minimizing data transfer for bandwidth-constrained environments\n    \n\n### When to Use the Full Endpoint\n\n- **Detailed analysis** - When you need complete technical specifications for engineering calculations\n    \n- **Configuration management** - Setting up or modifying inverter parameters in a project\n    \n- **Reporting** - Generating comprehensive reports that require all inverter data\n    \n- **Data export** - Extracting complete inverter information for external systems\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                "InverterOverview"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b43c02f3-c17d-4eca-950a-e6147162cfe9",
+              "name": "Inverter overviews",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "InverterOverview"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 8344,\n    \"ownerId\": 5109,\n    \"name\": \"Ginlong Technologies Solis-125K-EHV-5G\",\n    \"status\": 3,\n    \"lastModified\": \"2022-02-04T13:54:22.28\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Martin\",\n      \"lastName\": \"Schneider\"\n    },\n    \"model\": \"Solis-125K-EHV-5G\",\n    \"manufacturer\": \"Ginlong Technologies\",\n    \"powerRated\": 125,\n    \"outputVoltage\": 600,\n    \"minVoltage\": 860,\n    \"maxMPPVoltage\": 1450,\n    \"inverterType\": 1\n  },\n  {\n    \"id\": 8651,\n    \"ownerId\": 5109,\n    \"name\": \"SMA Sunny Central 4200 UP_PV SYST IMPORT\",\n    \"status\": 3,\n    \"lastModified\": \"2022-01-13T09:01:54.4\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Martin\",\n      \"lastName\": \"Schneider\"\n    },\n    \"model\": \"Sunny Central 4200 UP\",\n    \"manufacturer\": \"SMA\",\n    \"powerRated\": 4200,\n    \"outputVoltage\": 630,\n    \"minVoltage\": 921,\n    \"maxMPPVoltage\": 1325,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 8693,\n    \"ownerId\": 4876,\n    \"name\": \"Power Electronics FS4200MU CE 20201203\",\n    \"status\": 2,\n    \"lastModified\": \"2022-02-23T21:33:50.397\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Jason\",\n      \"lastName\": \"Spokes\"\n    },\n    \"model\": \"FS4200MU CE 20201203\",\n    \"manufacturer\": \"Power Electronics\",\n    \"powerRated\": 4200,\n    \"outputVoltage\": 34500,\n    \"minVoltage\": 934,\n    \"maxMPPVoltage\": 1500,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 8728,\n    \"ownerId\": 5109,\n    \"name\": \"Power Electronics FS4200MU CE 20210422, temp extension\",\n    \"status\": 3,\n    \"lastModified\": \"2024-10-24T09:45:36.183\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Andrija\",\n      \"lastName\": \"Marusic\"\n    },\n    \"model\": \"FS4200MU CE 20210422\",\n    \"manufacturer\": \"Power Electronics\",\n    \"powerRated\": 4200,\n    \"outputVoltage\": 34500,\n    \"minVoltage\": 934,\n    \"maxMPPVoltage\": 1500,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 8736,\n    \"ownerId\": 5032,\n    \"name\": \"Huawei Technologies SUN2000-200KTL-H2\",\n    \"status\": 3,\n    \"lastModified\": \"2022-04-20T07:38:43.21\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Claude\",\n      \"lastName\": \"Deuda\"\n    },\n    \"model\": \"SUN2000-200KTL-H2\",\n    \"manufacturer\": \"Huawei Technologies\",\n    \"powerRated\": 185,\n    \"outputVoltage\": 800,\n    \"minVoltage\": 500,\n    \"maxMPPVoltage\": 1500,\n    \"inverterType\": 1\n  },\n  {\n    \"id\": 8744,\n    \"ownerId\": 3927,\n    \"name\": \"imported-Power Electronics FS3190MU CE 20190927\",\n    \"status\": 3,\n    \"lastModified\": \"2022-03-17T04:13:27.363\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Thang\",\n      \"lastName\": \"Le\"\n    },\n    \"model\": \"imported-FS3190MU CE 20190927\",\n    \"manufacturer\": \"Power Electronics\",\n    \"powerRated\": 3300,\n    \"outputVoltage\": 34500,\n    \"minVoltage\": 849,\n    \"maxMPPVoltage\": 1310,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 8956,\n    \"ownerId\": 5093,\n    \"name\": \"TMEIC PVU-L840GR 25C\",\n    \"status\": 2,\n    \"lastModified\": \"2022-09-16T13:17:12.46\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Jesse\",\n      \"lastName\": \"Milam\"\n    },\n    \"model\": \"PVU-L840GR 25C\",\n    \"manufacturer\": \"TMEIC\",\n    \"powerRated\": 840,\n    \"outputVoltage\": 630,\n    \"minVoltage\": 915,\n    \"maxMPPVoltage\": 1300,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 9008,\n    \"ownerId\": 5032,\n    \"name\": \"Sungrow SG3125HV-30\",\n    \"status\": 3,\n    \"lastModified\": \"2022-10-13T01:56:32.4\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Carol\",\n      \"lastName\": \"Aber\"\n    },\n    \"model\": \"SG3125HV-30\",\n    \"manufacturer\": \"Sungrow\",\n    \"powerRated\": 3125,\n    \"outputVoltage\": 600,\n    \"minVoltage\": 875,\n    \"maxMPPVoltage\": 1300,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 9011,\n    \"ownerId\": 5032,\n    \"name\": \"Huawei Technologies SUN2000-330KTL-H1-Preliminary V0.1\",\n    \"status\": 4,\n    \"lastModified\": \"2022-10-12T22:28:35.933\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Claude\",\n      \"lastName\": \"Deuda\"\n    },\n    \"model\": \"SUN2000-330KTL-H1-Preliminary V0.1\",\n    \"manufacturer\": \"Huawei Technologies\",\n    \"powerRated\": 300,\n    \"outputVoltage\": 800,\n    \"minVoltage\": 500,\n    \"maxMPPVoltage\": 1500,\n    \"inverterType\": 2\n  },\n  {\n    \"id\": 9017,\n    \"ownerId\": 4876,\n    \"name\": \"Huawei Technologies SUN2000-330KTL-H1-Preliminary V0.1\",\n    \"status\": 4,\n    \"lastModified\": \"2023-01-23T23:50:02.017\",\n    \"lastModifiedBy\": {\n      \"firstName\": \"Jason\",\n      \"lastName\": \"Spokes\"\n    },\n    \"model\": \"SUN2000-330KTL-H1-Preliminary V0.1\",\n    \"manufacturer\": \"Huawei Technologies\",\n    \"powerRated\": 300,\n    \"outputVoltage\": 800,\n    \"minVoltage\": 500,\n    \"maxMPPVoltage\": 1500,\n    \"inverterType\": 1\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "89966c65-e9c8-41a7-bb6e-014f89de0a82",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "InverterOverview"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3fa31e0b-e97d-455b-9070-56a655689e56",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "InverterOverview"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ceb21e73-8efc-42e1-824e-89e97e2f8db4",
+          "name": "Change status of one or more inverters",
+          "request": {
+            "name": "Change status of one or more inverters",
+            "description": {
+              "content": "Change the status of one or more Inverters.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                "Status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": \"<integer>\",\n    \"status\": \"<integer>\"\n  },\n  {\n    \"id\": \"<integer>\",\n    \"status\": \"<integer>\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7fabba4c-24ef-4d89-b87d-a58494115175",
+              "name": "Success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "Status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"status\": 3,\n    \"id\": 10373\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "92a18926-ded9-4a06-aba8-9b05c00a9595",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "Status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"status\": 3,\n    \"id\": 10373\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "81367ff5-5c99-45ce-a4e5-1ed2d66ea39c",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "Status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"status\": 3,\n    \"id\": 10373\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3f50c23b-bca5-4a51-ba5e-3e7359f45821",
+              "name": "The bearer token is valid but lacks the OAuth2 scope or role required\nfor this operation (e.g. status-change endpoints require elevated\nprivileges that not every API client is granted). Response body is\ntypically empty.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "Status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"status\": 3,\n    \"id\": 10373\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7f5d1119-914d-46f6-b4f2-acebbeb8b2bf",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "Status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"status\": 3,\n    \"id\": 10373\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "be49dbd7-5ab3-47c2-bb13-94756444e7fc",
+          "name": "Calculate kVA for an inverter at given conditions",
+          "request": {
+            "name": "Calculate kVA for an inverter at given conditions",
+            "description": {
+              "content": "Get the kVA rating of an Inverter by providing the entire Inverter entity, elevation, temperature, and cooling temp state.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                "kVA"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "elevation",
+                  "value": "<number>"
+                },
+                {
+                  "disabled": false,
+                  "key": "temperature",
+                  "value": "<number>"
+                },
+                {
+                  "disabled": false,
+                  "key": "useCoolingTemp",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"manufacturer\": \"<string>\",\n  \"model\": \"<string>\",\n  \"powerRated\": \"<number>\",\n  \"description\": \"<string,null>\",\n  \"status\": \"<integer>\",\n  \"apparentPower\": \"<number>\",\n  \"minDCPowerThreshold\": \"<number>\",\n  \"minVoltage\": \"<number>\",\n  \"maxMPPVoltage\": \"<number>\",\n  \"maxAbsoluteVoltage\": \"<number>\",\n  \"maxCurrent\": \"<number>\",\n  \"maxElevation\": \"<number>\",\n  \"outputVoltage\": \"<number>\",\n  \"usekVACurves\": \"<boolean>\",\n  \"usePQCurves\": \"<boolean>\",\n  \"dataSource\": \"<integer>\",\n  \"inverterType\": \"<integer>\",\n  \"efficiencyCurves\": \"<array,null>\",\n  \"kVACurves\": \"<array,null>\",\n  \"pqCurves\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "fe7b537e-073f-4e4a-99d6-f4446de98f87",
+              "name": "kVA value",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "elevation",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "temperature",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "useCoolingTemp",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29409,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208781,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208782,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208783,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208784,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208785,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208786,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29410,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208787,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208788,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208789,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208790,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208791,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208792,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29411,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208793,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208794,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208795,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208796,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208797,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208798,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10338,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54563,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54564,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54565,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54566,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54567,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10373,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null,\n  \"companyId\": 1042,\n  \"company\": null,\n  \"ownerId\": 8903,\n  \"createdDate\": \"2026-02-03T12:39:07.753\",\n  \"lastModified\": \"2026-02-03T12:39:07.753\",\n  \"lastModifiedById\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"kVa\": 127\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "008c13b1-32b5-4e9b-b7c6-f7d42b682aae",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "elevation",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "temperature",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "useCoolingTemp",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29409,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208781,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208782,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208783,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208784,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208785,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208786,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29410,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208787,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208788,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208789,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208790,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208791,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208792,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29411,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208793,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208794,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208795,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208796,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208797,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208798,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10338,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54563,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54564,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54565,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54566,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54567,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10373,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null,\n  \"companyId\": 1042,\n  \"company\": null,\n  \"ownerId\": 8903,\n  \"createdDate\": \"2026-02-03T12:39:07.753\",\n  \"lastModified\": \"2026-02-03T12:39:07.753\",\n  \"lastModifiedById\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3e35f4fe-80bf-4f08-b303-b7530a7a7102",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "elevation",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "temperature",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "useCoolingTemp",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29409,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208781,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208782,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208783,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208784,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208785,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208786,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29410,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208787,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208788,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208789,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208790,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208791,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208792,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29411,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208793,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208794,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208795,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208796,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208797,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208798,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10338,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54563,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54564,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54565,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54566,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54567,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10373,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null,\n  \"companyId\": 1042,\n  \"company\": null,\n  \"ownerId\": 8903,\n  \"createdDate\": \"2026-02-03T12:39:07.753\",\n  \"lastModified\": \"2026-02-03T12:39:07.753\",\n  \"lastModifiedById\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e7a4b068-0943-4df0-8b44-c6e46d60777a",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "elevation",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "temperature",
+                      "value": "<number>"
+                    },
+                    {
+                      "key": "useCoolingTemp",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29409,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208781,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208782,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208783,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208784,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208785,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208786,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29410,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208787,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208788,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208789,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208790,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208791,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208792,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29411,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208793,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208794,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208795,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208796,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208797,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208798,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10338,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54563,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54564,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54565,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54566,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54567,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10373,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null,\n  \"companyId\": 1042,\n  \"company\": null,\n  \"ownerId\": 8903,\n  \"createdDate\": \"2026-02-03T12:39:07.753\",\n  \"lastModified\": \"2026-02-03T12:39:07.753\",\n  \"lastModifiedById\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "df3d7d70-d6de-4797-9943-bb6a28e1ee68",
+          "name": "Parse an OND file and return inverter data",
+          "request": {
+            "name": "Parse an OND file and return inverter data",
+            "description": {
+              "content": "This endpoint is used to parse an OND file. The response will be a valid Inverter object.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                "ParseONDFile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": ""
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "c5122d68-cc25-457e-bf21-541dce697efd",
+              "name": "Parsed inverter data",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "ParseONDFile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": 0,\n  \"model\": \"SG3600UD\",\n  \"manufacturer\": \"Sungrow\",\n  \"powerRated\": 3600,\n  \"apparentPower\": 3600,\n  \"minDCPowerThreshold\": 18000,\n  \"minVoltage\": 915,\n  \"maxMPPVoltage\": 1300,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 3300,\n  \"maxElevation\": 10,\n  \"outputVoltage\": 630,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 1,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 0,\n      \"voltage\": 915,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 0,\n          \"power\": 360,\n          \"efficiency\": 98.40999517517662\n        },\n        {\n          \"id\": 0,\n          \"power\": 720,\n          \"efficiency\": 98.80000532422251\n        },\n        {\n          \"id\": 0,\n          \"power\": 1080,\n          \"efficiency\": 98.91000261287257\n        },\n        {\n          \"id\": 0,\n          \"power\": 1800,\n          \"efficiency\": 98.65000212371532\n        },\n        {\n          \"id\": 0,\n          \"power\": 2700,\n          \"efficiency\": 98.52999811479269\n        },\n        {\n          \"id\": 0,\n          \"power\": 3600,\n          \"efficiency\": 98.30000248753618\n        }\n      ]\n    },\n    {\n      \"id\": 0,\n      \"voltage\": 1100,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 0,\n          \"power\": 360,\n          \"efficiency\": 98.24000305635565\n        },\n        {\n          \"id\": 0,\n          \"power\": 720,\n          \"efficiency\": 98.70999743079813\n        },\n        {\n          \"id\": 0,\n          \"power\": 1080,\n          \"efficiency\": 98.81999772714005\n        },\n        {\n          \"id\": 0,\n          \"power\": 1800,\n          \"efficiency\": 98.58000432766218\n        },\n        {\n          \"id\": 0,\n          \"power\": 2700,\n          \"efficiency\": 98.44999597084276\n        },\n        {\n          \"id\": 0,\n          \"power\": 3600,\n          \"efficiency\": 98.23000446400798\n        }\n      ]\n    },\n    {\n      \"id\": 0,\n      \"voltage\": 1300,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 0,\n          \"power\": 360,\n          \"efficiency\": 98.09999386875037\n        },\n        {\n          \"id\": 0,\n          \"power\": 720,\n          \"efficiency\": 98.60000320450011\n        },\n        {\n          \"id\": 0,\n          \"power\": 1080,\n          \"efficiency\": 98.7300030606301\n        },\n        {\n          \"id\": 0,\n          \"power\": 1800,\n          \"efficiency\": 98.49999824888891\n        },\n        {\n          \"id\": 0,\n          \"power\": 2700,\n          \"efficiency\": 98.37999842810625\n        },\n        {\n          \"id\": 0,\n          \"power\": 3600,\n          \"efficiency\": 98.19000365757763\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 0,\n      \"elevation\": 20,\n      \"kVAPoints\": [\n        {\n          \"id\": 0,\n          \"temperature\": -25,\n          \"kVA\": 3600\n        },\n        {\n          \"id\": 0,\n          \"temperature\": 20,\n          \"kVA\": 3600\n        },\n        {\n          \"id\": 0,\n          \"temperature\": 45,\n          \"kVA\": 3600\n        },\n        {\n          \"id\": 0,\n          \"temperature\": 50,\n          \"kVA\": 3240\n        },\n        {\n          \"id\": 0,\n          \"temperature\": 60,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": null,\n  \"inverterType\": 0,\n  \"id\": 0,\n  \"name\": \"Sungrow SG3600UD\",\n  \"description\": null,\n  \"companyId\": 0,\n  \"company\": null,\n  \"ownerId\": 0,\n  \"owner\": null,\n  \"createdDate\": \"0001-01-01T00:00:00\",\n  \"lastModified\": \"0001-01-01T00:00:00\",\n  \"lastModifiedById\": 0,\n  \"lastModifiedBy\": null\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "979cdff6-662c-4a89-97b6-ec8a71fb5cba",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "ParseONDFile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bb5478f2-0cdf-4c63-a8c6-c115fc5665d3",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "ParseONDFile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "883d1dff-fa8b-4d28-91aa-60a7924ab1d1",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    "ParseONDFile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5dee788f-dc36-477f-8986-1377e38f12a0",
+          "name": "Get an inverter by ID",
+          "request": {
+            "name": "Get an inverter by ID",
+            "description": {
+              "content": "Creates a .PPI file, which can be used to import the Inverter into PlantPredict for another user.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                ":inverterId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "inverterId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f508a641-37c2-4548-8d5c-73ff5976eef2",
+              "name": "Inverter",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29409,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208781,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208782,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208783,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208784,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208785,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208786,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29410,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208787,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208788,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208789,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208790,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208791,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208792,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29411,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208793,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208794,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208795,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208796,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208797,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208798,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10338,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54563,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54564,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54565,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54566,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54567,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10373,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": null,\n  \"companyId\": 1042,\n  \"company\": null,\n  \"ownerId\": 8903,\n  \"createdDate\": \"2026-02-03T12:39:07.753\",\n  \"lastModified\": \"2026-02-03T12:39:07.753\",\n  \"lastModifiedById\": 8903\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "119b5b82-a41c-48b9-b428-c5033fc1a01e",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "69e9a003-9843-4381-b6e5-1722773b5024",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3e3cdea3-8a53-47c2-b3e1-6a9c2b9d3912",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7feeaef1-0974-4c3e-a38c-1405150deb7f",
+          "name": "Update an inverter",
+          "request": {
+            "name": "Update an inverter",
+            "description": {
+              "content": "Updates an existing Inverter, where the target inverter to update is the ID provided in the URL.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                ":inverterId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "inverterId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"manufacturer\": \"<string>\",\n  \"model\": \"<string>\",\n  \"powerRated\": \"<number>\",\n  \"description\": \"<string,null>\",\n  \"status\": \"<integer>\",\n  \"apparentPower\": \"<number>\",\n  \"minDCPowerThreshold\": \"<number>\",\n  \"minVoltage\": \"<number>\",\n  \"maxMPPVoltage\": \"<number>\",\n  \"maxAbsoluteVoltage\": \"<number>\",\n  \"maxCurrent\": \"<number>\",\n  \"maxElevation\": \"<number>\",\n  \"outputVoltage\": \"<number>\",\n  \"usekVACurves\": \"<boolean>\",\n  \"usePQCurves\": \"<boolean>\",\n  \"dataSource\": \"<integer>\",\n  \"inverterType\": \"<integer>\",\n  \"efficiencyCurves\": \"<array,null>\",\n  \"kVACurves\": \"<array,null>\",\n  \"pqCurves\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "fd7527de-a2a3-4547-bdc7-bb329d4ed6e9",
+              "name": "Success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3 - Updated Name\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29406,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208763,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208764,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208765,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208766,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208767,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208768,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29407,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208769,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208770,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208771,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208772,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208773,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208774,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29408,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208775,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208776,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208777,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208778,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208779,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208780,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10337,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54558,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54559,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54560,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54561,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54562,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10372,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": \"Sample description update\",\n  \"companyId\": 1042,\n  \"ownerId\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "29272cc1-7b94-4b5e-afe0-b20d346405a5",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3 - Updated Name\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29406,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208763,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208764,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208765,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208766,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208767,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208768,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29407,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208769,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208770,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208771,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208772,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208773,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208774,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29408,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208775,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208776,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208777,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208778,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208779,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208780,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10337,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54558,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54559,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54560,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54561,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54562,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10372,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": \"Sample description update\",\n  \"companyId\": 1042,\n  \"ownerId\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34ca1168-5629-4def-934e-5541e597f982",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3 - Updated Name\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29406,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208763,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208764,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208765,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208766,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208767,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208768,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29407,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208769,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208770,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208771,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208772,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208773,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208774,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29408,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208775,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208776,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208777,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208778,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208779,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208780,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10337,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54558,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54559,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54560,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54561,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54562,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10372,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": \"Sample description update\",\n  \"companyId\": 1042,\n  \"ownerId\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "4ad173ec-a048-40cc-9fef-8ca9b4b75456",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3 - Updated Name\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29406,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208763,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208764,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208765,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208766,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208767,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208768,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29407,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208769,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208770,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208771,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208772,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208773,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208774,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29408,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208775,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208776,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208777,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208778,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208779,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208780,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10337,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54558,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54559,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54560,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54561,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54562,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10372,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": \"Sample description update\",\n  \"companyId\": 1042,\n  \"ownerId\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "186634e3-f4e8-4f55-8f42-69eb2f49cc93",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": 2,\n  \"model\": \"Sunny Highpower SHP150-US-20-PEAK3 - Updated Name\",\n  \"manufacturer\": \"SMA\",\n  \"powerRated\": 150,\n  \"apparentPower\": 150,\n  \"minDCPowerThreshold\": 100,\n  \"minVoltage\": 855,\n  \"maxMPPVoltage\": 1450,\n  \"maxAbsoluteVoltage\": 1500,\n  \"maxCurrent\": 180,\n  \"maxElevation\": 100,\n  \"outputVoltage\": 600,\n  \"usekVACurves\": true,\n  \"usePQCurves\": false,\n  \"dataSource\": 2,\n  \"efficiencyCurves\": [\n    {\n      \"id\": 29406,\n      \"voltage\": 880,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208763,\n          \"power\": 14.8065,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208764,\n          \"power\": 29.715,\n          \"efficiency\": 99.05\n        },\n        {\n          \"id\": 208765,\n          \"power\": 44.541,\n          \"efficiency\": 98.98\n        },\n        {\n          \"id\": 208766,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208767,\n          \"power\": 111.2713,\n          \"efficiency\": 98.82\n        },\n        {\n          \"id\": 208768,\n          \"power\": 147.87,\n          \"efficiency\": 98.58\n        }\n      ]\n    },\n    {\n      \"id\": 29407,\n      \"voltage\": 960,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208769,\n          \"power\": 14.808,\n          \"efficiency\": 98.72\n        },\n        {\n          \"id\": 208770,\n          \"power\": 29.709,\n          \"efficiency\": 99.03\n        },\n        {\n          \"id\": 208771,\n          \"power\": 44.559,\n          \"efficiency\": 99.02\n        },\n        {\n          \"id\": 208772,\n          \"power\": 74.22,\n          \"efficiency\": 98.96\n        },\n        {\n          \"id\": 208773,\n          \"power\": 111.2038,\n          \"efficiency\": 98.76\n        },\n        {\n          \"id\": 208774,\n          \"power\": 147.78,\n          \"efficiency\": 98.52\n        }\n      ]\n    },\n    {\n      \"id\": 29408,\n      \"voltage\": 1200,\n      \"efficiencyPoints\": [\n        {\n          \"id\": 208775,\n          \"power\": 14.712,\n          \"efficiency\": 98.08\n        },\n        {\n          \"id\": 208776,\n          \"power\": 29.589,\n          \"efficiency\": 98.63\n        },\n        {\n          \"id\": 208777,\n          \"power\": 44.415,\n          \"efficiency\": 98.7\n        },\n        {\n          \"id\": 208778,\n          \"power\": 74.0325,\n          \"efficiency\": 98.71\n        },\n        {\n          \"id\": 208779,\n          \"power\": 110.9898,\n          \"efficiency\": 98.57\n        },\n        {\n          \"id\": 208780,\n          \"power\": 147.48,\n          \"efficiency\": 98.32\n        }\n      ]\n    }\n  ],\n  \"kVACurves\": [\n    {\n      \"id\": 10337,\n      \"elevation\": 100,\n      \"kVAPoints\": [\n        {\n          \"id\": 54558,\n          \"temperature\": -25,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54559,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54560,\n          \"temperature\": 50,\n          \"kVA\": 150\n        },\n        {\n          \"id\": 54561,\n          \"temperature\": 60,\n          \"kVA\": 127\n        },\n        {\n          \"id\": 54562,\n          \"temperature\": 62,\n          \"kVA\": 0\n        }\n      ]\n    }\n  ],\n  \"pqCurves\": [],\n  \"inverterType\": 1,\n  \"id\": 10372,\n  \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n  \"description\": \"Sample description update\",\n  \"companyId\": 1042,\n  \"ownerId\": 8903\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3808240a-129a-4649-a478-a97a53b0ae86",
+          "name": "Delete an inverter",
+          "request": {
+            "name": "Delete an inverter",
+            "description": {
+              "content": "Deletes an existing Inverter, where the target inverter to delete is the ID provided in the URL.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                ":inverterId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "inverterId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f37ab155-4ec9-464c-a3cb-10960c72012e",
+              "name": "Deleted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "b0dfbb1a-6503-461f-82e0-baf79e031a7d",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7f9efc78-258d-4d74-aac8-9932eda938aa",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "96b63f25-c4eb-44ba-b411-a16fee54c7bd",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "514d8db4-c4aa-4106-8e63-434fa03695fc",
+          "name": "Get stored kVA for an inverter",
+          "request": {
+            "name": "Get stored kVA for an inverter",
+            "description": {
+              "content": "Get the kVA rating of an Inverter by Id.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Inverter",
+                ":inverterId",
+                "kVA"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "inverterId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "70b2fd33-6fc5-4d38-b620-28d95251100e",
+              "name": "kVA value",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"kVa\": 150\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4cdd8c54-d961-4bcd-b7c6-9410c9d12e6f",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ff119264-518c-4250-9820-7beea31f168d",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "6cc6197e-fcaa-48de-947e-2debd5fc1ca6",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Inverter",
+                    ":inverterId",
+                    "kVA"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "inverterId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "33f9f889-0c37-4f16-9831-9765611655e3",
+    "name": "PlantPredict Inverters API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n",
+      "type": "text/plain"
+    }
+  }
+}

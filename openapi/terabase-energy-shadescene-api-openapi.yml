@@ -1,0 +1,3031 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Shade Scene API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: ShadeScene
+  description: 3D shade scene management and calculations
+paths:
+  /ShadeScene/ConvertPVCtoPVJ:
+    post:
+      tags:
+      - ShadeScene
+      summary: Convert PVC file to PVJ shade scene format
+      description: The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard PV Collada file into the compatible PVJ format.
+      operationId: convertPVCtoPVJ
+      x-doc-source: postman
+      parameters:
+      - name: Latitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: Longitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: RotateShadingResult
+        in: query
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Converted shade scene
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShadeSceneProperties'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /ShadeScene/ConvertSHDtoPVJ:
+    post:
+      tags:
+      - ShadeScene
+      summary: Convert SHD file to PVJ shade scene format
+      description: The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard SHD file into the compatible PVJ format.
+      operationId: convertSHDtoPVJ
+      x-doc-source: postman
+      parameters:
+      - name: Latitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: Longitude
+        in: query
+        required: true
+        schema:
+          type: number
+      - name: RotateShadingResult
+        in: query
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Converted shade scene
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShadeSceneProperties'
+              examples:
+                postman-convert-shd-to-pvj:
+                  value:
+                    latitude: 43
+                    longitude: -84
+                    shadeSceneSurfaceArea: 2399.923896000002
+                    shadingObjectCount: 0
+                    shadingTableCount: 105
+                    shadingElectricalEffectModel: 0
+                    fractionalShadingPercent: 0
+                    useRotationAngleSchedule: false
+                    boundingBoxType: 0
+                    numberOfModuleFractions: null
+                    tables:
+                    - id: 0
+                      refId: Shd_1
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 0
+                        refId: Shd_1_Geometry
+                        points:
+                        - x: -50.66899999999999
+                          y: 33.43403797752449
+                          z: -2.1880331978122705
+                        - x: -50.669
+                          y: 24.402000000000008
+                          z: 0.131
+                        - x: -48.196999999999996
+                          y: 24.402000000000008
+                          z: 0.131
+                        - x: -48.19699999999999
+                          y: 33.43403797752449
+                          z: -2.1880331978122705
+                    - id: 1
+                      refId: Shd_2
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 1
+                        refId: Shd_2_Geometry
+                        points:
+                        - x: -50.669
+                          y: 23.79519292333526
+                          z: 0.24967103921971479
+                        - x: -50.669
+                          y: 14.763000000000005
+                          z: 1.94
+                        - x: -48.196999999999996
+                          y: 14.763000000000005
+                          z: 1.94
+                        - x: -48.196999999999996
+                          y: 23.79519292333526
+                          z: 0.24967103921971479
+                    - id: 2
+                      refId: Shd_3
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 2
+                        refId: Shd_3_Geometry
+                        points:
+                        - x: -50.669
+                          y: 14.15619292333526
+                          z: 2.058671039219715
+                        - x: -50.669
+                          y: 5.124000000000006
+                          z: 3.749
+                        - x: -48.196999999999996
+                          y: 5.124000000000006
+                          z: 3.749
+                        - x: -48.196999999999996
+                          y: 14.15619292333526
+                          z: 2.058671039219715
+                    - id: 3
+                      refId: Shd_4
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 3
+                        refId: Shd_4_Geometry
+                        points:
+                        - x: -50.669
+                          y: 4.518192923335262
+                          z: 3.8676710392197142
+                        - x: -50.669
+                          y: -4.513999999999994
+                          z: 5.558
+                        - x: -48.196999999999996
+                          y: -4.513999999999994
+                          z: 5.558
+                        - x: -48.196999999999996
+                          y: 4.518192923335262
+                          z: 3.8676710392197142
+                    - id: 4
+                      refId: Shd_5
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 4
+                        refId: Shd_5_Geometry
+                        points:
+                        - x: -50.669
+                          y: -5.119837164209945
+                          z: 5.676802227303641
+                        - x: -50.669
+                          y: -14.152999999999995
+                          z: 7.351
+                        - x: -48.196999999999996
+                          y: -14.152999999999995
+                          z: 7.351
+                        - x: -48.196999999999996
+                          y: -5.119837164209945
+                          z: 5.676802227303641
+                    - id: 5
+                      refId: Shd_6
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 5
+                        refId: Shd_6_Geometry
+                        points:
+                        - x: -50.669
+                          y: -14.760801100217778
+                          z: 7.4230767386847045
+                        - x: -50.669
+                          y: -23.791999999999994
+                          z: 8.58
+                        - x: -48.196999999999996
+                          y: -23.791999999999994
+                          z: 8.58
+                        - x: -48.196999999999996
+                          y: -14.760801100217778
+                          z: 7.4230767386847045
+                    - id: 6
+                      refId: Shd_7
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 6
+                        refId: Shd_7_Geometry
+                        points:
+                        - x: -50.669
+                          y: -24.399801100217772
+                          z: 8.652076738684704
+                        - x: -50.669000000000004
+                          y: -33.43099999999999
+                          z: 9.809
+                        - x: -48.197
+                          y: -33.43099999999999
+                          z: 9.809
+                        - x: -48.196999999999996
+                          y: -24.399801100217772
+                          z: 8.652076738684704
+                    - id: 7
+                      refId: Shd_8
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 7
+                        refId: Shd_8_Geometry
+                        points:
+                        - x: -43.60699999999999
+                          y: 33.43419292333526
+                          z: -3.748328960780285
+                        - x: -43.607
+                          y: 24.402000000000008
+                          z: -2.058
+                        - x: -41.135
+                          y: 24.402000000000005
+                          z: -2.058
+                        - x: -41.13499999999999
+                          y: 33.43419292333526
+                          z: -3.748328960780285
+                    - id: 8
+                      refId: Shd_9
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 8
+                        refId: Shd_9_Geometry
+                        points:
+                        - x: -43.607
+                          y: 23.79519292333526
+                          z: -1.9393289607802853
+                        - x: -43.607
+                          y: 14.763000000000005
+                          z: -0.249
+                        - x: -41.135
+                          y: 14.763000000000005
+                          z: -0.249
+                        - x: -41.135
+                          y: 23.795192923335257
+                          z: -1.9393289607802853
+                    - id: 9
+                      refId: Shd_10
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 9
+                        refId: Shd_10_Geometry
+                        points:
+                        - x: -43.607
+                          y: 14.15619292333526
+                          z: -0.1303289607802851
+                        - x: -43.607
+                          y: 5.124000000000005
+                          z: 1.56
+                        - x: -41.135
+                          y: 5.124000000000005
+                          z: 1.56
+                        - x: -41.135
+                          y: 14.15619292333526
+                          z: -0.1303289607802851
+                    - id: 10
+                      refId: Shd_11
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 10
+                        refId: Shd_11_Geometry
+                        points:
+                        - x: -43.607
+                          y: 4.519162835790056
+                          z: 1.6798022273036413
+                        - x: -43.607
+                          y: -4.513999999999995
+                          z: 3.354
+                        - x: -41.135
+                          y: -4.513999999999995
+                          z: 3.354
+                        - x: -41.135
+                          y: 4.519162835790056
+                          z: 1.6798022273036413
+                    - id: 11
+                      refId: Shd_12
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 11
+                        refId: Shd_12_Geometry
+                        points:
+                        - x: -43.607
+                          y: -5.120809205775187
+                          z: 3.4669496740761025
+                        - x: -43.607
+                          y: -14.152999999999995
+                          z: 4.624
+                        - x: -41.135
+                          y: -14.152999999999995
+                          z: 4.624
+                        - x: -41.135
+                          y: -5.120809205775187
+                          z: 3.4669496740761025
+                    - id: 12
+                      refId: Shd_13
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 12
+                        refId: Shd_13_Geometry
+                        points:
+                        - x: -43.607
+                          y: -14.760801100217778
+                          z: 4.695076738684705
+                        - x: -43.607
+                          y: -23.791999999999994
+                          z: 5.852
+                        - x: -41.135
+                          y: -23.791999999999998
+                          z: 5.852
+                        - x: -41.135
+                          y: -14.760801100217778
+                          z: 4.695076738684705
+                    - id: 13
+                      refId: Shd_14
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 13
+                        refId: Shd_14_Geometry
+                        points:
+                        - x: -43.607
+                          y: -24.399801100217772
+                          z: 5.924076738684705
+                        - x: -43.607000000000006
+                          y: -33.43099999999999
+                          z: 7.081
+                        - x: -41.135000000000005
+                          y: -33.43099999999999
+                          z: 7.081
+                        - x: -41.135
+                          y: -24.399801100217775
+                          z: 5.924076738684705
+                    - id: 14
+                      refId: Shd_15
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 14
+                        refId: Shd_15_Geometry
+                        points:
+                        - x: -36.54599999999999
+                          y: 33.43419292333526
+                          z: -5.565328960780285
+                        - x: -36.546
+                          y: 24.402000000000005
+                          z: -3.875
+                        - x: -34.074
+                          y: 24.402000000000005
+                          z: -3.875
+                        - x: -34.07399999999999
+                          y: 33.43419292333526
+                          z: -5.565328960780285
+                    - id: 15
+                      refId: Shd_16
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 15
+                        refId: Shd_16_Geometry
+                        points:
+                        - x: -36.546
+                          y: 23.795192923335257
+                          z: -3.756328960780285
+                        - x: -36.546
+                          y: 14.763000000000005
+                          z: -2.066
+                        - x: -34.074
+                          y: 14.763000000000003
+                          z: -2.066
+                        - x: -34.074
+                          y: 23.795192923335257
+                          z: -3.756328960780285
+                    - id: 16
+                      refId: Shd_17
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 16
+                        refId: Shd_17_Geometry
+                        points:
+                        - x: -36.546
+                          y: 14.15619292333526
+                          z: -1.9473289607802853
+                        - x: -36.546
+                          y: 5.124000000000004
+                          z: -0.257
+                        - x: -34.074
+                          y: 5.124000000000004
+                          z: -0.257
+                        - x: -34.074
+                          y: 14.156192923335258
+                          z: -1.9473289607802853
+                    - id: 17
+                      refId: Shd_18
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 17
+                        refId: Shd_18_Geometry
+                        points:
+                        - x: -36.546
+                          y: 4.518656710627976
+                          z: -0.13570108556108496
+                        - x: -36.546
+                          y: -4.513999999999996
+                          z: 1.457
+                        - x: -34.074
+                          y: -4.513999999999996
+                          z: 1.457
+                        - x: -34.074
+                          y: 4.518656710627976
+                          z: -0.13570108556108496
+                    - id: 18
+                      refId: Shd_19
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 18
+                        refId: Shd_19_Geometry
+                        points:
+                        - x: -36.546
+                          y: -5.1208092057751875
+                          z: 1.5689496740761029
+                        - x: -36.546
+                          y: -14.152999999999995
+                          z: 2.726
+                        - x: -34.074
+                          y: -14.152999999999997
+                          z: 2.726
+                        - x: -34.074
+                          y: -5.1208092057751875
+                          z: 1.5689496740761029
+                    - id: 19
+                      refId: Shd_20
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 19
+                        refId: Shd_20_Geometry
+                        points:
+                        - x: -36.546
+                          y: -14.760801100217778
+                          z: 2.7980767386847045
+                        - x: -36.546
+                          y: -23.791999999999998
+                          z: 3.955
+                        - x: -34.074
+                          y: -23.791999999999998
+                          z: 3.955
+                        - x: -34.074
+                          y: -14.76080110021778
+                          z: 2.7980767386847045
+                    - id: 20
+                      refId: Shd_21
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 20
+                        refId: Shd_21_Geometry
+                        points:
+                        - x: -36.546
+                          y: -24.399801100217775
+                          z: 4.027076738684705
+                        - x: -36.54600000000001
+                          y: -33.43099999999999
+                          z: 5.184
+                        - x: -34.074000000000005
+                          y: -33.43099999999999
+                          z: 5.184
+                        - x: -34.074
+                          y: -24.399801100217775
+                          z: 4.027076738684705
+                    - id: 21
+                      refId: Shd_22
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 21
+                        refId: Shd_22_Geometry
+                        points:
+                        - x: -29.483999999999998
+                          y: 33.43419292333526
+                          z: -7.382328960780285
+                        - x: -29.483999999999998
+                          y: 24.402000000000005
+                          z: -5.692
+                        - x: -27.011999999999997
+                          y: 24.402000000000005
+                          z: -5.692
+                        - x: -27.011999999999997
+                          y: 33.43419292333525
+                          z: -7.382328960780285
+                    - id: 22
+                      refId: Shd_23
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 22
+                        refId: Shd_23_Geometry
+                        points:
+                        - x: -29.483999999999998
+                          y: 23.795192923335257
+                          z: -5.573328960780286
+                        - x: -29.483999999999998
+                          y: 14.763000000000003
+                          z: -3.883
+                        - x: -27.011999999999997
+                          y: 14.763000000000003
+                          z: -3.883
+                        - x: -27.011999999999997
+                          y: 23.795192923335257
+                          z: -5.573328960780286
+                    - id: 23
+                      refId: Shd_24
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 23
+                        refId: Shd_24_Geometry
+                        points:
+                        - x: -29.484
+                          y: 14.156947289941709
+                          z: -3.7642837466531356
+                        - x: -29.484
+                          y: 5.124000000000003
+                          z: -2.139
+                        - x: -27.012
+                          y: 5.124000000000003
+                          z: -2.139
+                        - x: -27.012
+                          y: 14.156947289941709
+                          z: -3.7642837466531356
+                    - id: 24
+                      refId: Shd_25
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 24
+                        refId: Shd_25_Geometry
+                        points:
+                        - x: -29.484
+                          y: 4.517671902874965
+                          z: -2.0335274373834187
+                        - x: -29.484
+                          y: -4.513999999999997
+                          z: -0.441
+                        - x: -27.012
+                          y: -4.513999999999997
+                          z: -0.441
+                        - x: -27.012
+                          y: 4.517671902874965
+                          z: -2.0335274373834187
+                    - id: 25
+                      refId: Shd_26
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 25
+                        refId: Shd_26_Geometry
+                        points:
+                        - x: -29.484
+                          y: -5.120809205775188
+                          z: -0.32805032592389716
+                        - x: -29.484
+                          y: -14.152999999999997
+                          z: 0.829
+                        - x: -27.012
+                          y: -14.152999999999997
+                          z: 0.829
+                        - x: -27.012
+                          y: -5.120809205775188
+                          z: -0.32805032592389716
+                    - id: 26
+                      refId: Shd_27
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 26
+                        refId: Shd_27_Geometry
+                        points:
+                        - x: -29.484000000000005
+                          y: -14.76080110021778
+                          z: 0.9000767386847042
+                        - x: -29.484000000000005
+                          y: -23.791999999999998
+                          z: 2.057
+                        - x: -27.012000000000004
+                          y: -23.791999999999998
+                          z: 2.057
+                        - x: -27.012000000000004
+                          y: -14.76080110021778
+                          z: 0.9000767386847042
+                    - id: 27
+                      refId: Shd_28
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 27
+                        refId: Shd_28_Geometry
+                        points:
+                        - x: -29.484000000000005
+                          y: -24.399677447112307
+                          z: 2.1274068949950955
+                        - x: -29.484000000000005
+                          y: -33.42999999999999
+                          z: 3.59
+                        - x: -27.012000000000004
+                          y: -33.43
+                          z: 3.59
+                        - x: -27.012000000000004
+                          y: -24.399677447112307
+                          z: 2.1274068949950955
+                    - id: 28
+                      refId: Shd_29
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 28
+                        refId: Shd_29_Geometry
+                        points:
+                        - x: -22.421999999999997
+                          y: 33.43419292333525
+                          z: -9.199328960780285
+                        - x: -22.421999999999997
+                          y: 24.402000000000005
+                          z: -7.509
+                        - x: -19.949999999999996
+                          y: 24.402000000000005
+                          z: -7.509
+                        - x: -19.949999999999996
+                          y: 33.43419292333525
+                          z: -9.199328960780285
+                    - id: 29
+                      refId: Shd_30
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 29
+                        refId: Shd_30_Geometry
+                        points:
+                        - x: -22.421999999999997
+                          y: 23.795136816479324
+                          z: -7.393707310835892
+                        - x: -22.421999999999997
+                          y: 14.763000000000003
+                          z: -5.736
+                        - x: -19.949999999999996
+                          y: 14.763000000000002
+                          z: -5.736
+                        - x: -19.949999999999996
+                          y: 23.795136816479324
+                          z: -7.393707310835892
+                    - id: 30
+                      refId: Shd_31
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 30
+                        refId: Shd_31_Geometry
+                        points:
+                        - x: -22.422
+                          y: 14.155671902874964
+                          z: -5.629527437383418
+                        - x: -22.422
+                          y: 5.124000000000002
+                          z: -4.037
+                        - x: -19.95
+                          y: 5.124000000000002
+                          z: -4.037
+                        - x: -19.95
+                          y: 14.155671902874962
+                          z: -5.629527437383418
+                    - id: 31
+                      refId: Shd_32
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 31
+                        refId: Shd_32_Geometry
+                        points:
+                        - x: -22.422
+                          y: 4.517671902874964
+                          z: -3.930527437383419
+                        - x: -22.422
+                          y: -4.513999999999998
+                          z: -2.338
+                        - x: -19.95
+                          y: -4.513999999999998
+                          z: -2.338
+                        - x: -19.95
+                          y: 4.517671902874964
+                          z: -3.930527437383419
+                    - id: 32
+                      refId: Shd_33
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 32
+                        refId: Shd_33_Geometry
+                        points:
+                        - x: -22.422
+                          y: -5.120809205775189
+                          z: -2.226050325923897
+                        - x: -22.422
+                          y: -14.152999999999997
+                          z: -1.069
+                        - x: -19.95
+                          y: -14.152999999999999
+                          z: -1.069
+                        - x: -19.95
+                          y: -5.120809205775189
+                          z: -2.226050325923897
+                    - id: 33
+                      refId: Shd_34
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 33
+                        refId: Shd_34_Geometry
+                        points:
+                        - x: -22.422000000000004
+                          y: -14.761281669197327
+                          z: -0.9973463911290887
+                        - x: -22.422000000000004
+                          y: -23.791999999999998
+                          z: 0.304
+                        - x: -19.950000000000003
+                          y: -23.791999999999998
+                          z: 0.304
+                        - x: -19.950000000000003
+                          y: -14.761281669197329
+                          z: -0.9973463911290887
+                    - id: 34
+                      refId: Shd_35
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 34
+                        refId: Shd_35_Geometry
+                        points:
+                        - x: -22.422000000000004
+                          y: -24.398805786967625
+                          z: 0.41753813799115935
+                        - x: -22.422000000000004
+                          y: -33.43
+                          z: 2.124
+                        - x: -19.950000000000003
+                          y: -33.43
+                          z: 2.124
+                        - x: -19.950000000000003
+                          y: -24.398805786967625
+                          z: 0.41753813799115935
+                    - id: 35
+                      refId: Shd_36
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 35
+                        refId: Shd_36_Geometry
+                        points:
+                        - x: -15.36
+                          y: 33.4332099879861
+                          z: -11.022145009429673
+                        - x: -15.359999999999998
+                          y: 24.402000000000005
+                          z: -9.332
+                        - x: -12.887999999999998
+                          y: 24.402
+                          z: -9.332
+                        - x: -12.888
+                          y: 33.4332099879861
+                          z: -11.022145009429673
+                    - id: 36
+                      refId: Shd_37
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 36
+                        refId: Shd_37_Geometry
+                        points:
+                        - x: -15.36
+                          y: 23.794671902874963
+                          z: -9.225527437383418
+                        - x: -15.36
+                          y: 14.763000000000002
+                          z: -7.633
+                        - x: -12.888
+                          y: 14.763000000000002
+                          z: -7.633
+                        - x: -12.888
+                          y: 23.79467190287496
+                          z: -9.225527437383418
+                    - id: 37
+                      refId: Shd_38
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 37
+                        refId: Shd_38_Geometry
+                        points:
+                        - x: -15.360000000000001
+                          y: 14.155671902874962
+                          z: -7.526527437383418
+                        - x: -15.360000000000001
+                          y: 5.124000000000001
+                          z: -5.934
+                        - x: -12.888000000000002
+                          y: 5.124000000000001
+                          z: -5.934
+                        - x: -12.888000000000002
+                          y: 14.155671902874962
+                          z: -7.526527437383418
+                    - id: 38
+                      refId: Shd_39
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 38
+                        refId: Shd_39_Geometry
+                        points:
+                        - x: -15.360000000000003
+                          y: 4.517671902874963
+                          z: -5.828527437383419
+                        - x: -15.360000000000001
+                          y: -4.5139999999999985
+                          z: -4.236
+                        - x: -12.888000000000002
+                          y: -4.5139999999999985
+                          z: -4.236
+                        - x: -12.888000000000003
+                          y: 4.517671902874963
+                          z: -5.828527437383419
+                    - id: 39
+                      refId: Shd_40
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 39
+                        refId: Shd_40_Geometry
+                        points:
+                        - x: -15.360000000000003
+                          y: -5.12080920577519
+                          z: -4.123050325923897
+                        - x: -15.360000000000003
+                          y: -14.152999999999999
+                          z: -2.966
+                        - x: -12.888000000000003
+                          y: -14.152999999999999
+                          z: -2.966
+                        - x: -12.888000000000003
+                          y: -5.12080920577519
+                          z: -4.123050325923897
+                    - id: 40
+                      refId: Shd_41
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 40
+                        refId: Shd_41_Geometry
+                        points:
+                        - x: -15.360000000000005
+                          y: -14.75980578696763
+                          z: -2.8684618620088402
+                        - x: -15.360000000000005
+                          y: -23.790999999999997
+                          z: -1.162
+                        - x: -12.888000000000005
+                          y: -23.791
+                          z: -1.162
+                        - x: -12.888000000000005
+                          y: -14.75980578696763
+                          z: -2.8684618620088402
+                    - id: 41
+                      refId: Shd_42
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 41
+                        refId: Shd_42_Geometry
+                        points:
+                        - x: -15.360000000000007
+                          y: -24.398805786967625
+                          z: -1.0484618620088408
+                        - x: -15.360000000000005
+                          y: -33.43
+                          z: 0.658
+                        - x: -12.888000000000005
+                          y: -33.43
+                          z: 0.658
+                        - x: -12.888000000000007
+                          y: -24.39880578696763
+                          z: -1.0484618620088408
+                    - id: 42
+                      refId: Shd_43
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 42
+                        refId: Shd_43_Geometry
+                        points:
+                        - x: -8.297999999999998
+                          y: 33.433832173085484
+                          z: -12.837814345167889
+                        - x: -8.297999999999996
+                          y: 24.402
+                          z: -11.229
+                        - x: -5.825999999999998
+                          y: 24.402
+                          z: -11.229
+                        - x: -5.825999999999997
+                          y: 33.433832173085484
+                          z: -12.837814345167889
+                    - id: 43
+                      refId: Shd_44
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 43
+                        refId: Shd_44_Geometry
+                        points:
+                        - x: -8.297999999999998
+                          y: 23.79467190287496
+                          z: -11.122527437383418
+                        - x: -8.297999999999998
+                          y: 14.763000000000002
+                          z: -9.53
+                        - x: -5.825999999999999
+                          y: 14.763
+                          z: -9.53
+                        - x: -5.825999999999999
+                          y: 23.79467190287496
+                          z: -11.122527437383418
+                    - id: 44
+                      refId: Shd_45
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 44
+                        refId: Shd_45_Geometry
+                        points:
+                        - x: -8.298
+                          y: 14.155671902874962
+                          z: -9.424527437383418
+                        - x: -8.298
+                          y: 5.1240000000000006
+                          z: -7.832
+                        - x: -5.826
+                          y: 5.1240000000000006
+                          z: -7.832
+                        - x: -5.826
+                          y: 14.15567190287496
+                          z: -9.424527437383418
+                    - id: 45
+                      refId: Shd_46
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 45
+                        refId: Shd_46_Geometry
+                        points:
+                        - x: -8.298000000000002
+                          y: 4.517671902874962
+                          z: -7.725527437383419
+                        - x: -8.298
+                          y: -4.513999999999999
+                          z: -6.133
+                        - x: -5.826000000000001
+                          y: -4.513999999999999
+                          z: -6.133
+                        - x: -5.8260000000000005
+                          y: 4.517671902874962
+                          z: -7.725527437383419
+                    - id: 46
+                      refId: Shd_47
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 46
+                        refId: Shd_47_Geometry
+                        points:
+                        - x: -8.298000000000002
+                          y: -5.120532588486877
+                          z: -6.024417920461907
+                        - x: -8.298000000000002
+                          y: -14.152999999999999
+                          z: -4.448
+                        - x: -5.826000000000002
+                          y: -14.153
+                          z: -4.448
+                        - x: -5.826000000000002
+                          y: -5.120532588486877
+                          z: -6.024417920461907
+                    - id: 47
+                      refId: Shd_48
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 47
+                        refId: Shd_48_Geometry
+                        points:
+                        - x: -8.298000000000004
+                          y: -14.75980578696763
+                          z: -4.33446186200884
+                        - x: -8.298000000000004
+                          y: -23.791
+                          z: -2.628
+                        - x: -5.826000000000003
+                          y: -23.791
+                          z: -2.628
+                        - x: -5.826000000000003
+                          y: -14.759805786967632
+                          z: -4.33446186200884
+                    - id: 48
+                      refId: Shd_49
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 48
+                        refId: Shd_49_Geometry
+                        points:
+                        - x: -8.298000000000005
+                          y: -24.39880578696763
+                          z: -2.5134618620088407
+                        - x: -8.298000000000004
+                          y: -33.43
+                          z: -0.807
+                        - x: -5.826000000000005
+                          y: -33.43
+                          z: -0.807
+                        - x: -5.826000000000004
+                          y: -24.39880578696763
+                          z: -2.5134618620088407
+                    - id: 49
+                      refId: Shd_50
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 49
+                        refId: Shd_50_Geometry
+                        points:
+                        - x: -1.235999999999997
+                          y: 33.43367190287496
+                          z: -12.621527437383419
+                        - x: -1.235999999999997
+                          y: 24.402
+                          z: -11.029
+                        - x: 1.2360000000000029
+                          y: 24.402
+                          z: -11.029
+                        - x: 1.2360000000000029
+                          y: 33.43367190287496
+                          z: -12.621527437383419
+                    - id: 50
+                      refId: Shd_51
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 50
+                        refId: Shd_51_Geometry
+                        points:
+                        - x: -1.2359999999999982
+                          y: 23.79467190287496
+                          z: -10.923527437383418
+                        - x: -1.2359999999999982
+                          y: 14.763
+                          z: -9.331
+                        - x: 1.2360000000000018
+                          y: 14.763
+                          z: -9.331
+                        - x: 1.2360000000000018
+                          y: 23.79467190287496
+                          z: -10.923527437383418
+                    - id: 51
+                      refId: Shd_52
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 51
+                        refId: Shd_52_Geometry
+                        points:
+                        - x: -1.2359999999999993
+                          y: 14.15567190287496
+                          z: -9.224527437383419
+                        - x: -1.2359999999999993
+                          y: 5.124
+                          z: -7.632
+                        - x: 1.2360000000000007
+                          y: 5.124
+                          z: -7.632
+                        - x: 1.2360000000000007
+                          y: 14.15567190287496
+                          z: -9.224527437383419
+                    - id: 52
+                      refId: Shd_53
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 52
+                        refId: Shd_53_Geometry
+                        points:
+                        - x: -1.2360000000000007
+                          y: 4.519111986570052
+                          z: -7.5208588250734865
+                        - x: -1.2360000000000004
+                          y: -4.514
+                          z: -5.452
+                        - x: 1.2359999999999995
+                          y: -4.514
+                          z: -5.452
+                        - x: 1.2359999999999993
+                          y: 4.519111986570052
+                          z: -7.5208588250734865
+                    - id: 53
+                      refId: Shd_54
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 53
+                        refId: Shd_54_Geometry
+                        points:
+                        - x: -1.2360000000000018
+                          y: -5.119886442298981
+                          z: -5.268158568930323
+                        - x: -1.2360000000000018
+                          y: -14.153
+                          z: -3.545
+                        - x: 1.2359999999999982
+                          y: -14.153
+                          z: -3.545
+                        - x: 1.2359999999999982
+                          y: -5.119886442298981
+                          z: -5.268158568930323
+                    - id: 54
+                      refId: Shd_55
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 54
+                        refId: Shd_55_Geometry
+                        points:
+                        - x: -1.2360000000000029
+                          y: -14.759805786967632
+                          z: -3.43146186200884
+                        - x: -1.2360000000000029
+                          y: -23.791
+                          z: -1.725
+                        - x: 1.235999999999997
+                          y: -23.791
+                          z: -1.725
+                        - x: 1.235999999999997
+                          y: -14.759805786967632
+                          z: -3.43146186200884
+                    - id: 55
+                      refId: Shd_56
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 55
+                        refId: Shd_56_Geometry
+                        points:
+                        - x: -1.236000000000004
+                          y: -24.39880578696763
+                          z: -1.6114618620088408
+                        - x: -1.236000000000004
+                          y: -33.43
+                          z: 0.095
+                        - x: 1.235999999999996
+                          y: -33.43
+                          z: 0.095
+                        - x: 1.235999999999996
+                          y: -24.39880578696763
+                          z: -1.6114618620088408
+                    - id: 56
+                      refId: Shd_57
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 56
+                        refId: Shd_57_Geometry
+                        points:
+                        - x: 5.826000000000004
+                          y: 33.43367190287496
+                          z: -11.570527437383419
+                        - x: 5.826000000000003
+                          y: 24.402
+                          z: -9.978
+                        - x: 8.298000000000004
+                          y: 24.402
+                          z: -9.978
+                        - x: 8.298000000000002
+                          y: 33.43367190287496
+                          z: -11.570527437383419
+                    - id: 57
+                      refId: Shd_58
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 57
+                        refId: Shd_58_Geometry
+                        points:
+                        - x: 5.826000000000002
+                          y: 23.79467190287496
+                          z: -9.871527437383419
+                        - x: 5.826000000000002
+                          y: 14.763
+                          z: -8.279
+                        - x: 8.298000000000002
+                          y: 14.762999999999998
+                          z: -8.279
+                        - x: 8.298000000000002
+                          y: 23.79467190287496
+                          z: -9.871527437383419
+                    - id: 58
+                      refId: Shd_59
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 58
+                        refId: Shd_59_Geometry
+                        points:
+                        - x: 5.826000000000001
+                          y: 14.156817679384625
+                          z: -8.171972179904452
+                        - x: 5.826000000000001
+                          y: 5.124999999999999
+                          z: -6.4
+                        - x: 8.298
+                          y: 5.124999999999999
+                          z: -6.4
+                        - x: 8.298
+                          y: 14.156817679384623
+                          z: -8.171972179904452
+                    - id: 59
+                      refId: Shd_60
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 59
+                        refId: Shd_60_Geometry
+                        points:
+                        - x: 5.8260000000000005
+                          y: 4.517807992194533
+                          z: -6.2277930642356925
+                        - x: 5.826
+                          y: -4.513000000000001
+                          z: -3.587
+                        - x: 8.298
+                          y: -4.513000000000001
+                          z: -3.587
+                        - x: 8.297999999999998
+                          y: 4.517807992194533
+                          z: -6.2277930642356925
+                    - id: 60
+                      refId: Shd_61
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 60
+                        refId: Shd_61_Geometry
+                        points:
+                        - x: 5.825999999999999
+                          y: -5.119886442298982
+                          z: -3.403158568930323
+                        - x: 5.825999999999999
+                          y: -14.153
+                          z: -1.68
+                        - x: 8.297999999999998
+                          y: -14.153000000000002
+                          z: -1.68
+                        - x: 8.297999999999998
+                          y: -5.119886442298982
+                          z: -3.403158568930323
+                    - id: 61
+                      refId: Shd_62
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 61
+                        refId: Shd_62_Geometry
+                        points:
+                        - x: 5.825999999999998
+                          y: -14.759805786967632
+                          z: -1.5664618620088402
+                        - x: 5.825999999999998
+                          y: -23.791
+                          z: 0.14
+                        - x: 8.297999999999996
+                          y: -23.791
+                          z: 0.14
+                        - x: 8.297999999999996
+                          y: -14.759805786967634
+                          z: -1.5664618620088402
+                    - id: 62
+                      refId: Shd_63
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 62
+                        refId: Shd_63_Geometry
+                        points:
+                        - x: 5.825999999999997
+                          y: -24.398182320615376
+                          z: 0.25302782009554825
+                        - x: 5.825999999999996
+                          y: -33.43
+                          z: 2.025
+                        - x: 8.297999999999996
+                          y: -33.43
+                          z: 2.025
+                        - x: 8.297999999999995
+                          y: -24.398182320615376
+                          z: 0.25302782009554825
+                    - id: 63
+                      refId: Shd_64
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 63
+                        refId: Shd_64_Geometry
+                        points:
+                        - x: 12.888000000000002
+                          y: 33.43367190287496
+                          z: -10.518527437383419
+                        - x: 12.888000000000003
+                          y: 24.402
+                          z: -8.926
+                        - x: 15.360000000000003
+                          y: 24.401999999999997
+                          z: -8.926
+                        - x: 15.360000000000001
+                          y: 33.43367190287496
+                          z: -10.518527437383419
+                    - id: 64
+                      refId: Shd_65
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 64
+                        refId: Shd_65_Geometry
+                        points:
+                        - x: 12.888000000000002
+                          y: 23.79467190287496
+                          z: -8.820527437383419
+                        - x: 12.888000000000002
+                          y: 14.762999999999998
+                          z: -7.228
+                        - x: 15.360000000000001
+                          y: 14.762999999999998
+                          z: -7.228
+                        - x: 15.360000000000001
+                          y: 23.794671902874956
+                          z: -8.820527437383419
+                    - id: 65
+                      refId: Shd_66
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 65
+                        refId: Shd_66_Geometry
+                        points:
+                        - x: 12.888
+                          y: 14.155092371644566
+                          z: -7.12533732054489
+                        - x: 12.888
+                          y: 5.124999999999998
+                          z: -4.536
+                        - x: 15.36
+                          y: 5.124999999999998
+                          z: -4.536
+                        - x: 15.36
+                          y: 14.155092371644566
+                          z: -7.12533732054489
+                    - id: 66
+                      refId: Shd_67
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 66
+                        refId: Shd_67_Geometry
+                        points:
+                        - x: 12.887999999999998
+                          y: 4.517807992194532
+                          z: -4.362793064235692
+                        - x: 12.888
+                          y: -4.513000000000002
+                          z: -1.722
+                        - x: 15.36
+                          y: -4.513000000000002
+                          z: -1.722
+                        - x: 15.359999999999998
+                          y: 4.517807992194532
+                          z: -4.362793064235692
+                    - id: 67
+                      refId: Shd_68
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 67
+                        refId: Shd_68_Geometry
+                        points:
+                        - x: 12.887999999999998
+                          y: -5.1198864422989825
+                          z: -1.5391585689303233
+                        - x: 12.887999999999998
+                          y: -14.153000000000002
+                          z: 0.184
+                        - x: 15.359999999999998
+                          y: -14.153000000000002
+                          z: 0.184
+                        - x: 15.359999999999998
+                          y: -5.1198864422989825
+                          z: -1.5391585689303233
+                    - id: 68
+                      refId: Shd_69
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 68
+                        refId: Shd_69_Geometry
+                        points:
+                        - x: 12.887999999999996
+                          y: -14.759805786967634
+                          z: 0.2985381379911598
+                        - x: 12.887999999999996
+                          y: -23.791
+                          z: 2.005
+                        - x: 15.359999999999996
+                          y: -23.791000000000004
+                          z: 2.005
+                        - x: 15.359999999999996
+                          y: -14.759805786967634
+                          z: 0.2985381379911598
+                    - id: 69
+                      refId: Shd_70
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 69
+                        refId: Shd_70_Geometry
+                        points:
+                        - x: 12.887999999999995
+                          y: -24.39618251527226
+                          z: 2.122954562172062
+                        - x: 12.887999999999996
+                          y: -33.429
+                          z: 4.459
+                        - x: 15.359999999999996
+                          y: -33.429
+                          z: 4.459
+                        - x: 15.359999999999994
+                          y: -24.396182515272262
+                          z: 2.122954562172062
+                    - id: 70
+                      refId: Shd_71
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 70
+                        refId: Shd_71_Geometry
+                        points:
+                        - x: 19.949
+                          y: 33.43367190287496
+                          z: -9.467527437383419
+                        - x: 19.949
+                          y: 24.401999999999997
+                          z: -7.875
+                        - x: 22.421000000000003
+                          y: 24.401999999999997
+                          z: -7.875
+                        - x: 22.421000000000003
+                          y: 33.43367190287496
+                          z: -9.467527437383419
+                    - id: 71
+                      refId: Shd_72
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 71
+                        refId: Shd_72_Geometry
+                        points:
+                        - x: 19.949
+                          y: 23.79535287962311
+                          z: -7.769283606846924
+                        - x: 19.949
+                          y: 14.763999999999998
+                          z: -5.484
+                        - x: 22.421000000000003
+                          y: 14.763999999999996
+                          z: -5.484
+                        - x: 22.421000000000003
+                          y: 23.79535287962311
+                          z: -7.769283606846924
+                    - id: 72
+                      refId: Shd_73
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 72
+                        refId: Shd_73_Geometry
+                        points:
+                        - x: 19.948999999999998
+                          y: 14.155807992194532
+                          z: -5.311793064235692
+                        - x: 19.948999999999998
+                          y: 5.124999999999997
+                          z: -2.671
+                        - x: 22.421
+                          y: 5.124999999999997
+                          z: -2.671
+                        - x: 22.421
+                          y: 14.15580799219453
+                          z: -5.311793064235692
+                    - id: 73
+                      refId: Shd_74
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 73
+                        refId: Shd_74_Geometry
+                        points:
+                        - x: 19.948999999999998
+                          y: 4.517807992194531
+                          z: -2.497793064235693
+                        - x: 19.948999999999998
+                          y: -4.513000000000003
+                          z: 0.143
+                        - x: 22.421
+                          y: -4.513000000000003
+                          z: 0.143
+                        - x: 22.421
+                          y: 4.517807992194531
+                          z: -2.497793064235693
+                    - id: 74
+                      refId: Shd_75
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 74
+                        refId: Shd_75_Geometry
+                        points:
+                        - x: 19.948999999999998
+                          y: -5.119886442298983
+                          z: 0.32584143106967667
+                        - x: 19.948999999999998
+                          y: -14.153000000000002
+                          z: 2.049
+                        - x: 22.421
+                          y: -14.153000000000004
+                          z: 2.049
+                        - x: 22.421
+                          y: -5.119886442298983
+                          z: 0.32584143106967667
+                    - id: 75
+                      refId: Shd_76
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 75
+                        refId: Shd_76_Geometry
+                        points:
+                        - x: 19.948999999999995
+                          y: -14.760873239501402
+                          z: 2.1583684886315795
+                        - x: 19.948999999999995
+                          y: -23.791000000000004
+                          z: 4.293
+                        - x: 22.420999999999996
+                          y: -23.791000000000004
+                          z: 4.293
+                        - x: 22.420999999999996
+                          y: -14.760873239501404
+                          z: 2.1583684886315795
+                    - id: 76
+                      refId: Shd_77
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 76
+                        refId: Shd_77_Geometry
+                        points:
+                        - x: 19.948999999999995
+                          y: -24.397003538124853
+                          z: 4.455980321648024
+                        - x: 19.948999999999995
+                          y: -33.429
+                          z: 6.893
+                        - x: 22.420999999999996
+                          y: -33.429
+                          z: 6.893
+                        - x: 22.420999999999996
+                          y: -24.397003538124853
+                          z: 4.455980321648024
+                    - id: 77
+                      refId: Shd_78
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 77
+                        refId: Shd_78_Geometry
+                        points:
+                        - x: 27.011000000000003
+                          y: 33.43328855775605
+                          z: -8.417657570313834
+                        - x: 27.011000000000003
+                          y: 24.401999999999997
+                          z: -6.432
+                        - x: 29.483000000000004
+                          y: 24.401999999999997
+                          z: -6.432
+                        - x: 29.483000000000004
+                          y: 33.43328855775604
+                          z: -8.417657570313834
+                    - id: 78
+                      refId: Shd_79
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 78
+                        refId: Shd_79_Geometry
+                        points:
+                        - x: 27.011000000000003
+                          y: 23.79480799219453
+                          z: -6.2597930642356925
+                        - x: 27.011000000000003
+                          y: 14.763999999999996
+                          z: -3.619
+                        - x: 29.483000000000004
+                          y: 14.763999999999996
+                          z: -3.619
+                        - x: 29.483000000000004
+                          y: 23.79480799219453
+                          z: -6.2597930642356925
+                    - id: 79
+                      refId: Shd_80
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 79
+                        refId: Shd_80_Geometry
+                        points:
+                        - x: 27.011
+                          y: 14.15580799219453
+                          z: -3.4467930642356928
+                        - x: 27.011
+                          y: 5.1249999999999964
+                          z: -0.806
+                        - x: 29.483
+                          y: 5.1249999999999964
+                          z: -0.806
+                        - x: 29.483
+                          y: 14.15580799219453
+                          z: -3.4467930642356928
+                    - id: 80
+                      refId: Shd_81
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 80
+                        refId: Shd_81_Geometry
+                        points:
+                        - x: 27.011
+                          y: 4.51780799219453
+                          z: -0.6337930642356926
+                        - x: 27.011
+                          y: -4.5130000000000035
+                          z: 2.007
+                        - x: 29.483
+                          y: -4.5130000000000035
+                          z: 2.007
+                        - x: 29.483
+                          y: 4.51780799219453
+                          z: -0.6337930642356926
+                    - id: 81
+                      refId: Shd_82
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 81
+                        refId: Shd_82_Geometry
+                        points:
+                        - x: 27.011
+                          y: -5.1202384588240015
+                          z: 2.189543715894495
+                        - x: 27.011
+                          y: -14.153000000000004
+                          z: 4.126
+                        - x: 29.483
+                          y: -14.153000000000004
+                          z: 4.126
+                        - x: 29.483
+                          y: -5.1202384588240015
+                          z: 2.189543715894495
+                    - id: 82
+                      refId: Shd_83
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 82
+                        refId: Shd_83_Geometry
+                        points:
+                        - x: 27.010999999999996
+                          y: -14.759003538124855
+                          z: 4.288980321648026
+                        - x: 27.010999999999996
+                          y: -23.791000000000004
+                          z: 6.726
+                        - x: 29.482999999999997
+                          y: -23.791000000000004
+                          z: 6.726
+                        - x: 29.482999999999997
+                          y: -14.759003538124855
+                          z: 4.288980321648026
+                    - id: 83
+                      refId: Shd_84
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 83
+                        refId: Shd_84_Geometry
+                        points:
+                        - x: 27.010999999999996
+                          y: -24.397003538124853
+                          z: 6.889980321648025
+                        - x: 27.010999999999996
+                          y: -33.429
+                          z: 9.327
+                        - x: 29.482999999999997
+                          y: -33.42900000000001
+                          z: 9.327
+                        - x: 29.482999999999997
+                          y: -24.397003538124853
+                          z: 6.889980321648025
+                    - id: 84
+                      refId: Shd_85
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 84
+                        refId: Shd_85_Geometry
+                        points:
+                        - x: 34.07300000000001
+                          y: 33.433807992194524
+                          z: -7.401793064235693
+                        - x: 34.073
+                          y: 24.402999999999995
+                          z: -4.761
+                        - x: 36.545
+                          y: 24.402999999999995
+                          z: -4.761
+                        - x: 36.54500000000001
+                          y: 33.433807992194524
+                          z: -7.401793064235693
+                    - id: 85
+                      refId: Shd_86
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 85
+                        refId: Shd_86_Geometry
+                        points:
+                        - x: 34.073
+                          y: 23.79480799219453
+                          z: -4.588793064235693
+                        - x: 34.073
+                          y: 14.763999999999996
+                          z: -1.948
+                        - x: 36.545
+                          y: 14.763999999999994
+                          z: -1.948
+                        - x: 36.545
+                          y: 23.79480799219453
+                          z: -4.588793064235693
+                    - id: 86
+                      refId: Shd_87
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 86
+                        refId: Shd_87_Geometry
+                        points:
+                        - x: 34.073
+                          y: 14.15580799219453
+                          z: -1.7757930642356927
+                        - x: 34.073
+                          y: 5.124999999999996
+                          z: 0.865
+                        - x: 36.545
+                          y: 5.124999999999996
+                          z: 0.865
+                        - x: 36.545
+                          y: 14.155807992194529
+                          z: -1.7757930642356927
+                    - id: 87
+                      refId: Shd_88
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 87
+                        refId: Shd_88_Geometry
+                        points:
+                        - x: 34.073
+                          y: 4.5178079921945296
+                          z: 1.0392069357643074
+                        - x: 34.073
+                          y: -4.513000000000004
+                          z: 3.68
+                        - x: 36.545
+                          y: -4.513000000000004
+                          z: 3.68
+                        - x: 36.545
+                          y: 4.5178079921945296
+                          z: 1.0392069357643074
+                    - id: 88
+                      refId: Shd_89
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 88
+                        refId: Shd_89_Geometry
+                        points:
+                        - x: 34.073
+                          y: -5.1204106282336435
+                          z: 3.892171477100148
+                        - x: 34.073
+                          y: -14.152000000000003
+                          z: 6.346
+                        - x: 36.545
+                          y: -14.152000000000005
+                          z: 6.346
+                        - x: 36.545
+                          y: -5.1204106282336435
+                          z: 3.892171477100148
+                    - id: 89
+                      refId: Shd_90
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 89
+                        refId: Shd_90_Geometry
+                        points:
+                        - x: 34.073
+                          y: -14.759003538124855
+                          z: 6.509980321648024
+                        - x: 34.073
+                          y: -23.791000000000004
+                          z: 8.947
+                        - x: 36.545
+                          y: -23.791000000000004
+                          z: 8.947
+                        - x: 36.545
+                          y: -14.759003538124857
+                          z: 6.509980321648024
+                    - id: 90
+                      refId: Shd_91
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 90
+                        refId: Shd_91_Geometry
+                        points:
+                        - x: 34.073
+                          y: -24.397003538124853
+                          z: 9.109980321648026
+                        - x: 34.07299999999999
+                          y: -33.42900000000001
+                          z: 11.547
+                        - x: 36.544999999999995
+                          y: -33.42900000000001
+                          z: 11.547
+                        - x: 36.545
+                          y: -24.397003538124853
+                          z: 9.109980321648026
+                    - id: 91
+                      refId: Shd_92
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 91
+                        refId: Shd_92_Geometry
+                        points:
+                        - x: 41.13500000000001
+                          y: 33.433807992194524
+                          z: -7.132793064235693
+                        - x: 41.135000000000005
+                          y: 24.402999999999995
+                          z: -4.492
+                        - x: 43.607000000000006
+                          y: 24.40299999999999
+                          z: -4.492
+                        - x: 43.60700000000001
+                          y: 33.433807992194524
+                          z: -7.132793064235693
+                    - id: 92
+                      refId: Shd_93
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 92
+                        refId: Shd_93_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: 23.79480799219453
+                          z: -4.319793064235693
+                        - x: 41.135000000000005
+                          y: 14.763999999999994
+                          z: -1.679
+                        - x: 43.607000000000006
+                          y: 14.763999999999994
+                          z: -1.679
+                        - x: 43.607000000000006
+                          y: 23.794807992194528
+                          z: -4.319793064235693
+                    - id: 93
+                      refId: Shd_94
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 93
+                        refId: Shd_94_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: 14.155807992194529
+                          z: -1.5057930642356927
+                        - x: 41.135000000000005
+                          y: 5.124999999999995
+                          z: 1.135
+                        - x: 43.607000000000006
+                          y: 5.124999999999995
+                          z: 1.135
+                        - x: 43.607000000000006
+                          y: 14.155807992194529
+                          z: -1.5057930642356927
+                    - id: 94
+                      refId: Shd_95
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 94
+                        refId: Shd_95_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: 4.519232947391346
+                          z: 1.3143177823893937
+                        - x: 41.135000000000005
+                          y: -4.513000000000005
+                          z: 4.354
+                        - x: 43.607000000000006
+                          y: -4.513000000000005
+                          z: 4.354
+                        - x: 43.607000000000006
+                          y: 4.519232947391346
+                          z: 1.3143177823893937
+                    - id: 95
+                      refId: Shd_96
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 95
+                        refId: Shd_96_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: -5.120410628233644
+                          z: 4.567171477100148
+                        - x: 41.135000000000005
+                          y: -14.152000000000005
+                          z: 7.021
+                        - x: 43.607000000000006
+                          y: -14.152000000000005
+                          z: 7.021
+                        - x: 43.607000000000006
+                          y: -5.120410628233644
+                          z: 4.567171477100148
+                    - id: 96
+                      refId: Shd_97
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 96
+                        refId: Shd_97_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: -14.759003538124857
+                          z: 7.183980321648026
+                        - x: 41.135000000000005
+                          y: -23.791000000000004
+                          z: 9.621
+                        - x: 43.607000000000006
+                          y: -23.791000000000007
+                          z: 9.621
+                        - x: 43.607000000000006
+                          y: -14.759003538124857
+                          z: 7.183980321648026
+                    - id: 97
+                      refId: Shd_98
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 97
+                        refId: Shd_98_Geometry
+                        points:
+                        - x: 41.135000000000005
+                          y: -24.397003538124853
+                          z: 9.783980321648025
+                        - x: 41.135
+                          y: -33.42900000000001
+                          z: 12.221
+                        - x: 43.607
+                          y: -33.42900000000001
+                          z: 12.221
+                        - x: 43.607000000000006
+                          y: -24.397003538124856
+                          z: 9.783980321648025
+                    - id: 98
+                      refId: Shd_99
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 98
+                        refId: Shd_99_Geometry
+                        points:
+                        - x: 48.19700000000001
+                          y: 33.433807992194524
+                          z: -6.862793064235693
+                        - x: 48.197
+                          y: 24.40299999999999
+                          z: -4.222
+                        - x: 50.669000000000004
+                          y: 24.40299999999999
+                          z: -4.222
+                        - x: 50.66900000000001
+                          y: 33.433807992194524
+                          z: -6.862793064235693
+                    - id: 99
+                      refId: Shd_100
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 99
+                        refId: Shd_100_Geometry
+                        points:
+                        - x: 48.197
+                          y: 23.794807992194528
+                          z: -4.0497930642356925
+                        - x: 48.197
+                          y: 14.763999999999994
+                          z: -1.409
+                        - x: 50.669000000000004
+                          y: 14.763999999999994
+                          z: -1.409
+                        - x: 50.669000000000004
+                          y: 23.794807992194528
+                          z: -4.0497930642356925
+                    - id: 100
+                      refId: Shd_101
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 100
+                        refId: Shd_101_Geometry
+                        points:
+                        - x: 48.197
+                          y: 14.155043031373696
+                          z: -1.238908576965131
+                        - x: 48.197
+                          y: 5.125999999999994
+                          z: 1.66
+                        - x: 50.669000000000004
+                          y: 5.125999999999994
+                          z: 1.66
+                        - x: 50.669000000000004
+                          y: 14.155043031373696
+                          z: -1.238908576965131
+                    - id: 101
+                      refId: Shd_102
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 101
+                        refId: Shd_102_Geometry
+                        points:
+                        - x: 48.197
+                          y: 4.516343703796751
+                          z: 1.865968804912594
+                        - x: 48.197
+                          y: -4.513000000000006
+                          z: 5.028
+                        - x: 50.669000000000004
+                          y: -4.513000000000006
+                          z: 5.028
+                        - x: 50.669000000000004
+                          y: 4.516343703796751
+                          z: 1.865968804912594
+                    - id: 102
+                      refId: Shd_103
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 102
+                        refId: Shd_103_Geometry
+                        points:
+                        - x: 48.197
+                          y: -5.120410628233645
+                          z: 5.241171477100148
+                        - x: 48.197
+                          y: -14.152000000000005
+                          z: 7.695
+                        - x: 50.669000000000004
+                          y: -14.152000000000005
+                          z: 7.695
+                        - x: 50.669000000000004
+                          y: -5.120410628233645
+                          z: 5.241171477100148
+                    - id: 103
+                      refId: Shd_104
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 103
+                        refId: Shd_104_Geometry
+                        points:
+                        - x: 48.197
+                          y: -14.759003538124857
+                          z: 7.857980321648025
+                        - x: 48.197
+                          y: -23.791000000000007
+                          z: 10.295
+                        - x: 50.669000000000004
+                          y: -23.791000000000007
+                          z: 10.295
+                        - x: 50.669000000000004
+                          y: -14.759003538124857
+                          z: 7.857980321648025
+                    - id: 104
+                      refId: Shd_105
+                      table_Type: 1
+                      inverter_Id: ''
+                      group_Id: ''
+                      table_Id: ''
+                      geometries:
+                      - id: 104
+                        refId: Shd_105_Geometry
+                        points:
+                        - x: 48.197
+                          y: -24.399215538742183
+                          z: 10.455094047969364
+                        - x: 48.196999999999996
+                          y: -33.43000000000001
+                          z: 12.858
+                        - x: 50.669
+                          y: -33.43000000000001
+                          z: 12.858
+                        - x: 50.669000000000004
+                          y: -24.399215538742183
+                          z: 10.455094047969364
+                    objects: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/PVJData:
+    put:
+      tags:
+      - ShadeScene
+      summary: Create/upload a shade scene from PVJ data
+      description: This request accepts the response of the /ShadeScene/ConvertPVCtoPVJ endpoint in its body, and creates the initial 3D Shade Scene with default settings.
+      operationId: createShadeScene
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShadeSceneProperties'
+      responses:
+        '200':
+          description: Created shade scene
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShadeSceneProperties'
+              examples:
+                postman-create-scene-response:
+                  value:
+                    name: Custom Shade Scene
+                    sceneSurfaceArea: 34952.621141703195
+                    dcFieldSurfaceArea: 14461.598249999997
+                    collectorCount: 177
+                    objectCount: 0
+                    orientationTargetDCField: 3387869
+                    calculationSettingsTargetDCField: 3387869
+                    rotation: false
+                    customTableRotationScheduleName: null
+                    customTableRotationUploadDate: null
+                    binType: 2
+                    collectorType: 0
+                    trackerRotationModel: 0
+                    shadingModel: 5
+                    fractionalShadingPercentage: 100
+                    numberOfModuleFractions: null
+                    shadeObjectType: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Properties/{dcFieldNumber}:
+    get:
+      tags:
+      - ShadeScene
+      summary: Get shade scene properties for a DC field
+      description: Returns the specified shade scene and current property values.
+      operationId: getShadeSceneProperties
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: dcFieldNumber
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Shade scene properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShadeSceneProperties'
+              examples:
+                postman-shade-scene-properties:
+                  value:
+                    id: 4297
+                    name: Custom Shade Scene
+                    createdDateUTC: '2025-11-25T16:48:08.357'
+                    createdById: 8903
+                    sceneSurfaceArea: 34952.621141703195
+                    dcFieldSurfaceArea: 14461.598249999997
+                    collectorCount: 177
+                    objectCount: 0
+                    orientationTargetDCField: 3387869
+                    calculationSettingsTargetDCField: 3387869
+                    siteTableCount: 177
+                    rotation: false
+                    customTableRotationScheduleName: null
+                    customTableRotationUploadDate: null
+                    binType: 2
+                    collectorType: 0
+                    trackerRotationModel: 0
+                    shadingModel: 6
+                    fractionalShadingPercentage: 100
+                    numberOfModuleFractions: 2
+                    shadeObjectType: 1
+                    siteExceedsTableLimit: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene:
+    put:
+      tags:
+      - ShadeScene
+      summary: Update shade scene properties
+      description: 'This request accepts the response of the /ShadeScene/Properties endpoint in its body, and will update the stored configuration.
+
+
+        _Note: All values should be provided, not just properties which are changing_
+
+        '
+      operationId: updateShadeSceneProperties
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShadeSceneProperties'
+            examples:
+              postman-projects-shade-scene-update-shade-scene-properties:
+                value:
+                  id: 4297
+                  name: Custom Shade Scene
+                  createdDateUTC: '2025-11-25T16:41:49.847'
+                  createdById: 8903
+                  sceneSurfaceArea: 34952.621141703195
+                  dcFieldSurfaceArea: 14461.598249999997
+                  collectorCount: 177
+                  objectCount: 0
+                  orientationTargetDCField: 3387869
+                  calculationSettingsTargetDCField: 3387869
+                  siteTableCount: 177
+                  rotation: false
+                  customTableRotationScheduleName: null
+                  customTableRotationUploadDate: null
+                  binType: 2
+                  collectorType: 0
+                  trackerRotationModel: 0
+                  shadingModel: 6
+                  fractionalShadingPercentage: 100
+                  numberOfModuleFractions: 3
+                  shadeObjectType: 1
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              examples:
+                postman-update-shade-scene-properties:
+                  value: Shade Scene Properties Updated Successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TABT/Run:
+    post:
+      tags:
+      - ShadeScene
+      summary: Queue TABT calculations
+      description: Queue's calculations for TABT (Terrain Aware Backtracking)
+      operationId: runTABT
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Queued
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TABT/ProcessingStatus:
+    get:
+      tags:
+      - ShadeScene
+      summary: Get TABT processing status
+      description: "Returns the status for:\n\n- Transposition Factor Calculations (if necessary)\n    \n- Terrain Aware Calculations\n    \n- Overall Status (Transpositions + Terrain)\n    \n\nRefer to /Definitions endpoint for status' and their meanings.\n"
+      operationId: getTABTProcessingStatus
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: TABT status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                  RunId:
+                    type: integer
+                  PercentComplete:
+                    type: number
+                  EngineProcessingStatus:
+                    type: integer
+                  OptimizationProcessingStatus:
+                    type: integer
+                  TranspositionProcessingStatus:
+                    type: integer
+                  LastPublishedDateToQueue:
+                    type: string
+                    description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+                  RunStartedDateTimeUTC:
+                    type: string
+                    description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+                  RunCompletedDateTimeUTC:
+                    type: string
+                    description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+              examples:
+                postman-new-request:
+                  value:
+                    Id: 802
+                    RunId: 955415-DJYHQLJVVN
+                    PercentComplete: 100
+                    EngineProcessingStatus: 3
+                    OptimizationProcessingStatus: 0
+                    TranspositionProcessingStatus: 3
+                    LastPublishedDateToQueue: '2025-11-25T16:55:14.783'
+                    RunStartedDateTimeUTC: '2025-11-25T16:55:15.75'
+                    RunCompletedDateTimeUTC: '2025-11-25T16:55:22.033'
+        '204':
+          description: TABT calculations have not been queued for this prediction yet. Response body is empty.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Run:
+    post:
+      tags:
+      - ShadeScene
+      summary: Queue shade calculations
+      description: 'Queue''s Shading Calculations.
+
+
+        Refer to /Definitions endpoint for status'' and their meanings.
+
+        '
+      operationId: runShadeCalculations
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Queued
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/ProcessingStatus:
+    get:
+      tags:
+      - ShadeScene
+      summary: Get shade calculation processing status
+      description: Returns status for shading calculations
+      operationId: getShadeProcessingStatus
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Processing status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessingStatus'
+              examples:
+                postman-get-shade-processing-status-response:
+                  value:
+                    Id: 6806
+                    RunId: 955415-DLVWTJFLXM
+                    PercentComplete: 100
+                    ProcessingStatus: 3
+                    LastPublishedDateToQueue: '2025-11-25T16:59:49.907'
+                    RunStartedDateTimeUTC: '2025-11-25T16:59:50.513'
+                    RunCompletedDateTimeUTC: '2025-11-25T17:00:32.183'
+                    IsInverterMultiRun: false
+                    InverterRunSuccesses: 0
+                    InverterRunFailures: 0
+                    InverterRunInfo: []
+        '204':
+          description: Shade calculations have not been queued for this prediction yet. Response body is empty.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/ShadeScene/Results:
+    get:
+      tags:
+      - ShadeScene
+      summary: Get 3D shade calculation results
+      description: "Returns all 3D scene related results. This includes:\n\n- Beam Irradiance losses\n    \n- Shading Electrical Effect losses\n    \n- Transposition losses/gains\n    \n- Combined loss/gain calculations.\n"
+      operationId: getShadeResults
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Shade results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uiShadeData:
+                    type: object
+                  transpositionFactors:
+                    type: object
+                  hasScheduledData:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    ProcessingStatus:
+      type: object
+      properties:
+        Id:
+          type: integer
+        RunId:
+          type: integer
+        PercentComplete:
+          type: number
+        ProcessingStatus:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          x-enum-varnames:
+          - None
+          - Queued
+          - Running
+          - Success
+          - Error
+          - Cancelled
+          description: ProcessingStatusEnum
+        LastPublishedDateToQueue:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        RunStartedDateTimeUTC:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        RunCompletedDateTimeUTC:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+    ShadeSceneProperties:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdDateUTC:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        createdById:
+          type: integer
+        sceneSurfaceArea:
+          type: number
+        dcFieldSurfaceArea:
+          type: number
+        collectorCount:
+          type: integer
+        objectCount:
+          type: integer
+        orientationTargetDCField:
+          type: integer
+        calculationSettingsTargetDCField:
+          type: integer
+        siteTableCount:
+          type: integer
+        rotation:
+          type: number
+        binType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Quick
+          - Balanced
+          - Detailed
+          description: ShadeSceneBinTypes
+        collectorType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - FixedTilt
+          - SingleAxisTracker
+          - Mixed
+          description: CollectorType
+        trackerRotationModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - RepresentativeDCField
+          - TimeSeriesSchedule
+          - TerrainAwareBacktracking
+          description: TrackerRotationModel
+        shadingModel:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - DCField
+          - SiteShadeScene
+          description: Shading3DModel
+        fractionalShadingPercentage:
+          type: number
+        numberOfModuleFractions:
+          type: integer
+        shadeObjectType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - BoundingBoxFast
+          - NoneHighFidelity
+          description: ShadeObjectType
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

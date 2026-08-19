@@ -1,0 +1,1738 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Power Plant API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: PowerPlant
+  description: Power plant design (blocks, arrays, inverters, transformers)
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/PowerPlant:
+    get:
+      tags:
+      - PowerPlant
+      summary: Get power plant
+      description: "Retrieves the power plant configuration for a prediction. Returns full PVPlant entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getPowerPlant
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Power plant entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PowerPlant'
+              examples:
+                postman-powerplant:
+                  value:
+                    id: 1185523
+                    resultList: null
+                    blocks:
+                    - name: 1
+                      nodalExportOptions: null
+                      resultList: null
+                      arrays:
+                      - name: 1
+                        resultList: null
+                        inverters:
+                        - name: A
+                          resultList: null
+                          dcFields:
+                          - name: 1
+                            moduleId: 42930
+                            module:
+                              status: 3
+                              model: CS6W-560TB-AG 1500V
+                              manufacturer: CSI Solar Co., Ltd.
+                              length: 2278
+                              width: 1134
+                              weight: 32.3
+                              defaultOrientation: 1
+                              numberOfCellsInSeries: 72
+                              numberOfCellsInParallel: 2
+                              stcShortCircuitCurrent: 13.69
+                              stcOpenCircuitVoltage: 51.40000000001521
+                              stcmppCurrent: 13.059968913682152
+                              stcmppVoltage: 42.97039999999989
+                              stcMaxPower: 560
+                              stcPowerTempCoef: -0.2978960659351747
+                              stcShortCircuitCurrentTempCoef: 0.05040175310445581
+                              stcOpenCircuitVoltageTempCoef: -0.25
+                              stcEfficiency: 21.724739537606087
+                              minTolerance: 0
+                              maxTolerance: 1.8
+                              cellTechnologyType: 2
+                              constructionType: 2
+                              faciality: 1
+                              bifacialityFactor: 80
+                              transmissionFactor: 0
+                              backSideMismatch: 3
+                              dataSource: 1
+                              lightInducedDegradation: 1.5
+                              moduleQuality: 0
+                              moduleMismatchCoefficient: 1
+                              heatBalanceConvectiveCoef: 0
+                              heatBalanceConductiveCoef: 29
+                              sandiaConductiveCoef: -3.56
+                              sandiaConvectiveCoef: -0.075
+                              cellToModuleTempDiff: 3
+                              saturationCurrentAtSTC: 1.430522027037574e-11
+                              seriesResistanceAtSTC: 0.205
+                              shuntResistanceAtSTC: 7500
+                              diodeIdealityFactorAtSTC: 1.007220280461766
+                              exponentialDependencyOnShuntResistance: 5.5
+                              darkShuntResistance: 30000
+                              linearTempDependenceOnGamma: -0.026929422499999824
+                              shortCircuitCurrentAtSTC: 13.69
+                              recombinationParameter: 0
+                              builtInVoltage: 0
+                              bandgapVoltage: 1.12
+                              linearTempDependenceOnIsc: 0.05040175310445581
+                              heatAbsorptionCoefAlphaT: 0.9
+                              referenceIrradiance: 1000
+                              referenceTemperature: 25
+                              aGamma: null
+                              bGamma: null
+                              cGamma: null
+                              dGamma: null
+                              spectralResponse: 0
+                              pvModel: 1
+                              useDefaultSandiaIAM: true
+                              useDefaultTabularIAM: false
+                              sandiaSpectralA0: 0
+                              sandiaSpectralA1: 0
+                              sandiaSpectralA2: 0
+                              sandiaSpectralA3: 0
+                              sandiaSpectralA4: 0
+                              sandiaIAMB0: 6.038242275137197
+                              sandiaIAMB1: -0.5248112239136882
+                              sandiaIAMB2: 0.02130703918426116
+                              sandiaIAMB3: -0.00042240723312322523
+                              sandiaIAMB4: 4.091960268471147e-06
+                              sandiaIAMB5: -1.5564126828688897e-08
+                              ashraeiamB0: 0.05
+                              spectral2B0: 0.85914
+                              spectral2B1: -0.02088
+                              spectral2B2: -0.0058853
+                              spectral2B3: 0.12029
+                              spectral2B4: 0.026814
+                              spectral2B5: -0.001781
+                              iamFactors:
+                              - id: 428902
+                                incidenceAngle: 20
+                                factor: 1
+                              - id: 428903
+                                incidenceAngle: 40
+                                factor: 1
+                              - id: 428904
+                                incidenceAngle: 60
+                                factor: 1
+                              - id: 428905
+                                incidenceAngle: 65
+                                factor: 0.99
+                              - id: 428906
+                                incidenceAngle: 70
+                                factor: 0.96
+                              - id: 428907
+                                incidenceAngle: 75
+                                factor: 0.92
+                              - id: 428908
+                                incidenceAngle: 80
+                                factor: 0.84
+                              - id: 428909
+                                incidenceAngle: 85
+                                factor: 0.72
+                              - id: 428910
+                                incidenceAngle: 90
+                                factor: 0
+                              degradationModel: 1
+                              linearDegradationRate: 0.5
+                              nonLinearDegradationRates: null
+                              cellDesignType: 0
+                              useAntiReflectiveCoating: false
+                              refractiveIndex: 1.526
+                              refractiveIndexOfARC: 1.29
+                              glazingExtinctionCoef: 4
+                              glazingThickness: 0.002
+                              powerAtSTC: 0
+                              powerAtSTCExcludingWiringLosses: 0
+                              effectiveIrradianceResponse: null
+                              electricalShadingFractionalEffect: 100
+                              moduleShadingResponse: 2
+                              isMetastable: false
+                              metastabilityProperties: null
+                              id: 42930
+                              name: CSI Solar Co., Ltd. CS6W-560TB-AG 1500V
+                              description: null
+                              companyId: 1042
+                              company: null
+                              ownerId: 4876
+                              owner: null
+                              createdDate: '2023-02-18T01:32:52.38'
+                              lastModified: '2023-02-18T01:34:13.8666667'
+                              lastModifiedById: 4876
+                              lastModifiedBy: null
+                            trackingType: 1
+                            moduleOrientation: 1
+                            irradianceOptimization: false
+                            irradianceOptimizationType: 0
+                            rotationSpeed: 1
+                            nonIdealityFactor: 0.2
+                            tablesRemovedForPCS: 0
+                            transverseSlope: null
+                            baselineSlope: null
+                            northSouthRoadWidth: 0
+                            eastWestRoadWidth: 6.096011996927617
+                            modulesHigh: 1
+                            modulesWide: 26
+                            lateralIntermoduleGap: 0.02
+                            verticalIntermoduleGap: 0.02
+                            fieldLength: 358.6684981684981
+                            fieldWidth: 99.09299999999999
+                            collectorBandwidth: 2.278
+                            tableLength: 29484.5
+                            tablesPerRow: 12
+                            postToPostSpacing: 5.694999999999999
+                            numberOfRows: 18
+                            tableToTableSpacing: 0
+                            moduleAzimuth: 180
+                            moduleTilt: 54
+                            trackingBacktrackingType: 1
+                            trackerPitchAngleD: 0
+                            minimumTrackingLimitAngleD: -60
+                            maximumTrackingLimitAngleD: 60
+                            nightTimeStowAngleD: 0
+                            trackerStowAngle: 0
+                            windStowType: 0
+                            arrayTechnologiesWindStowType: 0
+                            windStowThreshold: null
+                            windStowAngle: null
+                            postHeight: 1.5
+                            structureShading: 5
+                            backSideMismatch: 3
+                            fieldDcPower: 3134.9999999999995
+                            modulesWiredInSeries: 26
+                            numberOfSeriesStringsWiredInParallel: 215.31593406593404
+                            plannedModuleRating: 560
+                            modTempModel: 0
+                            sandiaConductiveCoef: -3.56
+                            sandiaConvectiveCoef: -0.075
+                            cellToModuleTempDiff: 3
+                            heatBalanceConductiveCoef: 29
+                            heatBalanceConvectiveCoef: 0
+                            nominalOperatingCellTemperature: 45
+                            transmittanceAbsorptance: 0.9
+                            moduleMismatchCoefficient: 1
+                            moduleQuality: 0
+                            lightInducedDegradation: 1.5
+                            trackerLoadLoss: 2.028
+                            dcWiringLossAtSTC: 1.5
+                            dcHealth: 0
+                            inverterIdShadeSource: null
+                            monthlySeasonalTiltFactors: []
+                            resultList: null
+                            effectiveResistanceAtSTC: 0
+                            totalModuleArea: 0
+                            uiamd: null
+                            uiamg: null
+                            ushD: null
+                            ushG: null
+                            moduleSurfaceTemperatureTimeSeriesId: null
+                            moduleSurfaceTemperatureTimeSeries: null
+                            useModuleSurfaceTempTimeSeries: false
+                            trackingAngleTimeSeriesId: null
+                            trackingAngleTimeSeries: null
+                            groundCoverageRatio: 40
+                            calculateDCFields: false
+                            shadeObjects: []
+                            tableType: 0
+                            shadingAlgorithm: 0
+                            ground:
+                              edgeOffset: 50
+                              calculate: true
+                              color: '#afaea4'
+                              slope: 0
+                              slopeAzimuth: 180
+                            lockModuleAzimuth: false
+                            lockModulesHigh: false
+                            lockPostHeight: false
+                            lockModulesWide: false
+                            lockNumberOfSeriesStringsWiredInParallel: false
+                            lockModulesWiredInSeries: false
+                            lockPostToPostSpacing: false
+                            lockMwAc: false
+                            lockNumberOfRows: false
+                            lockBacksideMismatch: false
+                            repeater: 1
+                            id: 3387869
+                            description: null
+                          inverterId: 3880
+                          inverter:
+                            status: 5
+                            model: '2500'
+                            manufacturer: Demo
+                            powerRated: 2500
+                            apparentPower: 2750
+                            minDCPowerThreshold: 5000
+                            minVoltage: 800
+                            maxMPPVoltage: 1450
+                            maxAbsoluteVoltage: 1500
+                            maxCurrent: 3508
+                            maxElevation: 4000
+                            outputVoltage: 550
+                            usekVACurves: true
+                            usePQCurves: false
+                            dataSource: 1
+                            efficiencyCurves:
+                            - id: 10567
+                              voltage: 800
+                              efficiencyPoints:
+                              - id: 76185
+                                power: 245.03
+                                efficiency: 98.01
+                              - id: 76186
+                                power: 493.1
+                                efficiency: 98.62
+                              - id: 76187
+                                power: 740.7
+                                efficiency: 98.76
+                              - id: 76188
+                                power: 1234.63
+                                efficiency: 98.77
+                              - id: 76189
+                                power: 1849.69
+                                efficiency: 98.65
+                              - id: 76190
+                                power: 2461.25
+                                efficiency: 98.45
+                            - id: 10568
+                              voltage: 900
+                              efficiencyPoints:
+                              - id: 76191
+                                power: 244.6
+                                efficiency: 97.84
+                              - id: 76192
+                                power: 492.35
+                                efficiency: 98.47
+                              - id: 76193
+                                power: 739.73
+                                efficiency: 98.63
+                              - id: 76194
+                                power: 1233.13
+                                efficiency: 98.65
+                              - id: 76195
+                                power: 1847.06
+                                efficiency: 98.51
+                              - id: 76196
+                                power: 2457.75
+                                efficiency: 98.31
+                            - id: 10569
+                              voltage: 1200
+                              efficiencyPoints:
+                              - id: 76197
+                                power: 243.48
+                                efficiency: 97.39
+                              - id: 76198
+                                power: 491
+                                efficiency: 98.2
+                              - id: 76199
+                                power: 738.08
+                                efficiency: 98.41
+                              - id: 76200
+                                power: 1230.75
+                                efficiency: 98.46
+                              - id: 76201
+                                power: 1842.56
+                                efficiency: 98.27
+                              - id: 76202
+                                power: 2454.75
+                                efficiency: 98.19
+                            kVACurves:
+                            - id: 3872
+                              elevation: 2000
+                              kVAPoints:
+                              - id: 21335
+                                temperature: -35
+                                kVA: 2750
+                              - id: 21336
+                                temperature: 45
+                                kVA: 2750
+                              - id: 21337
+                                temperature: 50
+                                kVA: 2500
+                              - id: 21338
+                                temperature: 60
+                                kVA: 0
+                            - id: 3873
+                              elevation: 3000
+                              kVAPoints:
+                              - id: 21339
+                                temperature: -35
+                                kVA: 2250
+                              - id: 21340
+                                temperature: 45
+                                kVA: 2250
+                              - id: 21341
+                                temperature: 50
+                                kVA: 2025
+                              - id: 21342
+                                temperature: 60
+                                kVA: 0
+                            - id: 3874
+                              elevation: 4000
+                              kVAPoints:
+                              - id: 21343
+                                temperature: -35
+                                kVA: 1750
+                              - id: 21344
+                                temperature: 45
+                                kVA: 1750
+                              - id: 21345
+                                temperature: 50
+                                kVA: 1575
+                              - id: 21346
+                                temperature: 60
+                                kVA: 0
+                            pqCurves: null
+                            inverterType: 2
+                            id: 3880
+                            name: 'Demo Central 2500 '
+                            description: copied for presentation on sep 2020
+                            companyId: 1
+                            company: null
+                            ownerId: 742
+                            owner: null
+                            createdDate: '2020-09-09T20:28:25.8833333'
+                            lastModified: '2020-09-15T18:28:12.46'
+                            lastModifiedById: 742
+                            lastModifiedBy: null
+                          setpointkW: 2612.5
+                          powerFactor: 0.95
+                          designDerate: 0.95
+                          kVARating: 2750
+                          totalModuleArea: 0
+                          derateTimeSeriesId: null
+                          derateTimeSeries: null
+                          useDerateTimeSeries: false
+                          setPointTimeSeriesId: null
+                          setPointTimeSeries: null
+                          useSetPointTimeSeries: false
+                          vmppAdjustmentTimeSeriesId: null
+                          vmppAdjustmentTimeSeries: null
+                          useVMPPTimeSeriesAdjustment: false
+                          imppAdjustmentTimeSeriesId: null
+                          imppAdjustmentTimeSeries: null
+                          useIMPPTimeSeriesAdjustment: false
+                          repeater: 1
+                          id: 2975697
+                          description: null
+                        acCollectionLoss: 1
+                        dasLoad: 800
+                        coolingLoad: 0
+                        additionalLosses: 0
+                        matchTotalInverterkVA: true
+                        transformerEnabled: true
+                        transformerkVARating: 2750
+                        transformerHighSideVoltage: 34.5
+                        transformerNoLoadLoss: 0.2
+                        transformerFullLoadLoss: 0.7
+                        totalModules: 0
+                        totalModuleArea: 0
+                        trackerMotorLosses: 0
+                        repeater: 1
+                        id: 2720072
+                        description: null
+                      energizationDate: null
+                      useEnergizationDate: false
+                      numberOfModules: 0
+                      totalModuleArea: 0
+                      repeater: 1
+                      id: 1538513
+                      description: null
+                    transformers: []
+                    transmissionLines: []
+                    ess: null
+                    esS_Id: null
+                    exportSystem: false
+                    exportESS: false
+                    lgiaLimitTimeSeriesId: null
+                    lgiaLimitTimeSeries: null
+                    useLGIALimitTimeSeries: false
+                    powerFactor: 0.95
+                    lgiaLimitation: null
+                    nighttimeDisconnect: false
+                    availabilityLoss: null
+                    useCoolingTemp: true
+                    desiredDCACRatio: null
+                    powerPlantDesignType: 0
+                    customArrayConfig: null
+                    useCustomArrayConfig: false
+                    totalModuleArea: 0
+                    maxMVTransformerVoltage: 0
+                    maximumPlantOutput: 0
+        '204':
+          description: No power plant has been created for this prediction yet. Response body is empty.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - PowerPlant
+      summary: Create power plant
+      description: "Creates a power plant for a prediction. May attach X-Message header with configuration warnings.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The PVPlant entity to create.\n"
+      operationId: createPowerPlant
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PowerPlant'
+            examples:
+              postman-projects-powerplant-powerplant:
+                value:
+                  blocks:
+                  - name: 1
+                    nodalExportOptions:
+                      id: 103584
+                      exportBlock: false
+                      exportArrays: false
+                      exportInverters: false
+                      exportDCFields: true
+                    resultList: null
+                    arrays:
+                    - name: 1
+                      resultList: null
+                      inverters:
+                      - name: A
+                        resultList: null
+                        dcFields:
+                        - name: 1
+                          moduleId: 40014
+                          module:
+                            status: 5
+                            model: FS-7505A-TR1 September2022
+                            manufacturer: First Solar
+                            length: 2300
+                            width: 1215
+                            weight: 39.7
+                            defaultOrientation: 1
+                            numberOfCellsInSeries: 268
+                            numberOfCellsInParallel: 1
+                            stcShortCircuitCurrent: 3.013
+                            stcOpenCircuitVoltage: 223.931
+                            stcmppCurrent: 2.767
+                            stcmppVoltage: 182.47
+                            stcMaxPower: 505
+                            stcPowerTempCoef: -0.32
+                            stcShortCircuitCurrentTempCoef: 0.04
+                            stcOpenCircuitVoltageTempCoef: -0.28
+                            stcEfficiency: 18.071211307926283
+                            minTolerance: 0
+                            maxTolerance: 5
+                            cellTechnologyType: 6
+                            constructionType: 1
+                            faciality: 0
+                            bifacialityFactor: null
+                            transmissionFactor: null
+                            backSideMismatch: null
+                            dataSource: 1
+                            lightInducedDegradation: 0
+                            moduleQuality: 0
+                            moduleMismatchCoefficient: 0.5
+                            heatBalanceConvectiveCoef: 0
+                            heatBalanceConductiveCoef: 29
+                            sandiaConductiveCoef: -3.47
+                            sandiaConvectiveCoef: -0.0594
+                            cellToModuleTempDiff: 3
+                            saturationCurrentAtSTC: 4.91147e-10
+                            seriesResistanceAtSTC: 3.885
+                            shuntResistanceAtSTC: 11500
+                            diodeIdealityFactorAtSTC: 1.452
+                            exponentialDependencyOnShuntResistance: 5.5
+                            darkShuntResistance: 12000
+                            linearTempDependenceOnGamma: 0.01584022038567493
+                            shortCircuitCurrentAtSTC: 3.013
+                            recombinationParameter: 2.15
+                            builtInVoltage: 0.9
+                            bandgapVoltage: 1.5
+                            linearTempDependenceOnIsc: 0.04
+                            heatAbsorptionCoefAlphaT: 0.9
+                            referenceIrradiance: 1000
+                            referenceTemperature: 25
+                            aGamma: null
+                            bGamma: null
+                            cGamma: null
+                            dGamma: null
+                            spectralResponse: 2
+                            pvModel: 0
+                            useDefaultSandiaIAM: false
+                            useDefaultTabularIAM: false
+                            sandiaSpectralA0: null
+                            sandiaSpectralA1: null
+                            sandiaSpectralA2: null
+                            sandiaSpectralA3: null
+                            sandiaSpectralA4: null
+                            sandiaIAMB0: 6.038242275137197
+                            sandiaIAMB1: -0.5248112239136882
+                            sandiaIAMB2: 0.02130703918426116
+                            sandiaIAMB3: -0.00042240723312322523
+                            sandiaIAMB4: 4.091960268471147e-06
+                            sandiaIAMB5: -1.5564126828688897e-08
+                            ashraeiamB0: 0.05
+                            spectral2B0: 0.86273
+                            spectral2B1: -0.038948
+                            spectral2B2: -0.012506
+                            spectral2B3: 0.098871
+                            spectral2B4: 0.084658
+                            spectral2B5: -0.0042948
+                            iamFactors: null
+                            degradationModel: 1
+                            linearDegradationRate: 0.3
+                            nonLinearDegradationRates: null
+                            cellDesignType: null
+                            powerAtSTC: 0
+                            powerAtSTCExcludingWiringLosses: 0
+                            effectiveIrradianceResponse: null
+                            electricalShadingFractionalEffect: 0
+                            moduleShadingResponse: 1
+                            id: 40014
+                            name: FS-7505A-TR1 CdTe September2022
+                            description: S7_505_540
+                          trackingType: 1
+                          moduleOrientation: 1
+                          irradianceOptimization: true
+                          rotationSpeed: 1
+                          nonIdealityFactor: 0.2
+                          tablesRemovedForPCS: 0
+                          transverseSlope: null
+                          baselineSlope: null
+                          northSouthRoadWidth: 6.096011996927617
+                          eastWestRoadWidth: 6.096011996927617
+                          modulesHigh: 1
+                          modulesWide: 6
+                          lateralIntermoduleGap: 0.02
+                          verticalIntermoduleGap: 0.02
+                          fieldLength: 54.876237623762385
+                          fieldWidth: 42.54999999999999
+                          collectorBandwidth: 2.3
+                          tableLength: 7290.1
+                          tablesPerRow: 8
+                          postToPostSpacing: 5.749999999999999
+                          numberOfRows: 8
+                          tableToTableSpacing: 0
+                          moduleAzimuth: 180
+                          moduleTilt: 45
+                          trackingBacktrackingType: 0
+                          trackerPitchAngleD: 0
+                          minimumTrackingLimitAngleD: -60
+                          maximumTrackingLimitAngleD: 60
+                          trackerStowAngle: 0
+                          postHeight: 1.5
+                          structureShading: 5
+                          backSideMismatch: null
+                          fieldDcPower: 180
+                          modulesWiredInSeries: 6
+                          numberOfSeriesStringsWiredInParallel: 59.40594059405941
+                          plannedModuleRating: 505
+                          modTempModel: 0
+                          sandiaConductiveCoef: -3.47
+                          sandiaConvectiveCoef: -0.0594
+                          cellToModuleTempDiff: 3
+                          heatBalanceConductiveCoef: 29
+                          heatBalanceConvectiveCoef: 0
+                          nominalOperatingCellTemperature: 45
+                          transmittanceAbsorptance: 0.9
+                          moduleMismatchCoefficient: 0.5
+                          moduleQuality: 0
+                          lightInducedDegradation: 0
+                          trackerLoadLoss: 2.028
+                          dcWiringLossAtSTC: 1.5
+                          dcHealth: 1
+                          monthlySeasonalTiltFactors: []
+                          resultList: null
+                          effectiveResistanceAtSTC: 0
+                          totalModuleArea: 0
+                          uiamd: null
+                          uiamg: null
+                          ushD: null
+                          ushG: null
+                          moduleSurfaceTemperatureTimeSeriesId: null
+                          moduleSurfaceTemperatureTimeSeries: null
+                          useModuleSurfaceTempTimeSeries: false
+                          trackingAngleTimeSeriesId: null
+                          trackingAngleTimeSeries: null
+                          shadeObjects: []
+                          tableType: 1
+                          shadingAlgorithm: 0
+                          ground:
+                            edgeOffset: 50
+                            calculate: true
+                            color: '#afaea4'
+                            slope: 2
+                            slopeAzimuth: 180
+                          repeater: 1
+                          description: null
+                        inverterId: 8238
+                        inverter:
+                          status: 5
+                          model: Sunny Highpower SHP150-US-20-PEAK3
+                          manufacturer: SMA
+                          powerRated: 150
+                          apparentPower: 150
+                          minDCPowerThreshold: 100
+                          minVoltage: 855
+                          maxMPPVoltage: 1450
+                          maxAbsoluteVoltage: 1500
+                          maxCurrent: 180
+                          maxElevation: 100
+                          outputVoltage: 600
+                          usekVACurves: true
+                          usePQCurves: false
+                          dataSource: 2
+                          efficiencyCurves: null
+                          kVACurves: null
+                          pqCurves: null
+                          inverterType: 1
+                          id: 8238
+                          name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                          description: null
+                        setpointkW: 150
+                        powerFactor: 1
+                        designDerate: 1
+                        kVARating: 150
+                        totalModuleArea: 0
+                        derateTimeSeriesId: null
+                        derateTimeSeries: null
+                        useDerateTimeSeries: false
+                        setPointTimeSeriesId: null
+                        setPointTimeSeries: null
+                        useSetPointTimeSeries: false
+                        vmppAdjustmentTimeSeriesId: null
+                        vmppAdjustmentTimeSeries: null
+                        useVMPPTimeSeriesAdjustment: false
+                        imppAdjustmentTimeSeriesId: null
+                        imppAdjustmentTimeSeries: null
+                        useIMPPTimeSeriesAdjustment: false
+                        repeater: 1
+                        description: null
+                      acCollectionLoss: 1
+                      dasLoad: 800
+                      coolingLoad: 0
+                      additionalLosses: 0
+                      matchTotalInverterkVA: true
+                      transformerEnabled: true
+                      transformerkVARating: 150
+                      transformerHighSideVoltage: 34.5
+                      transformerNoLoadLoss: 0.2
+                      transformerFullLoadLoss: 0.7
+                      totalModules: 0
+                      totalModuleArea: 0
+                      trackerMotorLosses: 0
+                      repeater: 1
+                      description: null
+                    energizationDate: null
+                    useEnergizationDate: false
+                    numberOfModules: 0
+                    totalModuleArea: 0
+                    repeater: 1
+                    description: null
+                  transformers: []
+                  transmissionLines: []
+                  ess: null
+                  exportSystem: false
+                  exportESS: false
+                  lgiaLimitTimeSeriesId: null
+                  lgiaLimitTimeSeries: null
+                  useLGIALimitTimeSeries: false
+                  powerFactor: 1
+                  lgiaLimitation: null
+                  availabilityLoss: null
+                  useCoolingTemp: true
+                  desiredDCACRatio: null
+                  powerPlantDesignType: 0
+                  customArrayConfig: null
+                  useCustomArrayConfig: false
+                  totalModuleArea: 0
+                  maxMVTransformerVoltage: 0
+                  maximumPlantOutput: 0
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags:
+      - PowerPlant
+      summary: Update power plant
+      description: "Updates the power plant for a prediction. May attach X-Message header with warnings (e.g., energization date, 3D shading, post height).\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The updated PVPlant entity.\n"
+      operationId: updatePowerPlant
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PowerPlant'
+            examples:
+              postman-projects-powerplant-powerplant:
+                value:
+                  id: 638622
+                  blocks:
+                  - name: 1
+                    nodalExportOptions:
+                      id: 103584
+                      exportBlock: false
+                      exportArrays: false
+                      exportInverters: false
+                      exportDCFields: true
+                    resultList: null
+                    arrays:
+                    - name: 1
+                      resultList: null
+                      inverters:
+                      - name: A
+                        resultList: null
+                        dcFields:
+                        - name: 1
+                          moduleId: 40014
+                          module:
+                            status: 5
+                            model: FS-7505A-TR1 September2022
+                            manufacturer: First Solar
+                            length: 2300
+                            width: 1215
+                            weight: 39.7
+                            defaultOrientation: 1
+                            numberOfCellsInSeries: 268
+                            numberOfCellsInParallel: 1
+                            stcShortCircuitCurrent: 3.013
+                            stcOpenCircuitVoltage: 223.931
+                            stcmppCurrent: 2.767
+                            stcmppVoltage: 182.47
+                            stcMaxPower: 505
+                            stcPowerTempCoef: -0.32
+                            stcShortCircuitCurrentTempCoef: 0.04
+                            stcOpenCircuitVoltageTempCoef: -0.28
+                            stcEfficiency: 18.071211307926283
+                            minTolerance: 0
+                            maxTolerance: 5
+                            cellTechnologyType: 6
+                            constructionType: 1
+                            faciality: 0
+                            bifacialityFactor: null
+                            transmissionFactor: null
+                            backSideMismatch: null
+                            dataSource: 1
+                            lightInducedDegradation: 0
+                            moduleQuality: 0
+                            moduleMismatchCoefficient: 0.5
+                            heatBalanceConvectiveCoef: 0
+                            heatBalanceConductiveCoef: 29
+                            sandiaConductiveCoef: -3.47
+                            sandiaConvectiveCoef: -0.0594
+                            cellToModuleTempDiff: 3
+                            saturationCurrentAtSTC: 4.91147e-10
+                            seriesResistanceAtSTC: 3.885
+                            shuntResistanceAtSTC: 11500
+                            diodeIdealityFactorAtSTC: 1.452
+                            exponentialDependencyOnShuntResistance: 5.5
+                            darkShuntResistance: 12000
+                            linearTempDependenceOnGamma: 0.01584022038567493
+                            shortCircuitCurrentAtSTC: 3.013
+                            recombinationParameter: 2.15
+                            builtInVoltage: 0.9
+                            bandgapVoltage: 1.5
+                            linearTempDependenceOnIsc: 0.04
+                            heatAbsorptionCoefAlphaT: 0.9
+                            referenceIrradiance: 1000
+                            referenceTemperature: 25
+                            aGamma: null
+                            bGamma: null
+                            cGamma: null
+                            dGamma: null
+                            spectralResponse: 2
+                            pvModel: 0
+                            useDefaultSandiaIAM: false
+                            useDefaultTabularIAM: false
+                            sandiaSpectralA0: null
+                            sandiaSpectralA1: null
+                            sandiaSpectralA2: null
+                            sandiaSpectralA3: null
+                            sandiaSpectralA4: null
+                            sandiaIAMB0: 6.038242275137197
+                            sandiaIAMB1: -0.5248112239136882
+                            sandiaIAMB2: 0.02130703918426116
+                            sandiaIAMB3: -0.00042240723312322523
+                            sandiaIAMB4: 4.091960268471147e-06
+                            sandiaIAMB5: -1.5564126828688897e-08
+                            ashraeiamB0: 0.05
+                            spectral2B0: 0.86273
+                            spectral2B1: -0.038948
+                            spectral2B2: -0.012506
+                            spectral2B3: 0.098871
+                            spectral2B4: 0.084658
+                            spectral2B5: -0.0042948
+                            iamFactors: null
+                            degradationModel: 1
+                            linearDegradationRate: 0.3
+                            nonLinearDegradationRates: null
+                            cellDesignType: null
+                            powerAtSTC: 0
+                            powerAtSTCExcludingWiringLosses: 0
+                            effectiveIrradianceResponse: null
+                            electricalShadingFractionalEffect: 0
+                            moduleShadingResponse: 1
+                            id: 40014
+                            name: FS-7505A-TR1 CdTe September2022
+                            description: S7_505_540
+                          trackingType: 1
+                          moduleOrientation: 1
+                          irradianceOptimization: true
+                          rotationSpeed: 1
+                          nonIdealityFactor: 0.2
+                          tablesRemovedForPCS: 0
+                          transverseSlope: null
+                          baselineSlope: null
+                          northSouthRoadWidth: 6.096011996927617
+                          eastWestRoadWidth: 6.096011996927617
+                          modulesHigh: 1
+                          modulesWide: 6
+                          lateralIntermoduleGap: 0.02
+                          verticalIntermoduleGap: 0.02
+                          fieldLength: 54.876237623762385
+                          fieldWidth: 42.54999999999999
+                          collectorBandwidth: 2.3
+                          tableLength: 7290.1
+                          tablesPerRow: 8
+                          postToPostSpacing: 5.749999999999999
+                          numberOfRows: 8
+                          tableToTableSpacing: 0
+                          moduleAzimuth: 180
+                          moduleTilt: 45
+                          trackingBacktrackingType: 0
+                          trackerPitchAngleD: 0
+                          minimumTrackingLimitAngleD: -60
+                          maximumTrackingLimitAngleD: 60
+                          trackerStowAngle: 0
+                          postHeight: 1.5
+                          structureShading: 5
+                          backSideMismatch: null
+                          fieldDcPower: 180
+                          modulesWiredInSeries: 6
+                          numberOfSeriesStringsWiredInParallel: 59.40594059405941
+                          plannedModuleRating: 505
+                          modTempModel: 0
+                          sandiaConductiveCoef: -3.47
+                          sandiaConvectiveCoef: -0.0594
+                          cellToModuleTempDiff: 3
+                          heatBalanceConductiveCoef: 29
+                          heatBalanceConvectiveCoef: 0
+                          nominalOperatingCellTemperature: 45
+                          transmittanceAbsorptance: 0.9
+                          moduleMismatchCoefficient: 0.5
+                          moduleQuality: 0
+                          lightInducedDegradation: 0
+                          trackerLoadLoss: 2.028
+                          dcWiringLossAtSTC: 1.5
+                          dcHealth: 1
+                          monthlySeasonalTiltFactors: []
+                          resultList: null
+                          effectiveResistanceAtSTC: 0
+                          totalModuleArea: 0
+                          uiamd: null
+                          uiamg: null
+                          ushD: null
+                          ushG: null
+                          moduleSurfaceTemperatureTimeSeriesId: null
+                          moduleSurfaceTemperatureTimeSeries: null
+                          useModuleSurfaceTempTimeSeries: false
+                          trackingAngleTimeSeriesId: null
+                          trackingAngleTimeSeries: null
+                          shadeObjects: []
+                          tableType: 1
+                          shadingAlgorithm: 0
+                          ground:
+                            edgeOffset: 50
+                            calculate: true
+                            color: '#afaea4'
+                            slope: 2
+                            slopeAzimuth: 180
+                          repeater: 1
+                          description: null
+                        inverterId: 8238
+                        inverter:
+                          status: 5
+                          model: Sunny Highpower SHP150-US-20-PEAK3
+                          manufacturer: SMA
+                          powerRated: 150
+                          apparentPower: 150
+                          minDCPowerThreshold: 100
+                          minVoltage: 855
+                          maxMPPVoltage: 1450
+                          maxAbsoluteVoltage: 1500
+                          maxCurrent: 180
+                          maxElevation: 100
+                          outputVoltage: 600
+                          usekVACurves: true
+                          usePQCurves: false
+                          dataSource: 2
+                          efficiencyCurves: null
+                          kVACurves: null
+                          pqCurves: null
+                          inverterType: 1
+                          id: 8238
+                          name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                          description: null
+                        setpointkW: 150
+                        powerFactor: 1
+                        designDerate: 1
+                        kVARating: 150
+                        totalModuleArea: 0
+                        derateTimeSeriesId: null
+                        derateTimeSeries: null
+                        useDerateTimeSeries: false
+                        setPointTimeSeriesId: null
+                        setPointTimeSeries: null
+                        useSetPointTimeSeries: false
+                        vmppAdjustmentTimeSeriesId: null
+                        vmppAdjustmentTimeSeries: null
+                        useVMPPTimeSeriesAdjustment: false
+                        imppAdjustmentTimeSeriesId: null
+                        imppAdjustmentTimeSeries: null
+                        useIMPPTimeSeriesAdjustment: false
+                        repeater: 1
+                        description: null
+                      acCollectionLoss: 1
+                      dasLoad: 800
+                      coolingLoad: 0
+                      additionalLosses: 0
+                      matchTotalInverterkVA: true
+                      transformerEnabled: true
+                      transformerkVARating: 150
+                      transformerHighSideVoltage: 34.5
+                      transformerNoLoadLoss: 0.2
+                      transformerFullLoadLoss: 0.7
+                      totalModules: 0
+                      totalModuleArea: 0
+                      trackerMotorLosses: 0
+                      repeater: 1
+                      description: null
+                    energizationDate: null
+                    useEnergizationDate: false
+                    numberOfModules: 0
+                    totalModuleArea: 0
+                    repeater: 1
+                    description: null
+                  transformers: []
+                  transmissionLines: []
+                  ess: null
+                  exportSystem: false
+                  exportESS: false
+                  lgiaLimitTimeSeriesId: null
+                  lgiaLimitTimeSeries: null
+                  useLGIALimitTimeSeries: false
+                  powerFactor: 1
+                  lgiaLimitation: null
+                  availabilityLoss: null
+                  useCoolingTemp: true
+                  desiredDCACRatio: null
+                  powerPlantDesignType: 0
+                  customArrayConfig: null
+                  useCustomArrayConfig: false
+                  totalModuleArea: 0
+                  maxMVTransformerVoltage: 0
+                  maximumPlantOutput: 0
+      responses:
+        '200':
+          description: Update result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionUpdateResponse'
+              examples:
+                postman-powerplant:
+                  value:
+                    changesMade: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
+    PowerPlant:
+      type: object
+      properties:
+        id:
+          type: integer
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+        transformers:
+          type: array
+          items:
+            type: object
+        transmissionLines:
+          type: array
+          items:
+            type: object
+        ess:
+          type:
+          - object
+          - 'null'
+          description: 'The Energy Storage System page allows you to configure an optional AC-coupled battery energy storage system (BESS) for your prediction. To enable energy storage, enter a Nameplate capacity value (input #1) and an Inverter Real Power rating (input #9). The Dispatch Algorithm should also be configured to ensure the...'
+          x-doc-source: docs-only:user-guide/ui/energy-storage-system.mdx
+        esS_Id:
+          type:
+          - integer
+          - 'null'
+        exportSystem:
+          type:
+          - object
+          - 'null'
+          description: The 3D View provides tools for analyzing terrain and racking placement within your map-based power plant design. This interface enables terrain slope analysis, table slope constraint identification, and post height calculations.
+          x-doc-source: docs-only:user-guide/ui/power-plant-builder-3d-view.mdx
+        exportESS:
+          type: boolean
+        lgiaLimitTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+        lgiaLimitTimeSeries:
+          type:
+          - object
+          - 'null'
+          description: The Simulation Settings page allows you to configure the prediction timeframe and select the sub-models used for irradiance calculation, module performance, shading analysis, and degradation. These settings control the algorithms applied during the energy prediction simulation.
+          x-doc-source: docs-only:user-guide/ui/simulation-settings.mdx
+        useLGIALimitTimeSeries:
+          type: boolean
+        powerFactor:
+          type: number
+        lgiaLimitation:
+          type:
+          - number
+          - 'null'
+        nighttimeDisconnect:
+          type: boolean
+        availabilityLoss:
+          type: number
+        useCoolingTemp:
+          type: boolean
+        desiredDCACRatio:
+          type:
+          - number
+          - 'null'
+        powerPlantDesignType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Simple
+          - Advanced
+          description: PowerPlantDesignType
+        customArrayConfig:
+          type:
+          - object
+          - 'null'
+          description: The Array page allows you to configure the medium-voltage (MV) transformer, AC collection circuit losses, and define the number of equivalent arrays within a Block. An Array aggregates multiple inverters and their associated DC Fields. Similar to the Inverter page, the Array supports a multiplier to model multiple...
+          x-doc-source: docs-only:user-guide/ui/power-plant-builder-array.mdx
+        useCustomArrayConfig:
+          type: boolean
+        totalModuleArea:
+          type: number
+        maxMVTransformerVoltage:
+          type: number
+        maximumPlantOutput:
+          type: number
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+          readOnly: true
+    PowerPlantInverter:
+      type: object
+      properties:
+        name:
+          type: string
+        resultList:
+          readOnly: true
+        dcFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCField'
+        inverterId:
+          type: integer
+        inverter:
+          type: object
+        setpointkW:
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+        designDerate:
+          type: number
+          format: double
+        kVARating:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        derateTimeSeriesId: {}
+        derateTimeSeries: {}
+        useDerateTimeSeries:
+          type: boolean
+        setPointTimeSeriesId: {}
+        setPointTimeSeries: {}
+        useSetPointTimeSeries:
+          type: boolean
+        vmppAdjustmentTimeSeriesId: {}
+        vmppAdjustmentTimeSeries: {}
+        useVMPPTimeSeriesAdjustment:
+          type: boolean
+        imppAdjustmentTimeSeriesId: {}
+        imppAdjustmentTimeSeries: {}
+        useIMPPTimeSeriesAdjustment:
+          type: boolean
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+    Block:
+      type: object
+      properties:
+        name:
+          type: integer
+        nodalExportOptions: {}
+        resultList:
+          readOnly: true
+        arrays:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantArray'
+        energizationDate: {}
+        useEnergizationDate:
+          type: boolean
+        numberOfModules:
+          type: number
+          format: double
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+    PowerPlantArray:
+      type: object
+      properties:
+        name:
+          type: integer
+        resultList:
+          readOnly: true
+        inverters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantInverter'
+        acCollectionLoss:
+          type: number
+          format: double
+        dasLoad:
+          type: number
+          format: double
+        coolingLoad:
+          type: number
+          format: double
+        additionalLosses:
+          type: number
+          format: double
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          type: number
+          format: double
+        totalModules:
+          type: integer
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        trackerMotorLosses:
+          type: number
+          format: double
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+    DCField:
+      type: object
+      properties:
+        name:
+          type: integer
+        moduleId:
+          type: integer
+        module:
+          type: object
+        trackingType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - FixedTilt
+          - HorizontalTracker
+          - SeasonalTilt
+          description: DCFieldTrackingTypeEnum
+        moduleOrientation:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Landscape
+          - Portrait
+          description: ModuleOrientation
+        irradianceOptimization:
+          type: boolean
+        irradianceOptimizationType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - None
+          - PlantPredict
+          - ArrayTechnologies
+          description: IrradianceOptimizationType
+        rotationSpeed:
+          type: number
+          format: double
+        nonIdealityFactor:
+          type: number
+          format: double
+        tablesRemovedForPCS:
+          type: number
+          format: double
+        transverseSlope: {}
+        baselineSlope: {}
+        northSouthRoadWidth:
+          type: number
+          format: double
+        eastWestRoadWidth:
+          type: number
+          format: double
+        modulesHigh:
+          type: integer
+        modulesWide:
+          type: integer
+        lateralIntermoduleGap:
+          type: number
+          format: double
+        verticalIntermoduleGap:
+          type: number
+          format: double
+        fieldLength:
+          type: number
+          format: double
+          readOnly: true
+        fieldWidth:
+          type: number
+          format: double
+          readOnly: true
+        collectorBandwidth:
+          type: number
+          format: double
+        tableLength:
+          type: number
+          format: double
+        tablesPerRow:
+          type: number
+          format: double
+        postToPostSpacing:
+          type: number
+          format: double
+        numberOfRows:
+          type: number
+          format: double
+        tableToTableSpacing:
+          type: number
+          format: double
+        moduleAzimuth:
+          type: number
+          format: double
+        moduleTilt:
+          type: number
+          format: double
+        trackingBacktrackingType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - TrueTracking
+          - Backtracking
+          - TimeSeries
+          description: DCFieldBacktrackingType
+        trackerPitchAngleD:
+          type: number
+          format: double
+        minimumTrackingLimitAngleD:
+          type: number
+          format: double
+        maximumTrackingLimitAngleD:
+          type: number
+          format: double
+        nightTimeStowAngleD:
+          type:
+          - number
+          - 'null'
+          format: double
+        trackerStowAngle:
+          type: number
+          format: double
+        windStowType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Disabled
+          - PlantPredict
+          - ArrayTechnologies
+          description: WindStowType
+        arrayTechnologiesWindStowType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - InteriorRow
+          - ExteriorRow
+          description: ArrayTechnologiesWindStowType
+        windStowThreshold: {}
+        windStowAngle: {}
+        postHeight:
+          type: number
+          format: double
+        structureShading:
+          type: number
+          format: double
+        backSideMismatch:
+          type: number
+          format: double
+        fieldDcPower:
+          type: number
+          format: double
+          readOnly: true
+        modulesWiredInSeries:
+          type: integer
+        numberOfSeriesStringsWiredInParallel:
+          type: number
+          format: double
+        plannedModuleRating:
+          type: number
+          format: double
+        modTempModel:
+          type:
+          - integer
+          - 'null'
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - HeatBalance
+          - Sandia
+          - NOCT
+          description: DCFieldModuleTemperatureModelType
+        sandiaConductiveCoef:
+          type: number
+          format: double
+        sandiaConvectiveCoef:
+          type: number
+          format: double
+        cellToModuleTempDiff:
+          type: number
+          format: double
+        heatBalanceConductiveCoef:
+          type: number
+          format: double
+        heatBalanceConvectiveCoef:
+          type: number
+          format: double
+        nominalOperatingCellTemperature:
+          type: number
+          format: double
+        transmittanceAbsorptance:
+          type: number
+          format: double
+        moduleMismatchCoefficient:
+          type: number
+          format: double
+        moduleQuality:
+          type: number
+          format: double
+        lightInducedDegradation:
+          type: number
+          format: double
+        trackerLoadLoss:
+          type: number
+          format: double
+        dcWiringLossAtSTC:
+          type: number
+          format: double
+        dcHealth:
+          type: number
+          format: double
+        inverterIdShadeSource: {}
+        monthlySeasonalTiltFactors:
+          type: array
+          items:
+            type: object
+        resultList:
+          readOnly: true
+        effectiveResistanceAtSTC:
+          type: number
+          format: double
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        uiamd:
+          readOnly: true
+        uiamg:
+          readOnly: true
+        ushD:
+          readOnly: true
+        ushG:
+          readOnly: true
+        moduleSurfaceTemperatureTimeSeriesId: {}
+        moduleSurfaceTemperatureTimeSeries: {}
+        useModuleSurfaceTempTimeSeries:
+          type: boolean
+        trackingAngleTimeSeriesId: {}
+        trackingAngleTimeSeries: {}
+        groundCoverageRatio:
+          type: number
+          format: double
+        calculateDCFields:
+          type: boolean
+        shadeObjects:
+          type: array
+          items:
+            type: object
+        tableType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Flat
+          - Sloped
+          description: TableType
+        shadingAlgorithm:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - V2DDefault
+          - InfiniteLengthRows
+          - V3DDeprecated
+          description: ShadeAlgorithm
+        ground:
+          type: object
+        lockModuleAzimuth:
+          type: boolean
+        lockModulesHigh:
+          type: boolean
+        lockPostHeight:
+          type: boolean
+        lockModulesWide:
+          type: boolean
+        lockNumberOfSeriesStringsWiredInParallel:
+          type: boolean
+        lockModulesWiredInSeries:
+          type: boolean
+        lockPostToPostSpacing:
+          type: boolean
+        lockMwAc:
+          type: boolean
+        lockNumberOfRows:
+          type: boolean
+        lockBacksideMismatch:
+          type: boolean
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+  responses:
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
+
+        Wait and retry. The PlantPredict API does not currently emit
+
+        `Retry-After`; back off with an exponential schedule (start at 30s).
+
+        Response body is typically empty.
+
+        '
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

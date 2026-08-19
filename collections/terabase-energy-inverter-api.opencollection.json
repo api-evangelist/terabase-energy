@@ -1,0 +1,228 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Inverter API",
+    "version": "current"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Inverter",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get an Inverter by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Inverter/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get an Inverter by Id."
+        },
+        {
+          "info": {
+            "name": "Update an Inverter.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Inverter/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Inverter ID from URL"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response carrying an informational message about the updated entity."
+        },
+        {
+          "info": {
+            "name": "Delete an Inverter by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Inverter/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete an Inverter by Id."
+        },
+        {
+          "info": {
+            "name": "Get a list of all Inverters to which you have access.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Inverter"
+          },
+          "docs": "Get a list of all Inverters to which you have access."
+        },
+        {
+          "info": {
+            "name": "Create a new Inverter.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Inverter",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response carrying an informational message about the new entity."
+        },
+        {
+          "info": {
+            "name": "Get overview data for all Inverters for which you have access.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Inverter/InverterOverview"
+          },
+          "docs": "Get overview data for all Inverters for which you have access."
+        },
+        {
+          "info": {
+            "name": "Pre-save content-match check (PP-2570). Returns the accessible library record whose\ncontent matches the posted inverter - selected by status hierarchy Global > Active >\nDraft-Private > Draft-Shared - or null when nothing matches. Name is excluded from\nidentity; Retired records never match. Persists nothing.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Inverter/CheckMatch",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Pre-save content-match check (PP-2570). Returns the accessible library record whose\ncontent matches the posted inverter - selected by status hierarchy Global > Active >\nDraft-Private > Draft-Shared - or null when nothing matches. Name is excluded from\nidentity; Retired records never match. Persists nothing."
+        },
+        {
+          "info": {
+            "name": "Get the kVA rating of an Inverter by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Inverter/:inverterId/kVA",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "elevation",
+                "value": "",
+                "type": "query",
+                "description": "Meters"
+              },
+              {
+                "name": "temperature",
+                "value": "",
+                "type": "query",
+                "description": "Degrees Celsius"
+              },
+              {
+                "name": "useCoolingTemp",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Temperature Adjusted kVA sizing of the inverter is determined using the cooling design temperature and the elevation and temperature derate curves if applicable, otherwise the 50°C kVA rating is used."
+        },
+        {
+          "info": {
+            "name": "Get the Notes for an Inverter by Inverter Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Inverter/:inverterId/Note",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the Notes for an Inverter by Inverter Id."
+        },
+        {
+          "info": {
+            "name": "Delete a Note for an Inverter by Note Id and Inverter Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Inverter/:inverterId/Note/:noteId",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "noteId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a Note for an Inverter by Note Id and Inverter Id."
+        },
+        {
+          "info": {
+            "name": "Update the Status of a list of Inverters by list of Ids.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Inverter/Status",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the Status of a list of Inverters by list of Ids."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

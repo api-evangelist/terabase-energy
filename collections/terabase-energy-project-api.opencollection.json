@@ -1,0 +1,1543 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Project API",
+    "version": "current"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Project",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get a Project by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a Project by Id."
+        },
+        {
+          "info": {
+            "name": "Update a Project.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Project ID from URL"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response indicating a non-blocking warning about the updated entity."
+        },
+        {
+          "info": {
+            "name": "Delete a Project by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a Project by Id."
+        },
+        {
+          "info": {
+            "name": "Get all Projects you own.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/My",
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get all Projects you own."
+        },
+        {
+          "info": {
+            "name": "Get Projects for which you have access and are within a certain mile radius of a latitude, longitude point.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/Search",
+            "params": [
+              {
+                "name": "latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "searchRadius",
+                "value": "",
+                "type": "query",
+                "description": "Miles"
+              }
+            ]
+          },
+          "docs": "Get Projects for which you have access and are within a certain mile radius of a latitude, longitude point."
+        },
+        {
+          "info": {
+            "name": "Get a summary overview of a Project by Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Overview",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operations returns a summary - for the full entity, use the non-overview operation."
+        },
+        {
+          "info": {
+            "name": "Create a Project.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project",
+            "params": [
+              {
+                "name": "enableMeteonormDownload",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response indicating a non-blocking warning about the new entity."
+        },
+        {
+          "info": {
+            "name": "Import a PVsyst project from a ZIP export.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/Import/PVsyst",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Send the ZIP exactly as PVsyst produced it. The import runs\nasynchronously and can take several minutes, so this returns\n202 Accepted immediately with an id; poll\n`GET /Project/Import/PVsyst/{jobId}` with that id until the status\nis `Completed` or `Failed`.\n            \nEvery variant whose referenced module, inverter and weather files are in\nthe ZIP, or match a record already in your library, is imported. A\nvariant that references a file which is absent or unreadable is left out\nand reported in "
+        },
+        {
+          "info": {
+            "name": "Check the progress and outcome of a PVsyst import.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/Import/PVsyst/:jobId",
+            "params": [
+              {
+                "name": "jobId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Poll this with the id returned by `POST /Project/Import/PVsyst`.\nChecking once every 10 seconds is plenty; a large export can take\nseveral minutes.\n            \n`status` is `Processing` while the import is running, then\n`Completed` or `Failed`. On `Completed`, `projectId`\nis the created project and `imported` lists the variants that\nbecame predictions. `skipped` lists variants left out, each naming\nthe file references that could not be used, so an incomplete export can\nbe fixed and sent again. O"
+        },
+        {
+          "info": {
+            "name": "Get Wind Stow parameters for a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/WindStow",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Wind Stow parameters for a Prediction."
+        },
+        {
+          "info": {
+            "name": "Get a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Delete a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Get Predictions by Project Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "The Predictions returned do not include the Power Plant - use the Power Plant operation to interact with those sub-entities."
+        },
+        {
+          "info": {
+            "name": "Create a Prediction for a Project.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response indicating a non-blocking warning about the new entity."
+        },
+        {
+          "info": {
+            "name": "Update a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation may attach a X-Message header on the response indicating a non-blocking warning about the updated entity."
+        },
+        {
+          "info": {
+            "name": "Get Prediction summary overview by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Overview",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Prediction summary overview by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Returns a fully hydrated prediction object (includes power plant, financial results, simulation results).",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Hydrated",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a fully hydrated prediction object (includes power plant, financial results, simulation results)."
+        },
+        {
+          "info": {
+            "name": "Export a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Export",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Export a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Updates just the name of a Prediction without requiring a full entity update.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/TitleUpdate/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates just the name of a Prediction without requiring a full entity update."
+        },
+        {
+          "info": {
+            "name": "This operation will update the Prediction notes without deleting any results that may exist.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/NotesUpdate/Prediction",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation will update the Prediction notes without deleting any results that may exist."
+        },
+        {
+          "info": {
+            "name": "Run a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Cancel a Prediction for a Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Cancel",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel a Prediction for a Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Gets the Albedo data for the specified prediction from NSRDB / NASA",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/GetAlbedoData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Gets the Albedo data for the specified prediction from NSRDB / NASA"
+        },
+        {
+          "info": {
+            "name": "Gets the monthly soiling data for the specified prediction from PVRadar",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/GetPVRadarSoilingData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "trackingType",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "tilt",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "trackingAngle",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "nightStowAngle",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Gets the monthly soiling data for the specified prediction from PVRadar"
+        },
+        {
+          "info": {
+            "name": "Gets the monthly soiling data for the specified prediction from Fracsun",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/GetFracsunSoilingData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Gets the monthly soiling data for the specified prediction from Fracsun"
+        },
+        {
+          "info": {
+            "name": "Gets explicitly the processing status and percent complete for the specified prediction",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ProcessingStatus",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Gets explicitly the processing status and percent complete for the specified prediction"
+        },
+        {
+          "info": {
+            "name": "Clone a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Clone",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "cloneToBlockBuilder",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Clone a Prediction."
+        },
+        {
+          "info": {
+            "name": "Get summary results for a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ResultSummary",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get summary results for a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Get summary results using common logic.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ResultSummary/Common",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get summary results using common logic."
+        },
+        {
+          "info": {
+            "name": "Get detailed results for a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ResultDetails",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get detailed results for a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Get Nodal Data CSV file for a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Nodal",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Nodal Data CSV file for a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Get Nodal Data JSON for a Prediction by Project Id and Prediction Id, with optional parameters.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/NodalJson",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "ESS",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "blockNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "arrayNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "inverterName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "dCFieldNumber",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "nodalParameters",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get Nodal Data JSON for a Prediction by Project Id and Prediction Id, with optional parameters."
+        },
+        {
+          "info": {
+            "name": "Get the Power Plant for a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the Power Plant for a Prediction."
+        },
+        {
+          "info": {
+            "name": "Create a Power Plant for a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a Power Plant for a Prediction."
+        },
+        {
+          "info": {
+            "name": "Update the Power Plant for a Prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/PowerPlant",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the Power Plant for a Prediction."
+        },
+        {
+          "info": {
+            "name": "Get Time Series data CSV template.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/Template",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Time Series data CSV template."
+        },
+        {
+          "info": {
+            "name": "Get Time Series data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Time Series data."
+        },
+        {
+          "info": {
+            "name": "Add Time Series data via JSON.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add Time Series data via JSON."
+        },
+        {
+          "info": {
+            "name": "Update Time Series data via file upload.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Update Time Series data via file upload."
+        },
+        {
+          "info": {
+            "name": "Update Time Series data by ID.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Time Series data by ID."
+        },
+        {
+          "info": {
+            "name": "Delete Time Series data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete Time Series data."
+        },
+        {
+          "info": {
+            "name": "Get Time Series details.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId/Details",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Time Series details."
+        },
+        {
+          "info": {
+            "name": "Get Time Series CSV data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Time Series CSV data."
+        },
+        {
+          "info": {
+            "name": "Update Time Series CSV data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/:timeSeriesId/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "timeSeriesId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Update Time Series CSV data."
+        },
+        {
+          "info": {
+            "name": "Add Time Series CSV data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Add Time Series CSV data."
+        },
+        {
+          "info": {
+            "name": "Lists SunSolve bifacial time-series bundles for a prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Lists SunSolve bifacial time-series bundles for a prediction."
+        },
+        {
+          "info": {
+            "name": "Returns a single SunSolve bifacial bundle including its per-timestep details.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries/:bundleId/Details",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "bundleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns a single SunSolve bifacial bundle including its per-timestep details."
+        },
+        {
+          "info": {
+            "name": "Uploads a SunSolve bifacial bundle CSV. Expected format:\nrow 1 headers (Time Series Entry, TSD Data Type, StructureShading (%), FrontBackMismatch (%), TransmissionGain (%)),\nrow 2 names (column B holds the bundle name), rows 3+ data (index, timestamp, ss, fbm, tg).",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Uploads a SunSolve bifacial bundle CSV. Expected format:\nrow 1 headers (Time Series Entry, TSD Data Type, StructureShading (%), FrontBackMismatch (%), TransmissionGain (%)),\nrow 2 names (column B holds the bundle name), rows 3+ data (index, timestamp, ss, fbm, tg)."
+        },
+        {
+          "info": {
+            "name": "Renames an existing SunSolve bifacial bundle. Body: { \"name\": \"new name\" }.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries/:bundleId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "bundleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Renames an existing SunSolve bifacial bundle. Body: { \"name\": \"new name\" }."
+        },
+        {
+          "info": {
+            "name": "Deletes a SunSolve bifacial bundle. Fails if any DC field still references it.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries/:bundleId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "bundleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes a SunSolve bifacial bundle. Fails if any DC field still references it."
+        },
+        {
+          "info": {
+            "name": "Returns the SunSolve bifacial bundle as CSV, matching the upload template format.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/SunSolveBifacialTimeSeries/:bundleId/CSV",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "bundleId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the SunSolve bifacial bundle as CSV, matching the upload template format."
+        },
+        {
+          "info": {
+            "name": "Clone Prediction Time Series.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/TimeSeriesData/Clone/:targetPredictionId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "targetPredictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Clone Prediction Time Series."
+        },
+        {
+          "info": {
+            "name": "Get Notes for a Project by Project Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Note",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Notes for a Project by Project Id."
+        },
+        {
+          "info": {
+            "name": "Create Project Note by Project Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Note",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create Project Note by Project Id."
+        },
+        {
+          "info": {
+            "name": "Get Notes for a Prediction by Project Id and Prediction Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Note",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Notes for a Prediction by Project Id and Prediction Id."
+        },
+        {
+          "info": {
+            "name": "Delete a Note for a Project by Project Id and Note Id.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Note/:noteId",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "noteId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a Note for a Project by Project Id and Note Id."
+        },
+        {
+          "info": {
+            "name": "Get the PlantBlockDetails report",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/Report/PlantBlockDetails",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the PlantBlockDetails report"
+        },
+        {
+          "info": {
+            "name": "Get the URL download link for a Report",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ReportURL/:report",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "report",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the URL download link for a Report"
+        },
+        {
+          "info": {
+            "name": "Get Report information",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ReportInfo",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Report information"
+        },
+        {
+          "info": {
+            "name": "Generate all reports",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/GenerateReports",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Generate all reports"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

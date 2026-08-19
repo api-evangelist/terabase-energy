@@ -1,0 +1,407 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Time Series API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: TimeSeries
+  description: Custom time series data inputs
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/TimeSeriesData:
+    get:
+      tags:
+      - TimeSeries
+      summary: List time series data sets
+      description: "Returns all time series data for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: listTimeSeries
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Time series list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeSeriesMeta'
+              examples:
+                postman-get-time-series:
+                  value:
+                  - id: 56735
+                    predictionId: 707325
+                    type: 3
+                    name: 'MST Input #1'
+                    detailsCount: 8760
+                  - id: 56736
+                    predictionId: 707325
+                    type: 2
+                    name: 'TSD Input #1'
+                    detailsCount: 8760
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - TimeSeries
+      summary: Create new time series
+      description: "Adds time series data via JSON. Requires TimeSeriesDTO with Details array.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `timeSeriesData` (body, required): TimeSeriesDTO with Details array (non-empty).\n"
+      operationId: createTimeSeries
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeSeriesDetail'
+      responses:
+        '200':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags:
+      - TimeSeries
+      summary: Upload time series CSV
+      description: "Updates time series data via file upload. Replaces existing data with the uploaded file contents.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `file` (form, required): The CSV or data file to upload.\n"
+      operationId: uploadTimeSeriesCSV
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Uploaded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TimeSeriesData/Template:
+    get:
+      tags:
+      - TimeSeries
+      summary: Download time series CSV template
+      description: "Returns a CSV template for time series data upload. Use to understand the expected format.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getTimeSeriesTemplate
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: CSV template file
+          content:
+            text/csv:
+              schema:
+                type: string
+                description: 'CSV template: header row only. Fill in values per row and
+
+                  re-upload via `POST .../TimeSeriesData` to create a new
+
+                  time series.
+
+                  '
+              example: 'timestamp,value
+
+                2024-01-01T00:00:00,
+
+                2024-01-01T01:00:00,
+
+                2024-01-01T02:00:00,
+
+                '
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TimeSeriesData/{timeSeriesId}/Details:
+    get:
+      tags:
+      - TimeSeries
+      summary: Get time series details
+      description: Returns the specified time series data properties, including timestamp details.
+      operationId: getTimeSeriesDetails
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: timeSeriesId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Time series with row data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeSeriesDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TimeSeriesData/{timeSeriesId}/CSV:
+    get:
+      tags:
+      - TimeSeries
+      summary: Download time series as CSV
+      description: Returns the specified time series data properties, including timestamp details except as a .csv binary stream.
+      operationId: downloadTimeSeriesCSV
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: timeSeriesId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                description: Time-series data exported as CSV, one row per timestamp.
+              example: 'timestamp,value
+
+                2024-01-01T00:00:00,0.250
+
+                2024-01-01T01:00:00,0.251
+
+                2024-01-01T02:00:00,0.253
+
+                '
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/TimeSeriesData/{timeSeriesId}:
+    delete:
+      tags:
+      - TimeSeries
+      summary: Delete a time series
+      description: "Deletes a time series data entry by ID. Note: Time series inputs with active assignments to a power plant cannot be deleted.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `timeSeriesId` (path, required): The time series entry ID to delete.\n"
+      operationId: deleteTimeSeries
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: timeSeriesId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    TimeSeriesMeta:
+      type: object
+      properties:
+        id:
+          type: integer
+        predictionId:
+          type: integer
+        type:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - InverterSetPoint
+          - InverterDerate
+          - TrackingAngle
+          - ModuleSurfaceTemperature
+          - LGIALimit
+          - IMPPAdjustment
+          - VMPPAdjustment
+          description: TimeSeriesType
+        name:
+          type: string
+        detailsCount:
+          type: integer
+    TimeSeriesDetail:
+      allOf:
+      - $ref: '#/components/schemas/TimeSeriesMeta'
+      - type: object
+        properties:
+          details:
+            type: array
+            items:
+              type: object
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

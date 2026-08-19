@@ -1,0 +1,29 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Terabase Energy Country API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Country",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all countries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Country"
+          },
+          "docs": "### Overview\n\nRetrieves the list of all supported countries.\n\n### Response\n\nOn success, the endpoint returns HTTP `200 OK` with a JSON array of country objects. Each object has the following fields:\n\n- `id` _(integer)_  \n    Internal identifier for the country.\n    \n- `name` _(string)_  \n    Human-readable country name (e.g., `\"Afghanistan\"`, `\"Åland Islands\"`).\n    \n- `numeric` _(integer)_  \n    Numeric country code, typically aligned with ISO 3166-1 numeric codes (e.g., `4`, `248`).\n    \n- `al"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

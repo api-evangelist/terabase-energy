@@ -1,0 +1,1167 @@
+{
+  "item": [
+    {
+      "id": "aa772fc8-1178-486a-be5d-e03bd93794cd",
+      "name": "Company",
+      "description": {
+        "content": "Company settings and user management",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "2db4e330-eecb-46f8-8baa-297048aa41da",
+          "name": "Get company default settings",
+          "request": {
+            "name": "Get company default settings",
+            "description": {
+              "content": "Returns default settings for your company.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Company",
+                "DefaultSettings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e2b5dcc5-ca02-4a03-9aba-84337c060349",
+              "name": "Default settings",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 67,\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"QVT203yOIhhGnAtr2l3riH#1cSTls8$BL9buGyD7EUxesR5Hp3Npovuwer$ZK1jB\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"Jc7PLhIgjjpnvffkN997\",\n      \"tmyKey\": \"dVH5NnxaWDlDLslwn1plNMk3AuMNnZMHZThy2Mn9xESplDNn3heTh2cM1RhQx4SLLM1BSnOVR3LTY31QzMd1kH112Ydd\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "47a0a501-8a7b-461a-8651-8f1c9b36d0c9",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "f5c2d57b-6a99-4c8a-8955-f8dce49ff5d0",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d11f7338-fffa-4458-816f-91d7f787e2a4",
+          "name": "Update company default settings",
+          "request": {
+            "name": "Update company default settings",
+            "description": {
+              "content": "Updates default settings for your company. Requires Admin role. Default Settings are prediction input values customized per company.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Company",
+                "DefaultSettings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"environmentalConditions\": \"<object>\",\n  \"powerPlantBuilder\": \"<object>\",\n  \"simulationSettings\": \"<object>\",\n  \"weatherAPISettings\": \"<object>\",\n  \"essSettings\": \"<object>\",\n  \"financialModelParameters\": \"<object>\",\n  \"miscellaneousSettings\": \"<object>\",\n  \"devPlatformSimulationSettings\": \"<object>\",\n  \"devPlatformSitePlanSettings\": \"<object>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "6648ab26-552c-4e88-8135-07d4cda8c6a0",
+              "name": "Updated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"gkvf7nN9IhjcjP9Jp7Lf\",\n      \"tmyKey\": \"MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "627aec7f-9fc5-4ece-a101-d26f7776f5bd",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"gkvf7nN9IhjcjP9Jp7Lf\",\n      \"tmyKey\": \"MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ef01df61-b2e0-442e-8f0d-d73f8a69201b",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"gkvf7nN9IhjcjP9Jp7Lf\",\n      \"tmyKey\": \"MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "a37669b1-3c3a-41b5-b55e-b18828c4d33b",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"gkvf7nN9IhjcjP9Jp7Lf\",\n      \"tmyKey\": \"MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "677f993f-845e-402f-9fc5-e731fc89eead",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    "DefaultSettings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environmentalConditions\": {\n    \"id\": 190,\n    \"monthlySoilingLoss\": 2,\n    \"monthlyAlbedo\": 0.2\n  },\n  \"powerPlantBuilder\": {\n    \"acCollectionLoss\": 1,\n    \"dasLoad\": 800,\n    \"coolingLoad\": 0,\n    \"transformerHighSideVoltage\": 34.5,\n    \"transformerNoLoadLoss\": 0.2,\n    \"transformerFullLoadLoss\": 0.7,\n    \"powerFactor\": 1,\n    \"inverter_Id\": 8279,\n    \"dcacRatio\": 1.2,\n    \"dcWiringLossAtSTC\": 1.5,\n    \"dcHealth\": 1,\n    \"trackerLoadLoss\": 2.028,\n    \"minimumTrackingLimitAngleD\": -60,\n    \"maximumTrackingLimitAngleD\": 60,\n    \"structureShading\": 5,\n    \"module_Id\": 224,\n    \"dcFieldTrackingTypeEnum\": 1,\n    \"dcFieldBacktrackingType\": 1,\n    \"tiltAngle\": null,\n    \"gcr\": 40,\n    \"moduleOrientation\": 1,\n    \"azimuth\": 180,\n    \"modTempModel\": 0,\n    \"setback\": 6.5,\n    \"northSouthRoadWidth\": 6.096011996927617,\n    \"eastWestRoadWidth\": 6.096011996927617\n  },\n  \"simulationSettings\": {\n    \"errorModelAcc\": 2.9,\n    \"errorSensAcc\": 5,\n    \"errorIntAnnVar\": 3,\n    \"errorMonAcc\": 2,\n    \"errorSpaVar\": 2,\n    \"transpositionModel\": 1,\n    \"diffuseDirectDecompModel\": 3,\n    \"useMeteoDni\": false,\n    \"airMassModel\": 0,\n    \"soilingModel\": 0,\n    \"modTempModel\": 0,\n    \"spectralShiftModel\": 2,\n    \"incAngleModel\": 5,\n    \"directBeamShadingModel\": 5,\n    \"degradationModel\": 0,\n    \"diffuseShadingModel\": 1,\n    \"defaultDegradation\": 0,\n    \"linearDegradationRate\": 0.5,\n    \"firstYearDegradation\": false\n  },\n  \"weatherAPISettings\": {\n    \"meteonormSettings\": {\n      \"key\": null\n    },\n    \"cprSettings\": {\n      \"apiKey\": \"wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth\",\n      \"userName\": null,\n      \"password\": null,\n      \"licenseNumber\": null\n    },\n    \"solarGISSettings\": {\n      \"key\": \"gkvf7nN9IhjcjP9Jp7Lf\",\n      \"tmyKey\": \"MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9\",\n      \"version\": 2\n    }\n  },\n  \"essSettings\": {\n    \"factor\": 0.9,\n    \"usableEnergyCapacityCalendarDeg\": 0.2,\n    \"usableEnergyCapacityCycleDeg\": 0.005,\n    \"roundtripDCEfficiencyYear1\": 95,\n    \"roundtripDCEfficiencyCalendarDeg\": 0.05,\n    \"roundtripDCEfficiencyCycleDeg\": 0.0002,\n    \"hvacNoLoadLoss\": 1.5,\n    \"hvacFullLoadLoss\": 10,\n    \"mvNoLoadLoss\": 0.2,\n    \"mvFullLoadLoss\": 0.7,\n    \"mvCapacity\": null,\n    \"inverterEfficiency\": 97,\n    \"chargeAlgorithm\": 0\n  },\n  \"financialModelParameters\": {\n    \"bosInput\": 0.5,\n    \"developmentCostPerWatt\": 0.1,\n    \"moduleCostPerWatt\": 0.3,\n    \"itcPercentage\": 26,\n    \"yearOneEnergyAdjustmentPercentage\": 0,\n    \"ppaPrice\": 25,\n    \"ppaEscalatorPercentage\": 0,\n    \"omYearOne\": 3.5,\n    \"omYearlyEscalatorPercentage\": 2.5,\n    \"ppaDuration\": 20,\n    \"postPPAPrice\": 50,\n    \"postPPAPriceEscalationPercentage\": 2,\n    \"projectLife\": 35,\n    \"discountNPVPercentage\": 6,\n    \"itcEligibilityPercentage\": 100,\n    \"solarSalvageValuePercentage\": 5,\n    \"insuranceCapitalCostPercentage\": 0.15,\n    \"insuranceEscalatorPerYearPercentage\": 0,\n    \"bonusDepreciationRate\": 0,\n    \"stateTaxRate\": 6,\n    \"federalTaxRate\": 21,\n    \"solarLandLeaseCost\": 0,\n    \"solarLandLeaseEscalationPercentage\": 0,\n    \"solarPropertyTaxCost\": 0,\n    \"solarPropertyTaxEscalationPercentage\": 0\n  },\n  \"miscellaneousSettings\": {\n    \"predictionStatus\": 1\n  },\n  \"devPlatformSimulationSettings\": {\n    \"moduleType\": 1,\n    \"rackingSystem\": 1,\n    \"inverterType\": 1,\n    \"largeFormatModuleId\": 223,\n    \"shingledMonoPercId\": 221,\n    \"thinFilmId\": 130,\n    \"halfCellMonoPercId\": 4956,\n    \"bifacialId\": 11,\n    \"orientationTracker\": 0,\n    \"widthTracker\": 0.02,\n    \"heightTracker\": 0.02,\n    \"numOfPVModulesPerRowsTracker\": 3,\n    \"heightAboveGroundTracker\": 3,\n    \"pilesPerTableTracker\": 5,\n    \"pvModuleTiltMin\": 0,\n    \"pvModuleTiltMax\": 2,\n    \"tableAxisRotationMinTracker\": -54,\n    \"tableAxisRotationMaxTracker\": 56,\n    \"enableBacktrackingTracker\": false,\n    \"orientationMultistringTracker\": 0,\n    \"widthMultistringTracker\": 0.02,\n    \"maxWindSpeed\": 100,\n    \"motorTableGap\": 1.87,\n    \"gapBetweenTables\": 0.247,\n    \"heightAboveGroundStringTracker\": 0.247,\n    \"gapBetweenTrackers\": 0.3,\n    \"tableAxisRotationMinMultistringTracker\": -54,\n    \"tableAxisRotationMaxMultistringTracker\": 56,\n    \"enableBacktrackingMultistringTracker\": false,\n    \"orientationFixedTilt\": 0,\n    \"widthFixedTilt\": 0.02,\n    \"heightFixedTilt\": 0.02,\n    \"numOfPVModulesPerRowsFixedTilt\": 3,\n    \"heightAboveGroundFixedTilt\": 3,\n    \"pilesPerTableFixedTilt\": 7,\n    \"calculateModuleTiltAngle\": false,\n    \"moduleTiltAngle\": 31,\n    \"inverterCentralId\": 739,\n    \"powerFactorCentral\": 2,\n    \"ocdpRatingCentral\": 320,\n    \"maxNumOfTablesPerColumnCentral\": 2,\n    \"inverterStringId\": 648,\n    \"powerFactorString\": 1,\n    \"ocdpRatingString\": 320,\n    \"maxNumOfTablesPerColumnString\": 5,\n    \"scenarioAnalysisDefault\": 1,\n    \"dcacMinimum\": 1,\n    \"dcacMaximum\": 2,\n    \"dcacInterval\": 1,\n    \"gcrMinimum\": 1,\n    \"gcrMaximum\": 2,\n    \"gcrInterval\": 1\n  },\n  \"devPlatformSitePlanSettings\": {\n    \"widthPerimeterRoad\": 666,\n    \"setbackFromSolarArrays\": 7.1,\n    \"setbackFromSiteBoundary\": 1.1,\n    \"widthInternalRoad\": 4,\n    \"setbackA\": 7.1,\n    \"setbackB\": 2,\n    \"setback\": 2,\n    \"widthLinearExclusion\": 51,\n    \"showLabels\": false\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bf938f52-d736-4efb-a554-c3446b07a189",
+          "name": "Add a user to a company",
+          "request": {
+            "name": "Add a user to a company",
+            "description": {
+              "content": "Adds an existing PlantPredict user (or invites a new one by email) to the given company. The caller must be an admin of the target company. Newly invited users receive an email with onboarding instructions.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Company",
+                ":companyId",
+                "User"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "companyId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\",\n  \"firstName\": \"<string>\",\n  \"lastName\": \"<string>\",\n  \"role\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b167791b-4fe1-4803-a2a6-31553bc60145",
+              "name": "User added",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    ":companyId",
+                    "User"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "companyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"jobTitle\": \"API Demo\",\n    \"firstName\": \"Name 1\",\n    \"lastName\": \"Name 2\",\n    \"email\": \"user-email@company.comco\",\n    \"roles\": [\n      {\n        \"role\": {\n          \"name\": \"user\"\n        }\n      }\n    ]\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "bb0a3205-9d69-4c16-a579-d99fd967b17a",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    ":companyId",
+                    "User"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "companyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"jobTitle\": \"API Demo\",\n    \"firstName\": \"Name 1\",\n    \"lastName\": \"Name 2\",\n    \"email\": \"user-email@company.comco\",\n    \"roles\": [\n      {\n        \"role\": {\n          \"name\": \"user\"\n        }\n      }\n    ]\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "05401189-6898-4a23-950d-c687522fff1f",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    ":companyId",
+                    "User"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "companyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"jobTitle\": \"API Demo\",\n    \"firstName\": \"Name 1\",\n    \"lastName\": \"Name 2\",\n    \"email\": \"user-email@company.comco\",\n    \"roles\": [\n      {\n        \"role\": {\n          \"name\": \"user\"\n        }\n      }\n    ]\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "12e66fd6-4398-4074-ad3c-de3d2a240bb3",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    ":companyId",
+                    "User"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "companyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"jobTitle\": \"API Demo\",\n    \"firstName\": \"Name 1\",\n    \"lastName\": \"Name 2\",\n    \"email\": \"user-email@company.comco\",\n    \"roles\": [\n      {\n        \"role\": {\n          \"name\": \"user\"\n        }\n      }\n    ]\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "343c031e-f059-417a-8fa6-6ef03240d551",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Company",
+                    ":companyId",
+                    "User"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "companyId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"jobTitle\": \"API Demo\",\n    \"firstName\": \"Name 1\",\n    \"lastName\": \"Name 2\",\n    \"email\": \"user-email@company.comco\",\n    \"roles\": [\n      {\n        \"role\": {\n          \"name\": \"user\"\n        }\n      }\n    ]\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a80e664b-755f-48b0-8698-44e2cd5f2cec",
+          "name": "Generate API credentials for a user",
+          "request": {
+            "name": "Generate API credentials for a user",
+            "description": {
+              "content": "Generates a fresh API client ID and secret for the given user. The secret is returned **only in this response** and cannot be retrieved later — store it securely. Calling this endpoint a second time rotates the credentials; any previously issued pair is invalidated.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "User",
+                ":userId",
+                "Secret"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "userId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "29f4e3f8-b40a-428c-a086-136d2af684e0",
+              "name": "Generated client ID and secret (shown only once)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "User",
+                    ":userId",
+                    "Secret"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "userId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"clientId\": \"string\",\n  \"clientSecret\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6b34b839-9b69-4494-b00d-91038958a138",
+              "name": "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "User",
+                    ":userId",
+                    "Secret"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "userId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"The request is invalid.\",\n  \"modelState\": {\n    \"latitude\": [\n      \"The field Latitude must be between -90 and 90.\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "97b97c50-4e6d-482d-bb06-0ec77bcf9670",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "User",
+                    ":userId",
+                    "Secret"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "userId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ec7a2ebd-c5cc-42cf-8cac-7b407abbf12e",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "User",
+                    ":userId",
+                    "Secret"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "userId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "265f00f4-67b1-42b1-8e86-e1bb341fd6ee",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "User",
+                    ":userId",
+                    "Secret"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "userId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "be7f99cd-690b-4d0f-aee7-ab700699f2be",
+    "name": "PlantPredict Company API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n",
+      "type": "text/plain"
+    }
+  }
+}

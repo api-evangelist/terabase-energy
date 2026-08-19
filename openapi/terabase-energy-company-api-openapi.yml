@@ -1,0 +1,1134 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Company API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Company
+  description: Company settings and user management
+paths:
+  /Company/DefaultSettings:
+    get:
+      tags:
+      - Company
+      summary: Get company default settings
+      description: Returns default settings for your company.
+      operationId: getCompanyDefaultSettings
+      x-doc-source: postman
+      responses:
+        '200':
+          description: Default settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  environmentalConditions:
+                    type: object
+                    description: The Environmental Conditions Page allows you to configure the weather and environmental parameters that influence solar resource modeling in your prediction. This includes selecting weather data, defining soiling and spectral loss profiles, setting design temperatures, and importing horizon scene data.
+                    x-doc-source: inferred+docs:user-guide/ui/environmental-conditions.mdx
+                    properties:
+                      id:
+                        type: integer
+                      monthlySoilingLoss:
+                        type: number
+                      monthlyAlbedo:
+                        type: number
+                  powerPlantBuilder:
+                    type: object
+                    description: The 3D View provides tools for analyzing terrain and racking placement within your map-based power plant design. This interface enables terrain slope analysis, table slope constraint identification, and post height calculations.
+                    x-doc-source: inferred+docs:user-guide/ui/power-plant-builder-3d-view.mdx
+                    properties:
+                      id:
+                        type: integer
+                      acCollectionLoss:
+                        type: number
+                      dasLoad:
+                        type: number
+                      coolingLoad:
+                        type: number
+                      transformerHighSideVoltage:
+                        type: number
+                      transformerNoLoadLoss:
+                        type: number
+                      transformerFullLoadLoss:
+                        type: number
+                      powerFactor:
+                        type: number
+                      inverter:
+                        type: object
+                        properties:
+                          status:
+                            type: integer
+                          model:
+                            type: string
+                          manufacturer:
+                            type: string
+                          powerRated:
+                            type: number
+                          apparentPower:
+                            type: number
+                          minDCPowerThreshold:
+                            type: number
+                          minVoltage:
+                            type: number
+                          maxMPPVoltage:
+                            type: number
+                          maxAbsoluteVoltage:
+                            type: number
+                          maxCurrent:
+                            type: number
+                          maxElevation:
+                            type: number
+                          outputVoltage:
+                            type: number
+                          usekVACurves:
+                            type: boolean
+                          usePQCurves:
+                            type: boolean
+                          dataSource:
+                            type: integer
+                          efficiencyCurves:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          kVACurves:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          pqCurves:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          inverterType:
+                            type: integer
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          description:
+                            type: string
+                          companyId:
+                            type: integer
+                          company:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          ownerId:
+                            type: integer
+                          owner:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          createdDate:
+                            type: string
+                            description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset.
+                          lastModified:
+                            type: string
+                            description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset.
+                          lastModifiedById:
+                            type: integer
+                          lastModifiedBy:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                      inverter_Id:
+                        type: integer
+                      dcacRatio:
+                        type: number
+                      dcWiringLossAtSTC:
+                        type: number
+                      dcHealth:
+                        type: number
+                      trackerLoadLoss:
+                        type: number
+                      minimumTrackingLimitAngleD:
+                        type: number
+                      maximumTrackingLimitAngleD:
+                        type: number
+                      structureShading:
+                        type: number
+                      module_Id:
+                        type: integer
+                      module:
+                        type: object
+                        properties:
+                          status:
+                            type: integer
+                          model:
+                            type: string
+                          manufacturer:
+                            type: string
+                          length:
+                            type: number
+                          width:
+                            type: number
+                          weight:
+                            type: number
+                          defaultOrientation:
+                            type: integer
+                          numberOfCellsInSeries:
+                            type: integer
+                          numberOfCellsInParallel:
+                            type: integer
+                          stcShortCircuitCurrent:
+                            type: number
+                          stcOpenCircuitVoltage:
+                            type: number
+                          stcmppCurrent:
+                            type: number
+                          stcmppVoltage:
+                            type: number
+                          stcMaxPower:
+                            type: number
+                          stcPowerTempCoef:
+                            type: number
+                          stcShortCircuitCurrentTempCoef:
+                            type: number
+                          stcOpenCircuitVoltageTempCoef:
+                            type: number
+                          stcEfficiency:
+                            type: number
+                          minTolerance:
+                            type: number
+                          maxTolerance:
+                            type: number
+                          cellTechnologyType:
+                            type: integer
+                          constructionType:
+                            type: integer
+                          faciality:
+                            type: integer
+                          bifacialityFactor:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          transmissionFactor:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          backSideMismatch:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          dataSource:
+                            type: integer
+                          lightInducedDegradation:
+                            type: number
+                          moduleQuality:
+                            type: number
+                          moduleMismatchCoefficient:
+                            type: number
+                          heatBalanceConvectiveCoef:
+                            type: number
+                          heatBalanceConductiveCoef:
+                            type: number
+                          sandiaConductiveCoef:
+                            type: number
+                          sandiaConvectiveCoef:
+                            type: number
+                          cellToModuleTempDiff:
+                            type: number
+                          saturationCurrentAtSTC:
+                            type: number
+                          seriesResistanceAtSTC:
+                            type: number
+                          shuntResistanceAtSTC:
+                            type: number
+                          diodeIdealityFactorAtSTC:
+                            type: number
+                          exponentialDependencyOnShuntResistance:
+                            type: number
+                          darkShuntResistance:
+                            type: number
+                          linearTempDependenceOnGamma:
+                            type: number
+                          shortCircuitCurrentAtSTC:
+                            type: number
+                          recombinationParameter:
+                            type: number
+                          builtInVoltage:
+                            type: number
+                          bandgapVoltage:
+                            type: number
+                          linearTempDependenceOnIsc:
+                            type: number
+                          heatAbsorptionCoefAlphaT:
+                            type: number
+                          referenceIrradiance:
+                            type: number
+                          referenceTemperature:
+                            type: number
+                          aGamma:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          bGamma:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          cGamma:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          dGamma:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          spectralResponse:
+                            type: integer
+                          pvModel:
+                            type: integer
+                          useDefaultSandiaIAM:
+                            type: boolean
+                          useDefaultTabularIAM:
+                            type: boolean
+                          sandiaSpectralA0:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          sandiaSpectralA1:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          sandiaSpectralA2:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          sandiaSpectralA3:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          sandiaSpectralA4:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          sandiaIAMB0:
+                            type: number
+                          sandiaIAMB1:
+                            type: number
+                          sandiaIAMB2:
+                            type: number
+                          sandiaIAMB3:
+                            type: number
+                          sandiaIAMB4:
+                            type: number
+                          sandiaIAMB5:
+                            type: number
+                          ashraeiamB0:
+                            type: number
+                          spectral2B0:
+                            type: number
+                          spectral2B1:
+                            type: number
+                          spectral2B2:
+                            type: number
+                          spectral2B3:
+                            type: number
+                          spectral2B4:
+                            type: number
+                          spectral2B5:
+                            type: number
+                          iamFactors:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          degradationModel:
+                            type: integer
+                          linearDegradationRate:
+                            type: number
+                          nonLinearDegradationRates:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          cellDesignType:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          useAntiReflectiveCoating:
+                            type: boolean
+                          refractiveIndex:
+                            type: number
+                          refractiveIndexOfARC:
+                            type: number
+                          glazingExtinctionCoef:
+                            type: number
+                          glazingThickness:
+                            type: number
+                          powerAtSTC:
+                            type: number
+                          powerAtSTCExcludingWiringLosses:
+                            type: number
+                          effectiveIrradianceResponse:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          electricalShadingFractionalEffect:
+                            type: number
+                          moduleShadingResponse:
+                            type: integer
+                          isMetastable:
+                            type: boolean
+                          metastabilityProperties:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          description:
+                            type: string
+                          companyId:
+                            type: integer
+                          company:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          ownerId:
+                            type: integer
+                          owner:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          createdDate:
+                            type: string
+                            description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset.
+                          lastModified:
+                            type: string
+                            description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset.
+                          lastModifiedById:
+                            type: integer
+                          lastModifiedBy:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                      dcFieldTrackingTypeEnum:
+                        type: integer
+                      tiltAngle:
+                        type: number
+                      gcr:
+                        type: number
+                      northernHemisphereAzimuth:
+                        type: number
+                      southernHemisphereAzimuth:
+                        type: number
+                      azimuth:
+                        type: number
+                      irradianceOptimization:
+                        type: boolean
+                      irradianceOptimizationType:
+                        type: integer
+                      rotationSpeed:
+                        type: number
+                      nonIdealityFactor:
+                        type: number
+                      postHeightCalculationMethod:
+                        type: integer
+                      postHeight:
+                        type: number
+                      modTempModel:
+                        type: integer
+                      mapBuilderCreateDCAs:
+                        type: integer
+                      shadingAlgorithm:
+                        type: integer
+                      setback:
+                        type: number
+                      northSouthRoadWidth:
+                        type: number
+                      eastWestRoadWidth:
+                        type: number
+                  simulationSettings:
+                    type: object
+                    description: The Simulation Settings page allows you to configure the prediction timeframe and select the sub-models used for irradiance calculation, module performance, shading analysis, and degradation. These settings control the algorithms applied during the energy prediction simulation.
+                    x-doc-source: inferred+docs:user-guide/ui/simulation-settings.mdx
+                    properties:
+                      id:
+                        type: integer
+                      errorModelAcc:
+                        type: number
+                      errorSensAcc:
+                        type: number
+                      errorIntAnnVar:
+                        type: number
+                      errorMonAcc:
+                        type: number
+                      errorSpaVar:
+                        type: number
+                      transpositionModel:
+                        type: integer
+                      diffuseDirectDecompModel:
+                        type: integer
+                      useMeteoDni:
+                        type: boolean
+                      airMassModel:
+                        type: integer
+                      soilingModel:
+                        type: integer
+                      modTempModel:
+                        type: integer
+                      spectralShiftModel:
+                        type: integer
+                      incAngleModel:
+                        type: integer
+                      directBeamShadingModel:
+                        type: integer
+                      degradationModel:
+                        type: integer
+                      diffuseShadingModel:
+                        type: integer
+                      defaultDegradation:
+                        type: integer
+                      circumsolarTreatment:
+                        type: integer
+                      linearDegradationRate:
+                        type: number
+                      firstYearDegradation:
+                        type: boolean
+                  weatherAPISettings:
+                    type: object
+                    description: 'The Add New Weather page provides three methods for adding weather data to PlantPredict:'
+                    x-doc-source: inferred+docs:user-guide/ui/add-new-weather.mdx
+                    properties:
+                      id:
+                        type: integer
+                      meteonormSettings:
+                        type: object
+                        properties:
+                          key:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                      cprSettings:
+                        type: object
+                        properties:
+                          apiKey:
+                            type: string
+                          userName:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          password:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                          licenseNumber:
+                            description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                      solarGISSettings:
+                        type: object
+                        properties:
+                          key:
+                            type: string
+                          tmyKey:
+                            type: string
+                          version:
+                            type: integer
+                      arrayTechnologiesAPIKey:
+                        type: string
+                  essSettings:
+                    type: object
+                    description: 'The Energy Storage System page allows you to configure an optional AC-coupled battery energy storage system (BESS) for your prediction. To enable energy storage, enter a Nameplate capacity value (input #1) and an Inverter Real Power rating (input #9). The Dispatch Algorithm should also be configured to ensure the...'
+                    x-doc-source: inferred+docs:user-guide/ui/energy-storage-system.mdx
+                    properties:
+                      id:
+                        type: integer
+                      factor:
+                        type: number
+                      usableEnergyCapacityCalendarDeg:
+                        type: number
+                      usableEnergyCapacityCycleDeg:
+                        type: number
+                      roundtripDCEfficiencyYear1:
+                        type: number
+                      roundtripDCEfficiencyCalendarDeg:
+                        type: number
+                      roundtripDCEfficiencyCycleDeg:
+                        type: number
+                      hvacNoLoadLoss:
+                        type: number
+                      hvacFullLoadLoss:
+                        type: number
+                      mvNoLoadLoss:
+                        type: number
+                      mvFullLoadLoss:
+                        type: number
+                      mvCapacity:
+                        description: Observed as null in test-account samples; the field's actual type is undocumented. Re-run the typing probe against an account where this field is populated to refine.
+                      inverterEfficiency:
+                        type: number
+                      chargeAlgorithm:
+                        type: integer
+                  financialModelParameters:
+                    type: object
+                    x-doc-source: inferred
+                    properties:
+                      id:
+                        type: integer
+                      bosInput:
+                        type: number
+                      developmentCostPerWatt:
+                        type: number
+                      moduleCostPerWatt:
+                        type: number
+                      itcPercentage:
+                        type: number
+                      yearOneEnergyAdjustmentPercentage:
+                        type: number
+                      ppaPrice:
+                        type: number
+                      ppaEscalatorPercentage:
+                        type: number
+                      omYearOne:
+                        type: number
+                      omYearlyEscalatorPercentage:
+                        type: number
+                      ppaDuration:
+                        type: integer
+                      postPPAPrice:
+                        type: number
+                      postPPAPriceEscalationPercentage:
+                        type: number
+                      projectLife:
+                        type: integer
+                      discountNPVPercentage:
+                        type: number
+                      itcEligibilityPercentage:
+                        type: number
+                      solarSalvageValuePercentage:
+                        type: number
+                      insuranceCapitalCostPercentage:
+                        type: number
+                      insuranceEscalatorPerYearPercentage:
+                        type: number
+                      bonusDepreciationRate:
+                        type: number
+                      stateTaxRate:
+                        type: number
+                      federalTaxRate:
+                        type: number
+                      solarLandLeaseCost:
+                        type: number
+                      solarLandLeaseEscalationPercentage:
+                        type: number
+                      solarPropertyTaxCost:
+                        type: number
+                      solarPropertyTaxEscalationPercentage:
+                        type: number
+                  miscellaneousSettings:
+                    type: object
+                    description: The Simulation Settings page allows you to configure the prediction timeframe and select the sub-models used for irradiance calculation, module performance, shading analysis, and degradation. These settings control the algorithms applied during the energy prediction simulation.
+                    x-doc-source: inferred+docs:user-guide/ui/simulation-settings.mdx
+                    properties:
+                      id:
+                        type: integer
+                      predictionStatus:
+                        type: integer
+                      weatherStatus:
+                        type: integer
+                      inverterStatus:
+                        type: integer
+                      moduleStatus:
+                        type: integer
+                  devPlatformSimulationSettings:
+                    type: object
+                  devPlatformSitePlanSettings:
+                    type: object
+              examples:
+                postman-default-settings:
+                  value:
+                    id: 67
+                    environmentalConditions:
+                      id: 190
+                      monthlySoilingLoss: 2
+                      monthlyAlbedo: 0.2
+                    powerPlantBuilder:
+                      acCollectionLoss: 1
+                      dasLoad: 800
+                      coolingLoad: 0
+                      transformerHighSideVoltage: 34.5
+                      transformerNoLoadLoss: 0.2
+                      transformerFullLoadLoss: 0.7
+                      powerFactor: 1
+                      inverter_Id: 8279
+                      dcacRatio: 1.2
+                      dcWiringLossAtSTC: 1.5
+                      dcHealth: 1
+                      trackerLoadLoss: 2.028
+                      minimumTrackingLimitAngleD: -60
+                      maximumTrackingLimitAngleD: 60
+                      structureShading: 5
+                      module_Id: 224
+                      dcFieldTrackingTypeEnum: 1
+                      dcFieldBacktrackingType: 1
+                      tiltAngle: null
+                      gcr: 40
+                      moduleOrientation: 1
+                      azimuth: 180
+                      modTempModel: 0
+                      setback: 6.5
+                      northSouthRoadWidth: 6.096011996927617
+                      eastWestRoadWidth: 6.096011996927617
+                    simulationSettings:
+                      errorModelAcc: 2.9
+                      errorSensAcc: 5
+                      errorIntAnnVar: 3
+                      errorMonAcc: 2
+                      errorSpaVar: 2
+                      transpositionModel: 1
+                      diffuseDirectDecompModel: 3
+                      useMeteoDni: false
+                      airMassModel: 0
+                      soilingModel: 0
+                      modTempModel: 0
+                      spectralShiftModel: 2
+                      incAngleModel: 5
+                      directBeamShadingModel: 5
+                      degradationModel: 0
+                      diffuseShadingModel: 1
+                      defaultDegradation: 0
+                      linearDegradationRate: 0.5
+                      firstYearDegradation: false
+                    weatherAPISettings:
+                      meteonormSettings:
+                        key: null
+                      cprSettings:
+                        apiKey: QVT203yOIhhGnAtr2l3riH#1cSTls8$BL9buGyD7EUxesR5Hp3Npovuwer$ZK1jB
+                        userName: null
+                        password: null
+                        licenseNumber: null
+                      solarGISSettings:
+                        key: Jc7PLhIgjjpnvffkN997
+                        tmyKey: dVH5NnxaWDlDLslwn1plNMk3AuMNnZMHZThy2Mn9xESplDNn3heTh2cM1RhQx4SLLM1BSnOVR3LTY31QzMd1kH112Ydd
+                        version: 2
+                    essSettings:
+                      factor: 0.9
+                      usableEnergyCapacityCalendarDeg: 0.2
+                      usableEnergyCapacityCycleDeg: 0.005
+                      roundtripDCEfficiencyYear1: 95
+                      roundtripDCEfficiencyCalendarDeg: 0.05
+                      roundtripDCEfficiencyCycleDeg: 0.0002
+                      hvacNoLoadLoss: 1.5
+                      hvacFullLoadLoss: 10
+                      mvNoLoadLoss: 0.2
+                      mvFullLoadLoss: 0.7
+                      mvCapacity: null
+                      inverterEfficiency: 97
+                      chargeAlgorithm: 0
+                    financialModelParameters:
+                      bosInput: 0.5
+                      developmentCostPerWatt: 0.1
+                      moduleCostPerWatt: 0.3
+                      itcPercentage: 26
+                      yearOneEnergyAdjustmentPercentage: 0
+                      ppaPrice: 25
+                      ppaEscalatorPercentage: 0
+                      omYearOne: 3.5
+                      omYearlyEscalatorPercentage: 2.5
+                      ppaDuration: 20
+                      postPPAPrice: 50
+                      postPPAPriceEscalationPercentage: 2
+                      projectLife: 35
+                      discountNPVPercentage: 6
+                      itcEligibilityPercentage: 100
+                      solarSalvageValuePercentage: 5
+                      insuranceCapitalCostPercentage: 0.15
+                      insuranceEscalatorPerYearPercentage: 0
+                      bonusDepreciationRate: 0
+                      stateTaxRate: 6
+                      federalTaxRate: 21
+                      solarLandLeaseCost: 0
+                      solarLandLeaseEscalationPercentage: 0
+                      solarPropertyTaxCost: 0
+                      solarPropertyTaxEscalationPercentage: 0
+                    miscellaneousSettings:
+                      predictionStatus: 1
+                    devPlatformSimulationSettings:
+                      moduleType: 1
+                      rackingSystem: 1
+                      inverterType: 1
+                      largeFormatModuleId: 223
+                      shingledMonoPercId: 221
+                      thinFilmId: 130
+                      halfCellMonoPercId: 4956
+                      bifacialId: 11
+                      orientationTracker: 0
+                      widthTracker: 0.02
+                      heightTracker: 0.02
+                      numOfPVModulesPerRowsTracker: 3
+                      heightAboveGroundTracker: 3
+                      pilesPerTableTracker: 5
+                      pvModuleTiltMin: 0
+                      pvModuleTiltMax: 2
+                      tableAxisRotationMinTracker: -54
+                      tableAxisRotationMaxTracker: 56
+                      enableBacktrackingTracker: false
+                      orientationMultistringTracker: 0
+                      widthMultistringTracker: 0.02
+                      maxWindSpeed: 100
+                      motorTableGap: 1.87
+                      gapBetweenTables: 0.247
+                      heightAboveGroundStringTracker: 0.247
+                      gapBetweenTrackers: 0.3
+                      tableAxisRotationMinMultistringTracker: -54
+                      tableAxisRotationMaxMultistringTracker: 56
+                      enableBacktrackingMultistringTracker: false
+                      orientationFixedTilt: 0
+                      widthFixedTilt: 0.02
+                      heightFixedTilt: 0.02
+                      numOfPVModulesPerRowsFixedTilt: 3
+                      heightAboveGroundFixedTilt: 3
+                      pilesPerTableFixedTilt: 7
+                      calculateModuleTiltAngle: false
+                      moduleTiltAngle: 31
+                      inverterCentralId: 739
+                      powerFactorCentral: 2
+                      ocdpRatingCentral: 320
+                      maxNumOfTablesPerColumnCentral: 2
+                      inverterStringId: 648
+                      powerFactorString: 1
+                      ocdpRatingString: 320
+                      maxNumOfTablesPerColumnString: 5
+                      scenarioAnalysisDefault: 1
+                      dcacMinimum: 1
+                      dcacMaximum: 2
+                      dcacInterval: 1
+                      gcrMinimum: 1
+                      gcrMaximum: 2
+                      gcrInterval: 1
+                    devPlatformSitePlanSettings:
+                      widthPerimeterRoad: 666
+                      setbackFromSolarArrays: 7.1
+                      setbackFromSiteBoundary: 1.1
+                      widthInternalRoad: 4
+                      setbackA: 7.1
+                      setbackB: 2
+                      setback: 2
+                      widthLinearExclusion: 51
+                      showLabels: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags:
+      - Company
+      summary: Update company default settings
+      description: Updates default settings for your company. Requires Admin role. Default Settings are prediction input values customized per company.
+      operationId: updateCompanyDefaultSettings
+      x-doc-source: postman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                environmentalConditions:
+                  type: object
+                powerPlantBuilder:
+                  type: object
+                simulationSettings:
+                  type: object
+                weatherAPISettings:
+                  type: object
+                essSettings:
+                  type: object
+                financialModelParameters:
+                  type: object
+                miscellaneousSettings:
+                  type: object
+                devPlatformSimulationSettings:
+                  type: object
+                devPlatformSitePlanSettings:
+                  type: object
+            examples:
+              postman-company-default-settings:
+                value:
+                  environmentalConditions:
+                    id: 190
+                    monthlySoilingLoss: 2
+                    monthlyAlbedo: 0.2
+                  powerPlantBuilder:
+                    acCollectionLoss: 1
+                    dasLoad: 800
+                    coolingLoad: 0
+                    transformerHighSideVoltage: 34.5
+                    transformerNoLoadLoss: 0.2
+                    transformerFullLoadLoss: 0.7
+                    powerFactor: 1
+                    inverter_Id: 8279
+                    dcacRatio: 1.2
+                    dcWiringLossAtSTC: 1.5
+                    dcHealth: 1
+                    trackerLoadLoss: 2.028
+                    minimumTrackingLimitAngleD: -60
+                    maximumTrackingLimitAngleD: 60
+                    structureShading: 5
+                    module_Id: 224
+                    dcFieldTrackingTypeEnum: 1
+                    dcFieldBacktrackingType: 1
+                    tiltAngle: null
+                    gcr: 40
+                    moduleOrientation: 1
+                    azimuth: 180
+                    modTempModel: 0
+                    setback: 6.5
+                    northSouthRoadWidth: 6.096011996927617
+                    eastWestRoadWidth: 6.096011996927617
+                  simulationSettings:
+                    errorModelAcc: 2.9
+                    errorSensAcc: 5
+                    errorIntAnnVar: 3
+                    errorMonAcc: 2
+                    errorSpaVar: 2
+                    transpositionModel: 1
+                    diffuseDirectDecompModel: 3
+                    useMeteoDni: false
+                    airMassModel: 0
+                    soilingModel: 0
+                    modTempModel: 0
+                    spectralShiftModel: 2
+                    incAngleModel: 5
+                    directBeamShadingModel: 5
+                    degradationModel: 0
+                    diffuseShadingModel: 1
+                    defaultDegradation: 0
+                    linearDegradationRate: 0.5
+                    firstYearDegradation: false
+                  weatherAPISettings:
+                    meteonormSettings:
+                      key: null
+                    cprSettings:
+                      apiKey: wsr27ry83#T5B$HLZN3upBTO2iG$Dp1lcVEov13euxbnrS9HhGsRelQ0AIyjUKth
+                      userName: null
+                      password: null
+                      licenseNumber: null
+                    solarGISSettings:
+                      key: gkvf7nN9IhjcjP9Jp7Lf
+                      tmyKey: MDAxLnNnMnwzMTM1NS5sM2l2aHpnZnVHLkhuL2xhSVNLd1kxY3QyTlR4M1RpeHl1N3dnSDhOT3d3Y1B1Q1ZWcDdhMlE9
+                      version: 2
+                  essSettings:
+                    factor: 0.9
+                    usableEnergyCapacityCalendarDeg: 0.2
+                    usableEnergyCapacityCycleDeg: 0.005
+                    roundtripDCEfficiencyYear1: 95
+                    roundtripDCEfficiencyCalendarDeg: 0.05
+                    roundtripDCEfficiencyCycleDeg: 0.0002
+                    hvacNoLoadLoss: 1.5
+                    hvacFullLoadLoss: 10
+                    mvNoLoadLoss: 0.2
+                    mvFullLoadLoss: 0.7
+                    mvCapacity: null
+                    inverterEfficiency: 97
+                    chargeAlgorithm: 0
+                  financialModelParameters:
+                    bosInput: 0.5
+                    developmentCostPerWatt: 0.1
+                    moduleCostPerWatt: 0.3
+                    itcPercentage: 26
+                    yearOneEnergyAdjustmentPercentage: 0
+                    ppaPrice: 25
+                    ppaEscalatorPercentage: 0
+                    omYearOne: 3.5
+                    omYearlyEscalatorPercentage: 2.5
+                    ppaDuration: 20
+                    postPPAPrice: 50
+                    postPPAPriceEscalationPercentage: 2
+                    projectLife: 35
+                    discountNPVPercentage: 6
+                    itcEligibilityPercentage: 100
+                    solarSalvageValuePercentage: 5
+                    insuranceCapitalCostPercentage: 0.15
+                    insuranceEscalatorPerYearPercentage: 0
+                    bonusDepreciationRate: 0
+                    stateTaxRate: 6
+                    federalTaxRate: 21
+                    solarLandLeaseCost: 0
+                    solarLandLeaseEscalationPercentage: 0
+                    solarPropertyTaxCost: 0
+                    solarPropertyTaxEscalationPercentage: 0
+                  miscellaneousSettings:
+                    predictionStatus: 1
+                  devPlatformSimulationSettings:
+                    moduleType: 1
+                    rackingSystem: 1
+                    inverterType: 1
+                    largeFormatModuleId: 223
+                    shingledMonoPercId: 221
+                    thinFilmId: 130
+                    halfCellMonoPercId: 4956
+                    bifacialId: 11
+                    orientationTracker: 0
+                    widthTracker: 0.02
+                    heightTracker: 0.02
+                    numOfPVModulesPerRowsTracker: 3
+                    heightAboveGroundTracker: 3
+                    pilesPerTableTracker: 5
+                    pvModuleTiltMin: 0
+                    pvModuleTiltMax: 2
+                    tableAxisRotationMinTracker: -54
+                    tableAxisRotationMaxTracker: 56
+                    enableBacktrackingTracker: false
+                    orientationMultistringTracker: 0
+                    widthMultistringTracker: 0.02
+                    maxWindSpeed: 100
+                    motorTableGap: 1.87
+                    gapBetweenTables: 0.247
+                    heightAboveGroundStringTracker: 0.247
+                    gapBetweenTrackers: 0.3
+                    tableAxisRotationMinMultistringTracker: -54
+                    tableAxisRotationMaxMultistringTracker: 56
+                    enableBacktrackingMultistringTracker: false
+                    orientationFixedTilt: 0
+                    widthFixedTilt: 0.02
+                    heightFixedTilt: 0.02
+                    numOfPVModulesPerRowsFixedTilt: 3
+                    heightAboveGroundFixedTilt: 3
+                    pilesPerTableFixedTilt: 7
+                    calculateModuleTiltAngle: false
+                    moduleTiltAngle: 31
+                    inverterCentralId: 739
+                    powerFactorCentral: 2
+                    ocdpRatingCentral: 320
+                    maxNumOfTablesPerColumnCentral: 2
+                    inverterStringId: 648
+                    powerFactorString: 1
+                    ocdpRatingString: 320
+                    maxNumOfTablesPerColumnString: 5
+                    scenarioAnalysisDefault: 1
+                    dcacMinimum: 1
+                    dcacMaximum: 2
+                    dcacInterval: 1
+                    gcrMinimum: 1
+                    gcrMaximum: 2
+                    gcrInterval: 1
+                  devPlatformSitePlanSettings:
+                    widthPerimeterRoad: 666
+                    setbackFromSolarArrays: 7.1
+                    setbackFromSiteBoundary: 1.1
+                    widthInternalRoad: 4
+                    setbackA: 7.1
+                    setbackB: 2
+                    setback: 2
+                    widthLinearExclusion: 51
+                    showLabels: false
+      responses:
+        '200':
+          description: Updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Company/{companyId}/User:
+    post:
+      tags:
+      - Company
+      summary: Add a user to a company
+      description: Adds an existing PlantPredict user (or invites a new one by email) to the given company. The caller must be an admin of the target company. Newly invited users receive an email with onboarding instructions.
+      operationId: addCompanyUser
+      x-doc-source: drafted
+      parameters:
+      - name: companyId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                role:
+                  type: string
+            examples:
+              postman-company-users-add-user:
+                value:
+                - jobTitle: API Demo
+                  firstName: Name 1
+                  lastName: Name 2
+                  email: user-email@company.comco
+                  roles:
+                  - role:
+                      name: user
+      responses:
+        '200':
+          description: User added
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /User/{userId}/Secret:
+    post:
+      tags:
+      - Company
+      summary: Generate API credentials for a user
+      description: Generates a fresh API client ID and secret for the given user. The secret is returned **only in this response** and cannot be retrieved later — store it securely. Calling this endpoint a second time rotates the credentials; any previously issued pair is invalidated.
+      operationId: generateAPICredentials
+      x-doc-source: drafted
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Generated client ID and secret (shown only once)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APICredentials'
+            text/plain:
+              examples:
+                postman-generate-api-credentials:
+                  value: "{\n    \"clientId\": \"37jcnuof2ntpvsu23k7tr04d4s\",\n    \"clientSecret\": \"i3u3h9sojol8ode7i7pdf4rjbdku58lsig0c5s7vohmu4spceq7\"\n}\n\n// NOTE: Keep this information stored securely as it cannot be retrieved (only recreated)"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    APICredentials:
+      type: object
+      properties:
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

@@ -1,0 +1,727 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Reports API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Reports
+  description: Report generation and export
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/ReportURL/{reportType}:
+    get:
+      tags:
+      - Reports
+      summary: Get URL for a generated report
+      description: "Returns the download URL for a specific report type. Valid report values: PlantSummary, PlantSummary8760, BlockSummary8760, InputsAssumptions. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `report` (path, required): Report type name (PlantSummary, PlantSummary8760, BlockSummary8760, or InputsAssumptions).\n"
+      operationId: getReportURL
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: reportType
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - PlantSummary
+          - PlantSummary8760
+          - BlockSummary8760
+          - InputsAssumptions
+      responses:
+        '200':
+          description: Report URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+        '204':
+          description: Report is not ready yet (still generating) or no report exists for this report type. Response body is empty.
+        '302':
+          description: Example response from Postman collection
+          content:
+            application/json:
+              examples:
+                postman-plant-summary:
+                  value: https://plantpredictreprts.blob.core.windows.net/1234/Prediction_PlantSummary_Draft.pdf
+                postman-plant-summary-8760:
+                  value: https://plantpredictreprts.blob.core.windows.net/1234/Prediction_PlantSummary8760_Draft.xlsx
+                postman-block-summary-8760:
+                  value: https://plantpredictreprts.blob.core.windows.net/1234/Prediction_BlockSummary8760_Draft.xlsx
+                postman-block-summary-8760-copy:
+                  value: https://plantpredictreprts.blob.core.windows.net/1234/Prediction_InputsAssumptions_Draft.pdf
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/Report/PlantBlockDetails:
+    get:
+      tags:
+      - Reports
+      summary: Get plant block details report
+      description: "Returns the PlantBlockDetails report for a prediction. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getPlantBlockDetails
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Block details report data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  PredictionDetails:
+                    type: object
+                  BlockData:
+                    type: array
+                    items:
+                      type: object
+              examples:
+                postman-block-summary:
+                  value:
+                    PredictionDetails:
+                    - TS: '2005-06-01T00:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T01:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T02:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T03:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T04:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T05:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 4678.873638743381
+                    - TS: '2005-06-01T06:00:00'
+                      PowerGenerated: 135465.920035931
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T07:00:00'
+                      PowerGenerated: 432300.82441283425
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T08:00:00'
+                      PowerGenerated: 517864.3219019887
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T09:00:00'
+                      PowerGenerated: 683810.5111924584
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T10:00:00'
+                      PowerGenerated: 945483.7142077374
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T11:00:00'
+                      PowerGenerated: 1085951.1506709917
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T12:00:00'
+                      PowerGenerated: 1167738.654774927
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T13:00:00'
+                      PowerGenerated: 1310463.5386243185
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T14:00:00'
+                      PowerGenerated: 1265024.201011021
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T15:00:00'
+                      PowerGenerated: 1311901.1083898917
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T16:00:00'
+                      PowerGenerated: 1422848.6872543134
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T17:00:00'
+                      PowerGenerated: 1351996.8235709863
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T18:00:00'
+                      PowerGenerated: 679418.320603014
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T19:00:00'
+                      PowerGenerated: 11389.306803293464
+                      PowerConsumed: 0
+                    - TS: '2005-06-01T20:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T21:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T22:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-01T23:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T00:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T01:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T02:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T03:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T04:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T05:00:00'
+                      PowerGenerated: 616.5620420919681
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T06:00:00'
+                      PowerGenerated: 668719.9119581294
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T07:00:00'
+                      PowerGenerated: 1352248.0668887813
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T08:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T09:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T10:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T11:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T12:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T13:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T14:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T15:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T16:00:00'
+                      PowerGenerated: 1418328.1140462803
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T17:00:00'
+                      PowerGenerated: 1237296.9793195773
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T18:00:00'
+                      PowerGenerated: 647592.7390174023
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T19:00:00'
+                      PowerGenerated: 2853.455412790509
+                      PowerConsumed: 0
+                    - TS: '2005-06-02T20:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T21:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T22:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-02T23:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T00:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T01:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T02:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T03:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T04:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T05:00:00'
+                      PowerGenerated: 11007.285668395698
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T06:00:00'
+                      PowerGenerated: 733342.3880277616
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T07:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T08:00:00'
+                      PowerGenerated: 1267329.9270791924
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T09:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T10:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T11:00:00'
+                      PowerGenerated: 982748.2560299629
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T12:00:00'
+                      PowerGenerated: 658330.6056016892
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T13:00:00'
+                      PowerGenerated: 410974.7867563835
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T14:00:00'
+                      PowerGenerated: 461428.3651277204
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T15:00:00'
+                      PowerGenerated: 626220.7836773194
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T16:00:00'
+                      PowerGenerated: 1258638.4592681369
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T17:00:00'
+                      PowerGenerated: 1240031.3817762914
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T18:00:00'
+                      PowerGenerated: 811809.6443267899
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T19:00:00'
+                      PowerGenerated: 7891.733768414895
+                      PowerConsumed: 0
+                    - TS: '2005-06-03T20:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T21:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T22:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-03T23:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T00:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T01:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T02:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T03:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T04:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T05:00:00'
+                      PowerGenerated: 1870.3823467513866
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T06:00:00'
+                      PowerGenerated: 809481.3991642708
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T07:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T08:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T09:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T10:00:00'
+                      PowerGenerated: 1463125.1444332986
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T11:00:00'
+                      PowerGenerated: 1166485.697461644
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T12:00:00'
+                      PowerGenerated: 1023779.1042799754
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T13:00:00'
+                      PowerGenerated: 921963.8401689203
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T14:00:00'
+                      PowerGenerated: 932975.0942789962
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T15:00:00'
+                      PowerGenerated: 740088.5883120213
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T16:00:00'
+                      PowerGenerated: 601644.4038178967
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T17:00:00'
+                      PowerGenerated: 407090.1589606743
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T18:00:00'
+                      PowerGenerated: 225429.3035156776
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T19:00:00'
+                      PowerGenerated: 2643.8561165324745
+                      PowerConsumed: 0
+                    - TS: '2005-06-04T20:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T21:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T22:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    - TS: '2005-06-04T23:00:00'
+                      PowerGenerated: 0
+                      PowerConsumed: 11221.676075624426
+                    BlockData:
+                    - Name: Block1
+                      BlockDetails:
+                      - TS: '2005-06-01T00:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T01:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T02:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T03:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T04:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T05:00:00'
+                        NetEnergy: -4678.873638743381
+                      - TS: '2005-06-01T06:00:00'
+                        NetEnergy: 135465.920035931
+                      - TS: '2005-06-01T07:00:00'
+                        NetEnergy: 432300.82441283425
+                      - TS: '2005-06-01T08:00:00'
+                        NetEnergy: 517864.3219019887
+                      - TS: '2005-06-01T09:00:00'
+                        NetEnergy: 683810.5111924584
+                      - TS: '2005-06-01T10:00:00'
+                        NetEnergy: 945483.7142077374
+                      - TS: '2005-06-01T11:00:00'
+                        NetEnergy: 1085951.1506709917
+                      - TS: '2005-06-01T12:00:00'
+                        NetEnergy: 1167738.654774927
+                      - TS: '2005-06-01T13:00:00'
+                        NetEnergy: 1310463.5386243185
+                      - TS: '2005-06-01T14:00:00'
+                        NetEnergy: 1265024.201011021
+                      - TS: '2005-06-01T15:00:00'
+                        NetEnergy: 1311901.1083898917
+                      - TS: '2005-06-01T16:00:00'
+                        NetEnergy: 1422848.6872543134
+                      - TS: '2005-06-01T17:00:00'
+                        NetEnergy: 1351996.8235709863
+                      - TS: '2005-06-01T18:00:00'
+                        NetEnergy: 679418.320603014
+                      - TS: '2005-06-01T19:00:00'
+                        NetEnergy: 11389.306803293464
+                      - TS: '2005-06-01T20:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T21:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T22:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-01T23:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T00:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T01:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T02:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T03:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T04:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T05:00:00'
+                        NetEnergy: 616.5620420919681
+                      - TS: '2005-06-02T06:00:00'
+                        NetEnergy: 668719.9119581294
+                      - TS: '2005-06-02T07:00:00'
+                        NetEnergy: 1352248.0668887813
+                      - TS: '2005-06-02T08:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T09:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T10:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T11:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T12:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T13:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T14:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T15:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-02T16:00:00'
+                        NetEnergy: 1418328.1140462803
+                      - TS: '2005-06-02T17:00:00'
+                        NetEnergy: 1237296.9793195773
+                      - TS: '2005-06-02T18:00:00'
+                        NetEnergy: 647592.7390174023
+                      - TS: '2005-06-02T19:00:00'
+                        NetEnergy: 2853.455412790509
+                      - TS: '2005-06-02T20:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T21:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T22:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-02T23:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T00:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T01:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T02:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T03:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T04:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T05:00:00'
+                        NetEnergy: 11007.285668395698
+                      - TS: '2005-06-03T06:00:00'
+                        NetEnergy: 733342.3880277616
+                      - TS: '2005-06-03T07:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-03T08:00:00'
+                        NetEnergy: 1267329.9270791924
+                      - TS: '2005-06-03T09:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-03T10:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-03T11:00:00'
+                        NetEnergy: 982748.2560299629
+                      - TS: '2005-06-03T12:00:00'
+                        NetEnergy: 658330.6056016892
+                      - TS: '2005-06-03T13:00:00'
+                        NetEnergy: 410974.7867563835
+                      - TS: '2005-06-03T14:00:00'
+                        NetEnergy: 461428.3651277204
+                      - TS: '2005-06-03T15:00:00'
+                        NetEnergy: 626220.7836773194
+                      - TS: '2005-06-03T16:00:00'
+                        NetEnergy: 1258638.4592681369
+                      - TS: '2005-06-03T17:00:00'
+                        NetEnergy: 1240031.3817762914
+                      - TS: '2005-06-03T18:00:00'
+                        NetEnergy: 811809.6443267899
+                      - TS: '2005-06-03T19:00:00'
+                        NetEnergy: 7891.733768414895
+                      - TS: '2005-06-03T20:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T21:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T22:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-03T23:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T00:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T01:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T02:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T03:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T04:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T05:00:00'
+                        NetEnergy: 1870.3823467513866
+                      - TS: '2005-06-04T06:00:00'
+                        NetEnergy: 809481.3991642708
+                      - TS: '2005-06-04T07:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-04T08:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-04T09:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-04T10:00:00'
+                        NetEnergy: 1463125.1444332986
+                      - TS: '2005-06-04T11:00:00'
+                        NetEnergy: 1166485.697461644
+                      - TS: '2005-06-04T12:00:00'
+                        NetEnergy: 1023779.1042799754
+                      - TS: '2005-06-04T13:00:00'
+                        NetEnergy: 921963.8401689203
+                      - TS: '2005-06-04T14:00:00'
+                        NetEnergy: 932975.0942789962
+                      - TS: '2005-06-04T15:00:00'
+                        NetEnergy: 740088.5883120213
+                      - TS: '2005-06-04T16:00:00'
+                        NetEnergy: 601644.4038178967
+                      - TS: '2005-06-04T17:00:00'
+                        NetEnergy: 407090.1589606743
+                      - TS: '2005-06-04T18:00:00'
+                        NetEnergy: 225429.3035156776
+                      - TS: '2005-06-04T19:00:00'
+                        NetEnergy: 2643.8561165324745
+                      - TS: '2005-06-04T20:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T21:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T22:00:00'
+                        NetEnergy: -11221.676075624426
+                      - TS: '2005-06-04T23:00:00'
+                        NetEnergy: -11221.676075624426
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/GenerateReports:
+    get:
+      tags:
+      - Reports
+      summary: Trigger report generation
+      description: "Queues report generation for a completed prediction. Only works when prediction is complete and no report generation is already queued or running. Not available for batch predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: generateReports
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Generation started
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/CancelReportGeneration:
+    post:
+      tags:
+      - Reports
+      summary: Cancel report generation
+      description: "Cancels queued or running report generation for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: cancelReportGeneration
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Cancelled
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

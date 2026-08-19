@@ -1,0 +1,205 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Inverters API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Inverters",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all accessible inverters",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Inverter"
+          },
+          "docs": "# Get All Inverters\n\nReturns a list of all available Inverters in the system.\n\n## Overview\n\nThis endpoint retrieves a comprehensive list of all inverter configurations stored in the database. Each inverter entry contains detailed technical specifications, power ratings, voltage limits, efficiency curves, and metadata about ownership and modification history.\n\n## Response Fields\n\n### Status & Identification\n\n- **id** - Unique identifier for the inverter record\n    \n- **name** - Display name of th"
+        },
+        {
+          "info": {
+            "name": "Create an inverter",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Inverter",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new inverter from the provided body. Response is the ID of the newley created inverter asset."
+        },
+        {
+          "info": {
+            "name": "Get inverter overview list",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/InverterOverview"
+          },
+          "docs": "# Inverter Overview\n\nReturns a list of all available Inverters however with simplified data properties.\n\n## Overview\n\nThis endpoint provides a lightweight version of the full inverter list, returning essential inverter information without the complete technical specifications and detailed configuration data. It's optimized for scenarios where you need a quick overview of available inverters without the overhead of fetching complete inverter records.\n\n## Response Fields\n\nThe simplified response i"
+        },
+        {
+          "info": {
+            "name": "Change status of one or more inverters",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/Status",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Change the status of one or more Inverters."
+        },
+        {
+          "info": {
+            "name": "Calculate kVA for an inverter at given conditions",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/kVA",
+            "params": [
+              {
+                "name": "elevation",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "temperature",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "useCoolingTemp",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Get the kVA rating of an Inverter by providing the entire Inverter entity, elevation, temperature, and cooling temp state."
+        },
+        {
+          "info": {
+            "name": "Parse an OND file and return inverter data",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/ParseONDFile",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "This endpoint is used to parse an OND file. The response will be a valid Inverter object."
+        },
+        {
+          "info": {
+            "name": "Get an inverter by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/:inverterId",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Creates a .PPI file, which can be used to import the Inverter into PlantPredict for another user."
+        },
+        {
+          "info": {
+            "name": "Update an inverter",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/:inverterId",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates an existing Inverter, where the target inverter to update is the ID provided in the URL."
+        },
+        {
+          "info": {
+            "name": "Delete an inverter",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/:inverterId",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deletes an existing Inverter, where the target inverter to delete is the ID provided in the URL."
+        },
+        {
+          "info": {
+            "name": "Get stored kVA for an inverter",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Inverter/:inverterId/kVA",
+            "params": [
+              {
+                "name": "inverterId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the kVA rating of an Inverter by Id."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

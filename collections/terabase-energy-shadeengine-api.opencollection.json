@@ -1,0 +1,501 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Shade Engine API",
+    "version": "current"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "ShadeEngine",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Shade Engine Run information",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/ProcessingStatus",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Shade Engine Run information"
+        },
+        {
+          "info": {
+            "name": "Get PVC export",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/ExportPVC",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get PVC export"
+        },
+        {
+          "info": {
+            "name": "Get shade engine input data from blob storage using a prediction id, with optional include of geometry (PVJ) data.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Properties/:month",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "month",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "includePVJGeoms",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get shade engine input data from blob storage using a prediction id, with optional include of geometry (PVJ) data."
+        },
+        {
+          "info": {
+            "name": "Get shade engine output data from blob storage using a prediction id",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Results",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "excludeEngineData",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get shade engine output data from blob storage using a prediction id"
+        },
+        {
+          "info": {
+            "name": "Set shade engine output data in blob storage",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Results",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set shade engine output data in blob storage"
+        },
+        {
+          "info": {
+            "name": "Trigger the shade engine to run calculation using a prediction id",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "singleInverterId",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Trigger the shade engine to run calculation using a prediction id"
+        },
+        {
+          "info": {
+            "name": "Convert a PVC to PVJ using the HTTP request's query string parameters and streamed uploaded of file.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ShadeScene/ConvertPVCtoPVJ",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "RotateShadingResult",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Convert a PVC to PVJ using the HTTP request's query string parameters and streamed uploaded of file."
+        },
+        {
+          "info": {
+            "name": "POST /ShadeScene/ConvertSHDtoPVJ",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/ShadeScene/ConvertSHDtoPVJ",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "RotateShadingResult",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Clones a shade scene from source to target",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Import/:propertiesKey",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "propertiesKey",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Clones a shade scene from source to target"
+        },
+        {
+          "info": {
+            "name": "This operation will update the Prediction shade scene properties without deleting any results that may exist.",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This operation will update the Prediction shade scene properties without deleting any results that may exist."
+        },
+        {
+          "info": {
+            "name": "This operation will delete the Prediction shade scene properties.",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will delete the Prediction shade scene properties."
+        },
+        {
+          "info": {
+            "name": "Used to create a new 3D Scene from the supplied PVJData",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/PVJData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Used to create a new 3D Scene from the supplied PVJData"
+        },
+        {
+          "info": {
+            "name": "Update objects in an existing PVJData",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/Objects",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update objects in an existing PVJData"
+        },
+        {
+          "info": {
+            "name": "Get a list of Inverter Transposition factors for a given prediction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/InverterTranspositionFactors",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a list of Inverter Transposition factors for a given prediction."
+        },
+        {
+          "info": {
+            "name": "This operation will set Inverter Transposition values.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/InverterTranspositionFactors",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "This operation will set Inverter Transposition values."
+        },
+        {
+          "info": {
+            "name": "Used to get table rotation schedule template",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/TableRotation/Template",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Used to get table rotation schedule template"
+        },
+        {
+          "info": {
+            "name": "This operation will download the shade table in CSV format.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/Project/:projectId/Prediction/:predictionId/ShadeScene/ShadeTableData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This operation will download the shade table in CSV format."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

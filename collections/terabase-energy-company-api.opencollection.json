@@ -1,0 +1,90 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Company API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Company",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get company default settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Company/DefaultSettings"
+          },
+          "docs": "Returns default settings for your company."
+        },
+        {
+          "info": {
+            "name": "Update company default settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Company/DefaultSettings",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates default settings for your company. Requires Admin role. Default Settings are prediction input values customized per company."
+        },
+        {
+          "info": {
+            "name": "Add a user to a company",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Company/:companyId/User",
+            "params": [
+              {
+                "name": "companyId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Adds an existing PlantPredict user (or invites a new one by email) to the given company. The caller must be an admin of the target company. Newly invited users receive an email with onboarding instructions."
+        },
+        {
+          "info": {
+            "name": "Generate API credentials for a user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/User/:userId/Secret",
+            "params": [
+              {
+                "name": "userId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Generates a fresh API client ID and secret for the given user. The secret is returned **only in this response** and cannot be retrieved later — store it securely. Calling this endpoint a second time rotates the credentials; any previously issued pair is invalidated."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

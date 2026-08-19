@@ -1,0 +1,297 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Shade Scene API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "ShadeScene",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Convert PVC file to PVJ shade scene format",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/ShadeScene/ConvertPVCtoPVJ",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "RotateShadingResult",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard PV Collada file into the compatible PVJ format."
+        },
+        {
+          "info": {
+            "name": "Convert SHD file to PVJ shade scene format",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/ShadeScene/ConvertSHDtoPVJ",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "RotateShadingResult",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "The PlantPredict 3D Scene uses a JSON-based format to represent common shapefiles (e.g., PVC, SHD). This endpoint converts a standard SHD file into the compatible PVJ format."
+        },
+        {
+          "info": {
+            "name": "Create/upload a shade scene from PVJ data",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene/PVJData",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This request accepts the response of the /ShadeScene/ConvertPVCtoPVJ endpoint in its body, and creates the initial 3D Shade Scene with default settings."
+        },
+        {
+          "info": {
+            "name": "Get shade scene properties for a DC field",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene/Properties/:dcFieldNumber",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dcFieldNumber",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the specified shade scene and current property values."
+        },
+        {
+          "info": {
+            "name": "Update shade scene properties",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This request accepts the response of the /ShadeScene/Properties endpoint in its body, and will update the stored configuration.\n\n_Note: All values should be provided, not just properties which are changing_\n"
+        },
+        {
+          "info": {
+            "name": "Queue TABT calculations",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TABT/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Queue's calculations for TABT (Terrain Aware Backtracking)"
+        },
+        {
+          "info": {
+            "name": "Get TABT processing status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/TABT/ProcessingStatus",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the status for:\n\n- Transposition Factor Calculations (if necessary)\n    \n- Terrain Aware Calculations\n    \n- Overall Status (Transpositions + Terrain)\n    \n\nRefer to /Definitions endpoint for status' and their meanings.\n"
+        },
+        {
+          "info": {
+            "name": "Queue shade calculations",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene/Run",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Queue's Shading Calculations.\n\nRefer to /Definitions endpoint for status' and their meanings.\n"
+        },
+        {
+          "info": {
+            "name": "Get shade calculation processing status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene/ProcessingStatus",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns status for shading calculations"
+        },
+        {
+          "info": {
+            "name": "Get 3D shade calculation results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Project/:projectId/Prediction/:predictionId/ShadeScene/Results",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "predictionId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns all 3D scene related results. This includes:\n\n- Beam Irradiance losses\n    \n- Shading Electrical Effect losses\n    \n- Transposition losses/gains\n    \n- Combined loss/gain calculations.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

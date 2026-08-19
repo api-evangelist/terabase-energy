@@ -1,0 +1,32 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Home API
+  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly
+    by having your Company Admin generate API credentials. If you do not know your Company Admin, contact
+    support@plantpredict.com for assistance.
+  contact:
+    name: PlantPredict Support
+    url: https://plantpredict.com/contact/
+    email: support@plantpredict.com
+  version: current
+security:
+- Bearer: []
+tags:
+- name: Home
+paths:
+  /:
+    get:
+      tags:
+      - Home
+      summary: Get Home - redirects to UI URL
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer
+        {token}"'
+      name: Authorization
+      in: header

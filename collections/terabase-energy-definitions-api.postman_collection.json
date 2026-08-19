@@ -1,0 +1,271 @@
+{
+  "item": [
+    {
+      "id": "2761170a-e481-4fad-a283-a89bfc4f8092",
+      "name": "Definitions",
+      "description": {
+        "content": "Enum and model type definitions",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "483066c9-e3b2-40b4-8b76-401e78dd5913",
+          "name": "Get all definitions or filter by enum type",
+          "request": {
+            "name": "Get all definitions or filter by enum type",
+            "description": {
+              "content": "## Overview\n\nThis request calls the PlantPredict API **Definitions** endpoint to retrieve the list of available model definitions.\n\nEnsure these variables are correctly set in the active environment before sending the request.\n\n## Typical Use Cases\n\n- Retrieve available model definitions before **creating** a new project.\n    \n- Look up model definitions prior to **updating** an existing project.\n    \n- Inspect available model types and their identifiers for client-side validation or UI population.\n    \n\n## Successful Response (High-Level)\n\nA successful response returns an array of **definition objects**, each typically including:\n\n- A unique **ID** for the definition.\n    \n- A human-readable **name**.\n    \n- Additional **metadata** describing the model definition and how it can be used in projects.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "Definitions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "type",
+                  "value": "<string>",
+                  "description": "Enum type name (e.g. CellTechnologyTypeEnum). Omit to return all."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a58c73bd-78a0-4a4c-b0e2-4ca666d18da3",
+              "name": "List of definitions (or filtered enum values)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Definitions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"type\": \"AirMassModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Bird-Hulstrom\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Kasten-Sandia\"\n      }\n    ]\n  },\n  {\n    \"type\": \"AshraeVersionEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Version_2013\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Version_2021\"\n      }\n    ]\n  },\n  {\n    \"type\": \"Axis\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"X\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Y\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Z\"\n      }\n    ]\n  },\n  {\n    \"type\": \"BatchStepVariableTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"DCAC Ratio\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"GCR\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Tilt Angle\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Azimuth\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Post Height\"\n      }\n    ]\n  },\n  {\n    \"type\": \"BOSInputMethod\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Manual Input\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"BOS Calculation\"\n      }\n    ]\n  },\n  {\n    \"type\": \"CellDesignType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Full Cell Technology\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Half Cell Technology\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"N/A\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"None Specified\"\n      }\n    ]\n  },\n  {\n    \"type\": \"CellTechnologyTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"n-type mono c-Si\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"p-type mono c-Si PERC\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"p-type mono c-Si BSF\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"poly c-Si PERC\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"poly c-Si BSF\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"CdTe\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"CIGS\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Mixed\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ConstructionTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Glass-Glass\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Glass-Backsheet\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DataSourceType\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Manufacturer\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"PVsyst\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"University of Geneva\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Photon\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Sandia Database\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"Custom\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"PlantPredict\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DCFieldBacktrackingType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"True-Tracking\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Backtracking\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Time-Series\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DCFieldObjectSide\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"One\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Two\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Three\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Four\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DCFieldTrackingTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Fixed Tilt\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Horizontal Tracker\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Seasonal Tilt\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DefaultDCFieldBacktrackingType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"True-Tracking\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Backtracking\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DefaultDegradation\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Module Defined\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Fixed Degredation Rate\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DegradationModel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Stepped AC\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Linear AC\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Linear DC\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Non-Linear DC\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DiffuseDirectDecompModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Erbs\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Reindl\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"DIRINT\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"None\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DiffuseShadingModel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Schaar-Panchula\"\n      }\n    ]\n  },\n  {\n    \"type\": \"DirectBeamShadingModel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Linear\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"2 Dimension (retired)\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Fractional Electrical Shading\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Module File Defined Shading\"\n      }\n    ]\n  },\n  {\n    \"type\": \"EnergyInputMethod\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Manual Input\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Map Extrapolation\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Model 8760\"\n      }\n    ]\n  },\n  {\n    \"type\": \"EntityType\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Project\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Module\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Inverter\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Weather\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Prediction\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"MultiJunction\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ESSChargeAlgorithm\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"LGIA Excess\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Energy Available\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Custom\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ESSDispatchCustomCommand\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Discharge\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Charge\"\n      }\n    ]\n  },\n  {\n    \"type\": \"EvalType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"FieldEval\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"GroupEval\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"TabRepeat\"\n      }\n    ]\n  },\n  {\n    \"type\": \"FacialityEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Monofacial\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Bifacial\"\n      }\n    ]\n  },\n  {\n    \"type\": \"IncidenceAngleModelType\",\n    \"values\": [\n      {\n        \"id\": 2,\n        \"name\": \"Sandia\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"ASHRAE\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Tabular IAM\"\n      }\n    ]\n  },\n  {\n    \"type\": \"InverterType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Unspecified\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"String\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Central\"\n      }\n    ]\n  },\n  {\n    \"type\": \"JunctionType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Parallel\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Series\"\n      }\n    ]\n  },\n  {\n    \"type\": \"LibraryStatusEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Unknown\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Draft-Private\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Draft-Shared\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Active\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Retired\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Global\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"Global-Retired\"\n      }\n    ]\n  },\n  {\n    \"type\": \"MapBuilderCreateDCOptions\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Arrays\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Tables\"\n      }\n    ]\n  },\n  {\n    \"type\": \"MarionDiffuseRegions\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Sky\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Ground\"\n      }\n    ]\n  },\n  {\n    \"type\": \"MessageType\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Error\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Warning\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Info\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Debug\"\n      }\n    ]\n  },\n  {\n    \"type\": \"MessageTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Prediction\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Report\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ModuleDegradationModel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Unspecified\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Linear\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Non-Linear\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ModuleDurability\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Standard\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Quality\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"High\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ModuleOrientation\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Landscape\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Portrait\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ModuleShadingResponse\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Linear\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Fractional Electrical Shading\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ModuleTemperatureModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Heat Balance\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Sandia\"\n      }\n    ]\n  },\n  {\n    \"type\": \"NSRDBRegions\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"USA\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Mexico\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Americas\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Europe\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Africa\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Asia\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"South_Asia\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"Australia_Pacific\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PowerPlantDesignType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Simple\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Advanced\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PredictionItemStatisticsTrackingTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Fixed Tilt\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Horizontal Tracker\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Seasonal Tilt\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Mixed\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PredictionProcessingStep\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Unknown\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"InitializeFromDatabase\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"PrePrediction\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"PreparePrediction\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"PrepareWeather\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"PrepareWeatherDetail\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"ExecuteDiffuseDecompModel\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"PreparePowerPlant\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"PrepareBlocks\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"PrepareArrays\"\n      },\n      {\n        \"id\": 11,\n        \"name\": \"PrepareInverters\"\n      },\n      {\n        \"id\": 12,\n        \"name\": \"PrepareDCFields\"\n      },\n      {\n        \"id\": 13,\n        \"name\": \"PrepareModules\"\n      },\n      {\n        \"id\": 14,\n        \"name\": \"InitializeResults\"\n      },\n      {\n        \"id\": 15,\n        \"name\": \"MainPrediction\"\n      },\n      {\n        \"id\": 16,\n        \"name\": \"MainOuterPredictionLoop\"\n      },\n      {\n        \"id\": 17,\n        \"name\": \"FormattingWeatherFileForMultiYear\"\n      },\n      {\n        \"id\": 18,\n        \"name\": \"DCFieldCalculationLogic\"\n      },\n      {\n        \"id\": 19,\n        \"name\": \"InverterCalculationLogic\"\n      },\n      {\n        \"id\": 20,\n        \"name\": \"ArrayCalculationLogic\"\n      },\n      {\n        \"id\": 21,\n        \"name\": \"BlockCalculationLogic\"\n      },\n      {\n        \"id\": 22,\n        \"name\": \"PowerPlantCalculationLogic\"\n      },\n      {\n        \"id\": 23,\n        \"name\": \"ESSCalculationLogic\"\n      },\n      {\n        \"id\": 24,\n        \"name\": \"StructureShadingLogic\"\n      },\n      {\n        \"id\": 25,\n        \"name\": \"AggregateResults\"\n      },\n      {\n        \"id\": 26,\n        \"name\": \"PostPrediction\"\n      },\n      {\n        \"id\": 27,\n        \"name\": \"CalculatePredictionParameters\"\n      },\n      {\n        \"id\": 28,\n        \"name\": \"CalculatePlantCharactersitics\"\n      },\n      {\n        \"id\": 29,\n        \"name\": \"CalculateLocationParameters\"\n      },\n      {\n        \"id\": 30,\n        \"name\": \"CalculateResultSummary\"\n      },\n      {\n        \"id\": 31,\n        \"name\": \"CalculateBlockResultSummaries\"\n      },\n      {\n        \"id\": 32,\n        \"name\": \"CalculateDetailedOutputs\"\n      },\n      {\n        \"id\": 33,\n        \"name\": \"StoreResults\"\n      },\n      {\n        \"id\": 34,\n        \"name\": \"HandleNodalData\"\n      },\n      {\n        \"id\": 35,\n        \"name\": \"ExportCSV\"\n      },\n      {\n        \"id\": 36,\n        \"name\": \"ExportJSON\"\n      },\n      {\n        \"id\": 37,\n        \"name\": \"CreatePredictionStatistics\"\n      },\n      {\n        \"id\": 38,\n        \"name\": \"Completed\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PredictionStatusEnum\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Draft-Private\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Draft-Shared\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Analysis\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Bid\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Contract\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"Development\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"As Built\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Warranty\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"Archived\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PredictionVersionEnum\",\n    \"values\": [\n      {\n        \"id\": 3,\n        \"name\": \"Version 3\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Version 4\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Version 5\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"Version 6\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"Version 7\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Version 8\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"Version 9\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"Version 10\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ProcessingStatusEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Queued\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Running\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Success\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Error\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Cancelled\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ProjectStatusEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Active\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Archived\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"StringSize\"\n      }\n    ]\n  },\n  {\n    \"type\": \"PvModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"1-Diode Recombination\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"1-Diode\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"1-Diode Recombination Non-Linear Temp\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ResponseMessageType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Info\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Warning\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Error\"\n      }\n    ]\n  },\n  {\n    \"type\": \"RevenueType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"PPA\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Merchant\"\n      }\n    ]\n  },\n  {\n    \"type\": \"ShadeAlgorithm\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"2D(default)\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Infinite Rows\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"3D\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SoilingModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Constant Monthly\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Weather File\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"None\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SolarGISVersion\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"PVPlanner\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"TMY15\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"TMY60\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SpectralResponseEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"No Spectral Shift\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"FS Series 4 & Earlier\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"FS Series 4-2 & Later\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Sandia\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SpectralShiftModel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"1-Param Pwat or Sandia\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"2-Param Pwat and AM\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Monthly Override\"\n      }\n    ]\n  },\n  {\n    \"type\": \"SpectralWeatherType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"None\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Ngan-PWat\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Ngan-RH\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Ngan-Dewpoint\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TableType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Flat\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Sloped\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TimeSeriesType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"InverterSetPoint\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"InverterDerate\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"TrackingAngle\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"ModuleSurfaceTemperature\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"LGIALimit\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"IMPPAdjustment\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"VMPPAdjustment\"\n      }\n    ]\n  },\n  {\n    \"type\": \"TranspositionModelType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Hay\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Perez\"\n      }\n    ]\n  },\n  {\n    \"type\": \"UserStatusEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Disabled\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Active\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Pending\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Archived\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherDataProvider\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"NREL\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"AWS Truepower\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"WindLogics\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"Meteonorm\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"3TIER\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"Clean Power Research\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"GeoModel Solar\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"GeoSUN Africa\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"SoDa\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"HelioClim\"\n      },\n      {\n        \"id\": 11,\n        \"name\": \"Solar Resource Assessment\"\n      },\n      {\n        \"id\": 12,\n        \"name\": \"EnergyPlus\"\n      },\n      {\n        \"id\": 13,\n        \"name\": \"Other\"\n      },\n      {\n        \"id\": 14,\n        \"name\": \"Customer\"\n      },\n      {\n        \"id\": 15,\n        \"name\": \"Solar Prospector\"\n      },\n      {\n        \"id\": 16,\n        \"name\": \"GlobalFED\"\n      },\n      {\n        \"id\": 17,\n        \"name\": \"NSRDB\"\n      },\n      {\n        \"id\": 18,\n        \"name\": \"WhiteBox Technologies\"\n      },\n      {\n        \"id\": 19,\n        \"name\": \"SolarGIS\"\n      },\n      {\n        \"id\": 20,\n        \"name\": \"NASA\"\n      },\n      {\n        \"id\": 21,\n        \"name\": \"3TIER/Vaisala\"\n      },\n      {\n        \"id\": 22,\n        \"name\": \"Solcast\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherDataType\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Synthetic Monthly\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Satellite\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"Ground Corrected\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Measured\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"TMY3\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"TGY\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"TMY\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"PSM\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"SUNY\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"MTS2\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"CZ2010\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherFileColumnTypeEnum\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"GHI\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"DNI\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"DHI\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"TEMP\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"Windspeed\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"RelativeHumidity\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"PWAT\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Rain\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"Pressure\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"DewpointTemp\"\n      },\n      {\n        \"id\": 11,\n        \"name\": \"WindDirection\"\n      },\n      {\n        \"id\": 12,\n        \"name\": \"SoilingLoss\"\n      },\n      {\n        \"id\": 13,\n        \"name\": \"POAI\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherFormat\",\n    \"values\": [\n      {\n        \"id\": 1,\n        \"name\": \"Solar Prospector CSV\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"NREL TMY3\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"Meteonorm TMY3\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"3Tier\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"AWS\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"EPW\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"GeoModel Solar\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Clean Power Research\"\n      },\n      {\n        \"id\": 9,\n        \"name\": \"PlantPredict\"\n      },\n      {\n        \"id\": 10,\n        \"name\": \"TMY3\"\n      },\n      {\n        \"id\": 11,\n        \"name\": \"SolarGIS\"\n      },\n      {\n        \"id\": 12,\n        \"name\": \"NASA\"\n      },\n      {\n        \"id\": 13,\n        \"name\": \"3Tier/Vaisala\"\n      },\n      {\n        \"id\": 14,\n        \"name\": \"Solcast\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherPLevel\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"P50\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"P90\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"N/A\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"P95\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"P99\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"P75\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherSourceTypeAPIEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Unknown\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"Meteonorm\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"CPR-SolarAnywhere\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"NSRDB PSM\"\n      },\n      {\n        \"id\": 4,\n        \"name\": \"NSRDB SUNY\"\n      },\n      {\n        \"id\": 5,\n        \"name\": \"NSRDB MTS2\"\n      },\n      {\n        \"id\": 6,\n        \"name\": \"SolarGIS\"\n      },\n      {\n        \"id\": 7,\n        \"name\": \"NASA\"\n      },\n      {\n        \"id\": 8,\n        \"name\": \"Solcast\"\n      }\n    ]\n  },\n  {\n    \"type\": \"WeatherTimestampDefinitionEnum\",\n    \"values\": [\n      {\n        \"id\": 0,\n        \"name\": \"Undefined\"\n      },\n      {\n        \"id\": 1,\n        \"name\": \"IntervalEnd\"\n      },\n      {\n        \"id\": 2,\n        \"name\": \"IntervalBegin\"\n      },\n      {\n        \"id\": 3,\n        \"name\": \"IntervalMiddle\"\n      }\n    ]\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a0002035-31bb-411d-9007-95a0f82b4ac6",
+              "name": "Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Definitions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "22f0d408-0240-4f6f-a6c6-2e820b2588c0",
+              "name": "The referenced resource does not exist or is not accessible to the caller.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Definitions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Project not found.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "db1e6bc8-1905-453f-b0c8-c8000ba4d11d",
+              "name": "Unexpected server-side error. The body is usually a plain-text message\nbut its structure is not guaranteed — treat it as opaque diagnostic\ntext. Common causes: database constraint violation, downstream\nservice timeout, internal exception. Retry-safe for idempotent\nrequests; for non-idempotent ones, verify state before retrying.\n",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Definitions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "An error has occurred.",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.plantpredict.terabase.energy",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "fb4efecb-8648-41a7-9347-2326573c0579",
+    "name": "PlantPredict Definitions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n",
+      "type": "text/plain"
+    }
+  }
+}

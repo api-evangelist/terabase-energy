@@ -1,0 +1,82 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Terabase Energy ASHRAE API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "ASHRAE",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get nearest ASHRAE station by coordinates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/ASHRAE",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "### GET /ASHRAE\n\nReturns the closest ASHRAE station based on the specified coordinates. The station with the shortest distance from the latitude and longitude is returned.\n\n**Parameters:**\n- `Latitude` (query, required): Latitude coordinate.\n- `Longitude` (query, required): Longitude coordinate.\n- `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.\n"
+        },
+        {
+          "info": {
+            "name": "Get a specific ASHRAE station by name",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/ASHRAE/GetStation",
+            "params": [
+              {
+                "name": "StationName",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Version",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "### GET /ASHRAE/GetStation\n\nReturns the closest ASHRAE station matching the provided name and shortest distance from the specified coordinates.\n\n**Parameters:**\n- `StationName` (query, required): Name of the ASHRAE station to match.\n- `Latitude` (query, required): Latitude coordinate.\n- `Longitude` (query, required): Longitude coordinate.\n- `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

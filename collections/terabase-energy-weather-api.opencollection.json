@@ -1,0 +1,307 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Weather API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Weather",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new weather file in the company library from a payload of hourly meteorological records (irradiance, temperature, wind, etc.). For provider-sourced data, use `POST /Weather/Download/{providerId}` instead so metadata and downloads are handled automatically."
+        },
+        {
+          "info": {
+            "name": "Get a weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Weather/:weatherId",
+            "params": [
+              {
+                "name": "weatherId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieves a single weather file's metadata (provider, location, time range, status). To fetch the actual hourly records, call `GET /Weather/{weatherId}/Detail`."
+        },
+        {
+          "info": {
+            "name": "Export a weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Weather/:weatherId/Export",
+            "params": [
+              {
+                "name": "weatherId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the weather file as a downloadable artifact in its native format. Useful for inspecting the data outside PlantPredict or sharing it with other modeling tools."
+        },
+        {
+          "info": {
+            "name": "Update weather file metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Weather/:weatherId/TitleUpdate",
+            "params": [
+              {
+                "name": "weatherId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Renames a weather file and/or updates lightweight metadata fields without touching the underlying hourly data."
+        },
+        {
+          "info": {
+            "name": "Get weather hourly detail records",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Weather/:weatherId/Detail",
+            "params": [
+              {
+                "name": "weatherId",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the full hourly time-series records for a weather file — irradiance components, ambient temperature, wind speed, etc. The response can be large (8760+ rows for a full year); plan to stream or page on the client side."
+        },
+        {
+          "info": {
+            "name": "Update weather hourly detail records",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.plantpredict.terabase.energy/Weather/:weatherId/Detail",
+            "params": [
+              {
+                "name": "weatherId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Used to update details for an existing weather file. **Note: This will completely overwrite the each timestamp with the provided values. If you omit data from the JSON it will not keep the previous values.**"
+        },
+        {
+          "info": {
+            "name": "Search weather files by location",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Weather/Search",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "SearchRadius",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Finds weather files within a geographic radius of a given latitude/longitude. Use this to discover existing library entries near a project site before importing a new one."
+        },
+        {
+          "info": {
+            "name": "Parse a raw weather file upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/Parse",
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "This endpoint accepts a .csv or .xlsx (note: .xlsx is only accepted in the PlantPredict exported format).\n\nIf the parse request is successful, a response will be returned containing some of the meta-data for the weather file including the GUID (weatherFileKey) that will be used in the next steps to begin formatting the data.\n\nEndFragment\n"
+        },
+        {
+          "info": {
+            "name": "Run quality check on a parsed weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/QualityCheck",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "The Quality Check endpoint is used to confirm:\n\n1.  The specified column mappings are valid\n2.  The input values for the specified data type are within tolerance and do not exceed realistic values.\n3.  Your weather file is ready for import - If all validations pass, the API will return a message indicating there were no errors found and you are good to proceed to the final step.\n"
+        },
+        {
+          "info": {
+            "name": "Finalize import of a parsed weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/FinalizeImport",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "The Finalize Import endpoint will execute the same validations as the Quality Check endpoint however if no errors are found the weather file will successfully be imported into your PlantPredict Weather library. The response from the API will be the weather Id of the newly created asset."
+        },
+        {
+          "info": {
+            "name": "Finalize a system-generated weather file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/FinalizeGeneratedWeather",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Promotes a system-generated weather file from a temporary/preview state to a permanent library entry. Called after the user reviews and accepts a generated dataset."
+        },
+        {
+          "info": {
+            "name": "Download weather data from a provider",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/Download/:providerId",
+            "params": [
+              {
+                "name": "providerId",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Provider",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "CPRVersion",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Fetches weather data from an external provider (SolarAnywhere, Meteonorm, NSRDB, etc.) for a given latitude/longitude and persists it as a new weather file in the company library. The `providerId` path parameter is the integer enum value for the provider; see `WeatherDataProvider` via `GET /Definitions` for the full catalog."
+        },
+        {
+          "info": {
+            "name": "Validate a weather download or import",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.plantpredict.terabase.energy/Weather/Download/ValidateDownload",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Dry-run check that reports whether a weather download request is valid for the given provider, location, and parameters. Call this before `POST /Weather/Download/{providerId}` to surface configuration errors without consuming a provider download quota."
+        },
+        {
+          "info": {
+            "name": "Get horizon elevation profile for a location",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Weather/GetHorizonScene",
+            "params": [
+              {
+                "name": "Latitude",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "Longitude",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns the horizon elevation profile (azimuth → elevation angle) for a given latitude/longitude. Used to construct shade scenes that account for terrain or distant obstructions surrounding a site."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

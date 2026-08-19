@@ -1,0 +1,1825 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Inverters API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Inverters
+  description: Inverter library management
+paths:
+  /Inverter:
+    get:
+      tags:
+      - Inverters
+      summary: List all accessible inverters
+      description: "# Get All Inverters\n\nReturns a list of all available Inverters in the system.\n\n## Overview\n\nThis endpoint retrieves a comprehensive list of all inverter configurations stored in the database. Each inverter entry contains detailed technical specifications, power ratings, voltage limits, efficiency curves, and metadata about ownership and modification history.\n\n## Response Fields\n\n### Status & Identification\n\n- **id** - Unique identifier for the inverter record\n    \n- **name** - Display name of the inverter (typically includes manufacturer, model, and specifications)\n    \n- **status** - Current status of the inverter record:\n    - `2` - Active/Published\n        \n    - `5` - Archived\n        \n    - `6` - Legacy/Deprecated\n        \n- **description** - Optional notes or additional information about the inverter configuration\n    \n\n### Manufacturer & Model Information\n\n- **manufacturer** - Inverter manufacturer name (e.g., \"ABB\")\n    \n- **model** - Specific model identifier (e.g., \"PVS800-57-1000kW-C\")\n    \n- **inverterType** - Classification of inverter type:\n    - `2` - Central inverter\n        \n    - Other values may represent string or micro inverters\n        \n\n### Power Specifications\n\n- **powerRated** - Rated AC power output in kilowatts (kW)\n    \n- **apparentPower** - Apparent power capacity in kilovolt-amperes (kVA)\n    \n- **minDCPowerThreshold** - Minimum DC power threshold in watts (W) for operation\n    \n- **outputVoltage** - AC output voltage in volts (V)\n    \n\n### Voltage & Current Limits\n\n- **minVoltage** - Minimum DC input voltage in volts (V)\n    \n- **maxMPPVoltage** - Maximum power point tracking voltage in volts (V)\n    \n- **maxAbsoluteVoltage** - Maximum absolute DC voltage limit in volts (V)\n    \n- **maxCurrent** - Maximum DC input current in amperes (A)\n    \n\n### Environmental & Physical Constraints\n\n- **maxElevation** - Maximum operating elevation in meters above sea level\n    \n\n### Curve Settings & Data Configuration\n\n- **usekVACurves** - Boolean flag indicating whether kVA derating curves are enabled\n    \n- **usePQCurves** - Boolean flag indicating whether power quality curves are enabled\n    \n- **dataSource** - Source identifier for the inverter data:\n    - `2` - Standard/manufacturer data\n        \n    - Other values may indicate custom or imported data\n        \n- **efficiencyCurves** - Array of efficiency curve data points (null if not configured)\n    \n- **kVACurves** - Array of kVA derating curve data (null if not configured)\n    \n- **pqCurves** - Array of power quality curve data (null if not configured)\n    \n\n### Ownership & Company Information\n\n- **companyId** - ID of the company that owns this inverter configuration\n    \n- **company** - Company object (typically null in list responses)\n    \n- **ownerId** - User ID of the inverter configuration owner\n    \n- **owner** - Owner user object (typically null in list responses)\n    \n\n### Audit & Modification Tracking\n\n- **createdDate** - ISO 8601 timestamp when the inverter was created\n    \n- **lastModified** - ISO 8601 timestamp of the most recent modification\n    \n- **lastModifiedById** - User ID of the person who last modified the record\n    \n- **lastModifiedBy** - Detailed user object containing:\n    - **id** - User ID\n        \n    - **email** - User email address\n        \n    - **firstName** / **lastName** - User's name\n        \n    - **jobTitle** - User's job title\n        \n    - **companyId** - User's company affiliation\n        \n    - **status** - User account status (0 = system account, 1 = active)\n        \n    - **createdDateUtc** - When the user account was created\n        \n    - **lastLoginDateUTC** - Most recent login timestamp\n        \n    - **uuid** - Unique user identifier\n        \n    - **migrationAgreementAcceptance** - Agreement acceptance flag\n        \n    - **clientCredentialsCreatedOnUTC** - API credentials creation timestamp\n        \n    - **roles** / **logins** - Arrays of user roles and login records\n        \n\n## Usage Notes\n\n- The response returns an array of inverter objects\n    \n- Inverters with `status: 3` are currently active and available for use\n    \n- Archived or deprecated inverters (`status: 5` or `6`) may still appear in results for historical reference\n    \n- Curve data (`efficiencyCurves`, `kVACurves`, `pqCurves`) is typically null in list responses and must be retrieved individually if needed\n    \n- User and company objects in the response are often null in list views to reduce payload size\n    \n- Multiple inverters may share the same model name but have different IDs and configurations\n    \n- The `lastModifiedBy` object provides full audit trail information for tracking changes\n"
+      operationId: listInverters
+      x-doc-source: postman
+      responses:
+        '200':
+          description: Array of inverters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Inverter'
+              examples:
+                postman-all:
+                  value:
+                  - status: 6
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: false
+                    usePQCurves: false
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 132
+                    name: ABB PVS800 57 1000kW C
+                    description: null
+                    companyId: 1
+                    company: null
+                    ownerId: 742
+                    owner: null
+                    createdDate: '2016-08-12T21:39:16.06'
+                    lastModified: '2017-02-23T00:45:37.47'
+                    lastModifiedById: 742
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1
+                      firstName: System
+                      lastName: Account
+                      jobTitle: System
+                      createdByUserId: null
+                      createdByUser: null
+                      status: 0
+                      createdDateUtc: '2016-09-01T00:00:00'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: null
+                      uuid: null
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: null
+                      roles: []
+                      logins: []
+                      id: 742
+                      normalizedUserName: null
+                      email: FS108328@FIRSTSOLAR.COM
+                      normalizedEmail: null
+                      concurrencyStamp: 976622b5-3695-43b1-84db-823499eebbf0
+                  - status: 5
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: false
+                    usePQCurves: false
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 711
+                    name: ABB PVS800 57 1000kW C
+                    description: null
+                    companyId: 1
+                    company: null
+                    ownerId: 742
+                    owner: null
+                    createdDate: '2017-02-23T00:45:37.45'
+                    lastModified: '2017-02-23T00:45:37.45'
+                    lastModifiedById: 742
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1
+                      firstName: System
+                      lastName: Account
+                      jobTitle: System
+                      createdByUserId: null
+                      createdByUser: null
+                      status: 0
+                      createdDateUtc: '2016-09-01T00:00:00'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: null
+                      uuid: null
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: null
+                      roles: []
+                      logins: []
+                      id: 742
+                      normalizedUserName: null
+                      email: FS108328@FIRSTSOLAR.COM
+                      normalizedEmail: null
+                      concurrencyStamp: c3c3e3e9-add2-4f51-b23d-fc9ad96a584a
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10332
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5093
+                    owner: null
+                    createdDate: '2025-11-21T15:24:54.293'
+                    lastModified: '2025-11-21T15:24:54.293'
+                    lastModifiedById: 5093
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jesse
+                      lastName: Milam
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:48:03.647'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2025-09-24T18:21:27.657'
+                      uuid: 626e7c4e-0a96-4af0-996c-c5e979c25df1
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-02-02T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5093
+                      normalizedUserName: null
+                      email: jmilam@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 9744b672-ed90-44f0-8b4e-ac9c2926240f
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10333
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5093
+                    owner: null
+                    createdDate: '2025-11-21T10:31:46.4'
+                    lastModified: '2025-11-21T10:31:46.4'
+                    lastModifiedById: 5093
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jesse
+                      lastName: Milam
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:48:03.647'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2025-09-24T18:21:27.657'
+                      uuid: 626e7c4e-0a96-4af0-996c-c5e979c25df1
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-02-02T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5093
+                      normalizedUserName: null
+                      email: jmilam@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 1eb43180-5df0-471a-9367-94bae3bfeefa
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10334
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5093
+                    owner: null
+                    createdDate: '2025-11-21T10:32:48.2'
+                    lastModified: '2025-11-21T10:32:48.2'
+                    lastModifiedById: 5093
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jesse
+                      lastName: Milam
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:48:03.647'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2025-09-24T18:21:27.657'
+                      uuid: 626e7c4e-0a96-4af0-996c-c5e979c25df1
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-02-02T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5093
+                      normalizedUserName: null
+                      email: jmilam@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 3c17d76b-87d8-4690-8d4c-23d1c7ecd4a6
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10335
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5093
+                    owner: null
+                    createdDate: '2025-11-21T10:40:03.99'
+                    lastModified: '2025-11-21T10:40:03.99'
+                    lastModifiedById: 5093
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jesse
+                      lastName: Milam
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:48:03.647'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2025-09-24T18:21:27.657'
+                      uuid: 626e7c4e-0a96-4af0-996c-c5e979c25df1
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-02-02T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5093
+                      normalizedUserName: null
+                      email: jmilam@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 9a499c2e-0a9a-45a4-b096-118f1f039c8f
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10336
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5093
+                    owner: null
+                    createdDate: '2025-11-21T10:46:00.417'
+                    lastModified: '2025-11-21T10:46:00.417'
+                    lastModifiedById: 5093
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jesse
+                      lastName: Milam
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:48:03.647'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2025-09-24T18:21:27.657'
+                      uuid: 626e7c4e-0a96-4af0-996c-c5e979c25df1
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-02-02T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5093
+                      normalizedUserName: null
+                      email: jmilam@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: d73e037f-4444-47b5-a299-8c257ff9767a
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: false
+                    usePQCurves: false
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 10370
+                    name: ABB PVS800 57 1000kW C
+                    description: null
+                    companyId: 1042
+                    company: null
+                    ownerId: 5094
+                    owner: null
+                    createdDate: '2026-01-28T13:22:53.497'
+                    lastModified: '2026-01-28T13:22:53.497'
+                    lastModifiedById: 5094
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jason
+                      lastName: Jacobs
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:49:23.147'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2023-09-15T15:48:57.297'
+                      uuid: 83ff4266-9d81-4eff-82fd-75031b5f1dc8
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-01-30T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5094
+                      normalizedUserName: null
+                      email: jjacobs@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 495ee35f-64ec-40e2-933d-efd9ac84707c
+                  - status: 2
+                    model: PVS800-57-1000kW-C
+                    manufacturer: ABB
+                    powerRated: 1000
+                    apparentPower: 1000
+                    minDCPowerThreshold: 5000
+                    minVoltage: 600
+                    maxMPPVoltage: 850
+                    maxAbsoluteVoltage: 1100
+                    maxCurrent: 1710
+                    maxElevation: 2000
+                    outputVoltage: 400
+                    usekVACurves: true
+                    usePQCurves: true
+                    dataSource: 2
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 9111
+                    name: ABB PVS800 57 1000kW C
+                    description: This are some inverter test notes
+                    companyId: 1042
+                    company: null
+                    ownerId: 5094
+                    owner: null
+                    createdDate: '2023-01-12T14:14:44.26'
+                    lastModified: '2025-11-20T16:16:33.297'
+                    lastModifiedById: 5094
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1042
+                      firstName: Jason
+                      lastName: Jacobs
+                      jobTitle: Software Developer
+                      createdByUserId: 5091
+                      createdByUser: null
+                      status: 1
+                      createdDateUtc: '2021-09-23T19:49:23.147'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: '2023-09-15T15:48:57.297'
+                      uuid: 83ff4266-9d81-4eff-82fd-75031b5f1dc8
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: '2026-01-30T00:00:00'
+                      roles: []
+                      logins: []
+                      id: 5094
+                      normalizedUserName: null
+                      email: jjacobs@terabase.energy
+                      normalizedEmail: null
+                      concurrencyStamp: 07239ceb-f38b-4117-92af-a989ed2f224f
+                  - status: 5
+                    model: PVS980-58-1840kW-6 RevE
+                    manufacturer: ABB
+                    powerRated: 1840
+                    apparentPower: 2024
+                    minDCPowerThreshold: 10000
+                    minVoltage: 862
+                    maxMPPVoltage: 1500
+                    maxAbsoluteVoltage: 1500
+                    maxCurrent: 1925
+                    maxElevation: 4000
+                    outputVoltage: 608
+                    usekVACurves: true
+                    usePQCurves: false
+                    dataSource: 6
+                    efficiencyCurves: null
+                    kVACurves: null
+                    pqCurves: null
+                    inverterType: 2
+                    id: 918
+                    name: ABB PVS980-58-1840kW-6
+                    description: null
+                    companyId: 1
+                    company: null
+                    ownerId: 742
+                    owner: null
+                    createdDate: '2017-03-28T16:08:33.96'
+                    lastModified: '2021-05-19T19:14:38.2'
+                    lastModifiedById: 742
+                    lastModifiedBy:
+                      company: null
+                      companyId: 1
+                      firstName: System
+                      lastName: Account
+                      jobTitle: System
+                      createdByUserId: null
+                      createdByUser: null
+                      status: 0
+                      createdDateUtc: '2016-09-01T00:00:00'
+                      settings: null
+                      costCenter: null
+                      migrationAgreementAcceptance: true
+                      clientCredentialsCreatedOnUTC: null
+                      uuid: null
+                      userWeatherDownloads: null
+                      lastLoginDateUTC: null
+                      roles: []
+                      logins: []
+                      id: 742
+                      normalizedUserName: null
+                      email: FS108328@FIRSTSOLAR.COM
+                      normalizedEmail: null
+                      concurrencyStamp: 545c6e6a-2675-49c3-9707-b097d802fec2
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - Inverters
+      summary: Create an inverter
+      description: Creates a new inverter from the provided body. Response is the ID of the newley created inverter asset.
+      operationId: createInverter
+      x-doc-source: postman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inverter'
+            examples:
+              postman-inverter-inverter:
+                value:
+                  status: 2
+                  model: Sunny Highpower SHP150-US-20-PEAK3
+                  manufacturer: SMA
+                  powerRated: 150
+                  apparentPower: 150
+                  minDCPowerThreshold: 100
+                  minVoltage: 855
+                  maxMPPVoltage: 1450
+                  maxAbsoluteVoltage: 1500
+                  maxCurrent: 180
+                  maxElevation: 100
+                  outputVoltage: 600
+                  usekVACurves: true
+                  usePQCurves: false
+                  dataSource: 2
+                  efficiencyCurves:
+                  - id: 23210
+                    voltage: 880
+                    efficiencyPoints:
+                    - id: 161181
+                      power: 14.8065
+                      efficiency: 98.71
+                    - id: 161182
+                      power: 29.715
+                      efficiency: 99.05
+                    - id: 161183
+                      power: 44.541
+                      efficiency: 98.98
+                    - id: 161184
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 161185
+                      power: 111.2713
+                      efficiency: 98.82
+                    - id: 161186
+                      power: 147.87
+                      efficiency: 98.58
+                  - id: 23211
+                    voltage: 960
+                    efficiencyPoints:
+                    - id: 161187
+                      power: 14.808
+                      efficiency: 98.72
+                    - id: 161188
+                      power: 29.709
+                      efficiency: 99.03
+                    - id: 161189
+                      power: 44.559
+                      efficiency: 99.02
+                    - id: 161190
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 161191
+                      power: 111.2038
+                      efficiency: 98.76
+                    - id: 161192
+                      power: 147.78
+                      efficiency: 98.52
+                  - id: 23212
+                    voltage: 1200
+                    efficiencyPoints:
+                    - id: 161193
+                      power: 14.712
+                      efficiency: 98.08
+                    - id: 161194
+                      power: 29.589
+                      efficiency: 98.63
+                    - id: 161195
+                      power: 44.415
+                      efficiency: 98.7
+                    - id: 161196
+                      power: 74.0325
+                      efficiency: 98.71
+                    - id: 161197
+                      power: 110.9898
+                      efficiency: 98.57
+                    - id: 161198
+                      power: 147.48
+                      efficiency: 98.32
+                  kVACurves:
+                  - id: 8240
+                    elevation: 100
+                    kVAPoints:
+                    - id: 44146
+                      temperature: -25
+                      kVA: 150
+                    - id: 44147
+                      temperature: 50
+                      kVA: 150
+                    - id: 44148
+                      temperature: 50
+                      kVA: 150
+                    - id: 44149
+                      temperature: 60
+                      kVA: 127
+                    - id: 44150
+                      temperature: 62
+                      kVA: 0
+                  pqCurves: []
+                  inverterType: 1
+                  name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                  description: null
+      responses:
+        '200':
+          description: Created inverter ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+              examples:
+                postman-inverter:
+                  value:
+                    id: 10372
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/InverterOverview:
+    get:
+      tags:
+      - Inverters
+      summary: Get inverter overview list
+      description: "# Inverter Overview\n\nReturns a list of all available Inverters however with simplified data properties.\n\n## Overview\n\nThis endpoint provides a lightweight version of the full inverter list, returning essential inverter information without the complete technical specifications and detailed configuration data. It's optimized for scenarios where you need a quick overview of available inverters without the overhead of fetching complete inverter records.\n\n## Response Fields\n\nThe simplified response includes the following fields for each inverter:\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `id` | integer | Unique identifier for the inverter |\n| `ownerId` | integer | ID of the user or organization that owns this inverter configuration |\n| `name` | string | Display name for the inverter |\n| `status` | integer | Current status of the inverter record (1=Draft, 2=In Review, 3=Active, 4=Archived) |\n| `lastModified` | string (ISO 8601) | Timestamp of the last modification to this inverter record |\n| `lastModifiedBy` | object | User who last modified the record |\n| `lastModifiedBy.firstName` | string | First name of the user who last modified the record |\n| `lastModifiedBy.lastName` | string | Last name of the user who last modified the record |\n| `model` | string | Manufacturer's model number/name for the inverter |\n| `manufacturer` | string | Name of the inverter manufacturer |\n| `powerRated` | number | Rated power output of the inverter in kW |\n| `outputVoltage` | number | Output voltage of the inverter in volts |\n| `minVoltage` | number | Minimum operating voltage in volts |\n| `maxMPPVoltage` | number | Maximum Power Point (MPP) voltage in volts |\n| `inverterType` | integer | Type classification of the inverter (1=String Inverter, 2=Central Inverter) |\n\n## Excluded Fields\n\nCompared to the full inverter endpoint, this simplified overview **excludes**:\n\n- Detailed efficiency curves and performance data\n    \n- Complete electrical specifications and ratings\n    \n- Thermal characteristics and derating factors\n    \n- Advanced configuration parameters\n    \n- Certification and compliance documentation\n    \n- Extended metadata and custom fields\n    \n\n## Use Cases\n\n### When to Use This Endpoint\n\n- **Dashboard displays** - Populating dropdown lists or selection menus\n    \n- **Quick searches** - Finding inverters by name or manufacturer without loading full details\n    \n- **List views** - Displaying tables of available inverters with basic information\n    \n- **Performance optimization** - Reducing payload size and response time for overview screens\n    \n- **Mobile applications** - Minimizing data transfer for bandwidth-constrained environments\n    \n\n### When to Use the Full Endpoint\n\n- **Detailed analysis** - When you need complete technical specifications for engineering calculations\n    \n- **Configuration management** - Setting up or modifying inverter parameters in a project\n    \n- **Reporting** - Generating comprehensive reports that require all inverter data\n    \n- **Data export** - Extracting complete inverter information for external systems\n"
+      operationId: getInverterOverview
+      x-doc-source: postman
+      responses:
+        '200':
+          description: Inverter overviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InverterOverview'
+              examples:
+                postman-inverter-overview:
+                  value:
+                  - id: 8344
+                    ownerId: 5109
+                    name: Ginlong Technologies Solis-125K-EHV-5G
+                    status: 3
+                    lastModified: '2022-02-04T13:54:22.28'
+                    lastModifiedBy:
+                      firstName: Martin
+                      lastName: Schneider
+                    model: Solis-125K-EHV-5G
+                    manufacturer: Ginlong Technologies
+                    powerRated: 125
+                    outputVoltage: 600
+                    minVoltage: 860
+                    maxMPPVoltage: 1450
+                    inverterType: 1
+                  - id: 8651
+                    ownerId: 5109
+                    name: SMA Sunny Central 4200 UP_PV SYST IMPORT
+                    status: 3
+                    lastModified: '2022-01-13T09:01:54.4'
+                    lastModifiedBy:
+                      firstName: Martin
+                      lastName: Schneider
+                    model: Sunny Central 4200 UP
+                    manufacturer: SMA
+                    powerRated: 4200
+                    outputVoltage: 630
+                    minVoltage: 921
+                    maxMPPVoltage: 1325
+                    inverterType: 2
+                  - id: 8693
+                    ownerId: 4876
+                    name: Power Electronics FS4200MU CE 20201203
+                    status: 2
+                    lastModified: '2022-02-23T21:33:50.397'
+                    lastModifiedBy:
+                      firstName: Jason
+                      lastName: Spokes
+                    model: FS4200MU CE 20201203
+                    manufacturer: Power Electronics
+                    powerRated: 4200
+                    outputVoltage: 34500
+                    minVoltage: 934
+                    maxMPPVoltage: 1500
+                    inverterType: 2
+                  - id: 8728
+                    ownerId: 5109
+                    name: Power Electronics FS4200MU CE 20210422, temp extension
+                    status: 3
+                    lastModified: '2024-10-24T09:45:36.183'
+                    lastModifiedBy:
+                      firstName: Andrija
+                      lastName: Marusic
+                    model: FS4200MU CE 20210422
+                    manufacturer: Power Electronics
+                    powerRated: 4200
+                    outputVoltage: 34500
+                    minVoltage: 934
+                    maxMPPVoltage: 1500
+                    inverterType: 2
+                  - id: 8736
+                    ownerId: 5032
+                    name: Huawei Technologies SUN2000-200KTL-H2
+                    status: 3
+                    lastModified: '2022-04-20T07:38:43.21'
+                    lastModifiedBy:
+                      firstName: Claude
+                      lastName: Deuda
+                    model: SUN2000-200KTL-H2
+                    manufacturer: Huawei Technologies
+                    powerRated: 185
+                    outputVoltage: 800
+                    minVoltage: 500
+                    maxMPPVoltage: 1500
+                    inverterType: 1
+                  - id: 8744
+                    ownerId: 3927
+                    name: imported-Power Electronics FS3190MU CE 20190927
+                    status: 3
+                    lastModified: '2022-03-17T04:13:27.363'
+                    lastModifiedBy:
+                      firstName: Thang
+                      lastName: Le
+                    model: imported-FS3190MU CE 20190927
+                    manufacturer: Power Electronics
+                    powerRated: 3300
+                    outputVoltage: 34500
+                    minVoltage: 849
+                    maxMPPVoltage: 1310
+                    inverterType: 2
+                  - id: 8956
+                    ownerId: 5093
+                    name: TMEIC PVU-L840GR 25C
+                    status: 2
+                    lastModified: '2022-09-16T13:17:12.46'
+                    lastModifiedBy:
+                      firstName: Jesse
+                      lastName: Milam
+                    model: PVU-L840GR 25C
+                    manufacturer: TMEIC
+                    powerRated: 840
+                    outputVoltage: 630
+                    minVoltage: 915
+                    maxMPPVoltage: 1300
+                    inverterType: 2
+                  - id: 9008
+                    ownerId: 5032
+                    name: Sungrow SG3125HV-30
+                    status: 3
+                    lastModified: '2022-10-13T01:56:32.4'
+                    lastModifiedBy:
+                      firstName: Carol
+                      lastName: Aber
+                    model: SG3125HV-30
+                    manufacturer: Sungrow
+                    powerRated: 3125
+                    outputVoltage: 600
+                    minVoltage: 875
+                    maxMPPVoltage: 1300
+                    inverterType: 2
+                  - id: 9011
+                    ownerId: 5032
+                    name: Huawei Technologies SUN2000-330KTL-H1-Preliminary V0.1
+                    status: 4
+                    lastModified: '2022-10-12T22:28:35.933'
+                    lastModifiedBy:
+                      firstName: Claude
+                      lastName: Deuda
+                    model: SUN2000-330KTL-H1-Preliminary V0.1
+                    manufacturer: Huawei Technologies
+                    powerRated: 300
+                    outputVoltage: 800
+                    minVoltage: 500
+                    maxMPPVoltage: 1500
+                    inverterType: 2
+                  - id: 9017
+                    ownerId: 4876
+                    name: Huawei Technologies SUN2000-330KTL-H1-Preliminary V0.1
+                    status: 4
+                    lastModified: '2023-01-23T23:50:02.017'
+                    lastModifiedBy:
+                      firstName: Jason
+                      lastName: Spokes
+                    model: SUN2000-330KTL-H1-Preliminary V0.1
+                    manufacturer: Huawei Technologies
+                    powerRated: 300
+                    outputVoltage: 800
+                    minVoltage: 500
+                    maxMPPVoltage: 1500
+                    inverterType: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/Status:
+    post:
+      tags:
+      - Inverters
+      summary: Change status of one or more inverters
+      description: Change the status of one or more Inverters.
+      operationId: changeInverterStatus
+      x-doc-source: postman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/StatusChangeItem'
+            examples:
+              postman-inverter-change-status:
+                value:
+                - status: 3
+                  id: 10373
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/kVA:
+    post:
+      tags:
+      - Inverters
+      summary: Calculate kVA for an inverter at given conditions
+      description: Get the kVA rating of an Inverter by providing the entire Inverter entity, elevation, temperature, and cooling temp state.
+      operationId: calculateInverterkVA
+      x-doc-source: postman
+      parameters:
+      - name: elevation
+        in: query
+        schema:
+          type: number
+      - name: temperature
+        in: query
+        schema:
+          type: number
+      - name: useCoolingTemp
+        in: query
+        schema:
+          type: boolean
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inverter'
+            examples:
+              postman-inverter-post-kva:
+                value:
+                  status: 2
+                  model: Sunny Highpower SHP150-US-20-PEAK3
+                  manufacturer: SMA
+                  powerRated: 150
+                  apparentPower: 150
+                  minDCPowerThreshold: 100
+                  minVoltage: 855
+                  maxMPPVoltage: 1450
+                  maxAbsoluteVoltage: 1500
+                  maxCurrent: 180
+                  maxElevation: 100
+                  outputVoltage: 600
+                  usekVACurves: true
+                  usePQCurves: false
+                  dataSource: 2
+                  efficiencyCurves:
+                  - id: 29409
+                    voltage: 880
+                    efficiencyPoints:
+                    - id: 208781
+                      power: 14.8065
+                      efficiency: 98.71
+                    - id: 208782
+                      power: 29.715
+                      efficiency: 99.05
+                    - id: 208783
+                      power: 44.541
+                      efficiency: 98.98
+                    - id: 208784
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 208785
+                      power: 111.2713
+                      efficiency: 98.82
+                    - id: 208786
+                      power: 147.87
+                      efficiency: 98.58
+                  - id: 29410
+                    voltage: 960
+                    efficiencyPoints:
+                    - id: 208787
+                      power: 14.808
+                      efficiency: 98.72
+                    - id: 208788
+                      power: 29.709
+                      efficiency: 99.03
+                    - id: 208789
+                      power: 44.559
+                      efficiency: 99.02
+                    - id: 208790
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 208791
+                      power: 111.2038
+                      efficiency: 98.76
+                    - id: 208792
+                      power: 147.78
+                      efficiency: 98.52
+                  - id: 29411
+                    voltage: 1200
+                    efficiencyPoints:
+                    - id: 208793
+                      power: 14.712
+                      efficiency: 98.08
+                    - id: 208794
+                      power: 29.589
+                      efficiency: 98.63
+                    - id: 208795
+                      power: 44.415
+                      efficiency: 98.7
+                    - id: 208796
+                      power: 74.0325
+                      efficiency: 98.71
+                    - id: 208797
+                      power: 110.9898
+                      efficiency: 98.57
+                    - id: 208798
+                      power: 147.48
+                      efficiency: 98.32
+                  kVACurves:
+                  - id: 10338
+                    elevation: 100
+                    kVAPoints:
+                    - id: 54563
+                      temperature: -25
+                      kVA: 150
+                    - id: 54564
+                      temperature: 50
+                      kVA: 150
+                    - id: 54565
+                      temperature: 50
+                      kVA: 150
+                    - id: 54566
+                      temperature: 60
+                      kVA: 127
+                    - id: 54567
+                      temperature: 62
+                      kVA: 0
+                  pqCurves: []
+                  inverterType: 1
+                  id: 10373
+                  name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                  description: null
+                  companyId: 1042
+                  company: null
+                  ownerId: 8903
+                  createdDate: '2026-02-03T12:39:07.753'
+                  lastModified: '2026-02-03T12:39:07.753'
+                  lastModifiedById: 8903
+      responses:
+        '200':
+          description: kVA value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/kVAResponse'
+              examples:
+                postman-post-kva:
+                  value:
+                    kVa: 127
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/ParseONDFile:
+    post:
+      tags:
+      - Inverters
+      summary: Parse an OND file and return inverter data
+      description: This endpoint is used to parse an OND file. The response will be a valid Inverter object.
+      operationId: parseONDFile
+      x-doc-source: postman
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Parsed inverter data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inverter'
+              examples:
+                postman-parseondfile:
+                  value:
+                    status: 0
+                    model: SG3600UD
+                    manufacturer: Sungrow
+                    powerRated: 3600
+                    apparentPower: 3600
+                    minDCPowerThreshold: 18000
+                    minVoltage: 915
+                    maxMPPVoltage: 1300
+                    maxAbsoluteVoltage: 1500
+                    maxCurrent: 3300
+                    maxElevation: 10
+                    outputVoltage: 630
+                    usekVACurves: true
+                    usePQCurves: false
+                    dataSource: 1
+                    efficiencyCurves:
+                    - id: 0
+                      voltage: 915
+                      efficiencyPoints:
+                      - id: 0
+                        power: 360
+                        efficiency: 98.40999517517662
+                      - id: 0
+                        power: 720
+                        efficiency: 98.80000532422251
+                      - id: 0
+                        power: 1080
+                        efficiency: 98.91000261287257
+                      - id: 0
+                        power: 1800
+                        efficiency: 98.65000212371532
+                      - id: 0
+                        power: 2700
+                        efficiency: 98.52999811479269
+                      - id: 0
+                        power: 3600
+                        efficiency: 98.30000248753618
+                    - id: 0
+                      voltage: 1100
+                      efficiencyPoints:
+                      - id: 0
+                        power: 360
+                        efficiency: 98.24000305635565
+                      - id: 0
+                        power: 720
+                        efficiency: 98.70999743079813
+                      - id: 0
+                        power: 1080
+                        efficiency: 98.81999772714005
+                      - id: 0
+                        power: 1800
+                        efficiency: 98.58000432766218
+                      - id: 0
+                        power: 2700
+                        efficiency: 98.44999597084276
+                      - id: 0
+                        power: 3600
+                        efficiency: 98.23000446400798
+                    - id: 0
+                      voltage: 1300
+                      efficiencyPoints:
+                      - id: 0
+                        power: 360
+                        efficiency: 98.09999386875037
+                      - id: 0
+                        power: 720
+                        efficiency: 98.60000320450011
+                      - id: 0
+                        power: 1080
+                        efficiency: 98.7300030606301
+                      - id: 0
+                        power: 1800
+                        efficiency: 98.49999824888891
+                      - id: 0
+                        power: 2700
+                        efficiency: 98.37999842810625
+                      - id: 0
+                        power: 3600
+                        efficiency: 98.19000365757763
+                    kVACurves:
+                    - id: 0
+                      elevation: 20
+                      kVAPoints:
+                      - id: 0
+                        temperature: -25
+                        kVA: 3600
+                      - id: 0
+                        temperature: 20
+                        kVA: 3600
+                      - id: 0
+                        temperature: 45
+                        kVA: 3600
+                      - id: 0
+                        temperature: 50
+                        kVA: 3240
+                      - id: 0
+                        temperature: 60
+                        kVA: 0
+                    pqCurves: null
+                    inverterType: 0
+                    id: 0
+                    name: Sungrow SG3600UD
+                    description: null
+                    companyId: 0
+                    company: null
+                    ownerId: 0
+                    owner: null
+                    createdDate: '0001-01-01T00:00:00'
+                    lastModified: '0001-01-01T00:00:00'
+                    lastModifiedById: 0
+                    lastModifiedBy: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/{inverterId}:
+    get:
+      tags:
+      - Inverters
+      summary: Get an inverter by ID
+      description: Creates a .PPI file, which can be used to import the Inverter into PlantPredict for another user.
+      operationId: getInverter
+      x-doc-source: postman
+      parameters:
+      - name: inverterId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Inverter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inverter'
+              examples:
+                postman-inverter:
+                  value:
+                    status: 2
+                    model: Sunny Highpower SHP150-US-20-PEAK3
+                    manufacturer: SMA
+                    powerRated: 150
+                    apparentPower: 150
+                    minDCPowerThreshold: 100
+                    minVoltage: 855
+                    maxMPPVoltage: 1450
+                    maxAbsoluteVoltage: 1500
+                    maxCurrent: 180
+                    maxElevation: 100
+                    outputVoltage: 600
+                    usekVACurves: true
+                    usePQCurves: false
+                    dataSource: 2
+                    efficiencyCurves:
+                    - id: 29409
+                      voltage: 880
+                      efficiencyPoints:
+                      - id: 208781
+                        power: 14.8065
+                        efficiency: 98.71
+                      - id: 208782
+                        power: 29.715
+                        efficiency: 99.05
+                      - id: 208783
+                        power: 44.541
+                        efficiency: 98.98
+                      - id: 208784
+                        power: 74.22
+                        efficiency: 98.96
+                      - id: 208785
+                        power: 111.2713
+                        efficiency: 98.82
+                      - id: 208786
+                        power: 147.87
+                        efficiency: 98.58
+                    - id: 29410
+                      voltage: 960
+                      efficiencyPoints:
+                      - id: 208787
+                        power: 14.808
+                        efficiency: 98.72
+                      - id: 208788
+                        power: 29.709
+                        efficiency: 99.03
+                      - id: 208789
+                        power: 44.559
+                        efficiency: 99.02
+                      - id: 208790
+                        power: 74.22
+                        efficiency: 98.96
+                      - id: 208791
+                        power: 111.2038
+                        efficiency: 98.76
+                      - id: 208792
+                        power: 147.78
+                        efficiency: 98.52
+                    - id: 29411
+                      voltage: 1200
+                      efficiencyPoints:
+                      - id: 208793
+                        power: 14.712
+                        efficiency: 98.08
+                      - id: 208794
+                        power: 29.589
+                        efficiency: 98.63
+                      - id: 208795
+                        power: 44.415
+                        efficiency: 98.7
+                      - id: 208796
+                        power: 74.0325
+                        efficiency: 98.71
+                      - id: 208797
+                        power: 110.9898
+                        efficiency: 98.57
+                      - id: 208798
+                        power: 147.48
+                        efficiency: 98.32
+                    kVACurves:
+                    - id: 10338
+                      elevation: 100
+                      kVAPoints:
+                      - id: 54563
+                        temperature: -25
+                        kVA: 150
+                      - id: 54564
+                        temperature: 50
+                        kVA: 150
+                      - id: 54565
+                        temperature: 50
+                        kVA: 150
+                      - id: 54566
+                        temperature: 60
+                        kVA: 127
+                      - id: 54567
+                        temperature: 62
+                        kVA: 0
+                    pqCurves: []
+                    inverterType: 1
+                    id: 10373
+                    name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                    description: null
+                    companyId: 1042
+                    company: null
+                    ownerId: 8903
+                    createdDate: '2026-02-03T12:39:07.753'
+                    lastModified: '2026-02-03T12:39:07.753'
+                    lastModifiedById: 8903
+            text/plain:
+              examples:
+                postman-get-export:
+                  value: "{\n    \"status\": 2,\n    \"model\": \"Sunny Highpower SHP150-US-20-PEAK3\",\n    \"manufacturer\": \"SMA\",\n    \"powerRated\": 150,\n    \"apparentPower\": 150,\n    \"minDCPowerThreshold\": 100,\n    \"minVoltage\": 855,\n    \"maxMPPVoltage\": 1450,\n    \"maxAbsoluteVoltage\": 1500,\n    \"maxCurrent\": 180,\n    \"maxElevation\": 100,\n    \"outputVoltage\": 600,\n    \"usekVACurves\": true,\n    \"usePQCurves\": false,\n    \"dataSource\": 2,\n    \"efficiencyCurves\": [\n        {\n            \"id\": 29409,\n            \"voltage\": 880,\n            \"efficiencyPoints\": [\n                {\n                    \"id\": 208781,\n                    \"power\": 14.8065,\n                    \"efficiency\": 98.71\n                },\n                {\n                    \"id\": 208782,\n                    \"power\": 29.715,\n                    \"efficiency\": 99.05\n                },\n                {\n                    \"id\": 208783,\n                    \"power\": 44.541,\n                    \"efficiency\": 98.98\n                },\n                {\n                    \"id\": 208784,\n                    \"power\": 74.22,\n                    \"efficiency\": 98.96\n                },\n                {\n                    \"id\": 208785,\n                    \"power\": 111.2713,\n                    \"efficiency\": 98.82\n                },\n                {\n                    \"id\": 208786,\n                    \"power\": 147.87,\n                    \"efficiency\": 98.58\n                }\n            ]\n        },\n        {\n            \"id\": 29410,\n            \"voltage\": 960,\n            \"efficiencyPoints\": [\n                {\n                    \"id\": 208787,\n                    \"power\": 14.808,\n                    \"efficiency\": 98.72\n                },\n                {\n                    \"id\": 208788,\n                    \"power\": 29.709,\n                    \"efficiency\": 99.03\n                },\n                {\n                    \"id\": 208789,\n                    \"power\": 44.559,\n                    \"efficiency\": 99.02\n                },\n                {\n                    \"id\": 208790,\n                    \"power\": 74.22,\n                    \"efficiency\": 98.96\n                },\n                {\n                    \"id\": 208791,\n                    \"power\": 111.2038,\n                    \"efficiency\": 98.76\n                },\n                {\n                    \"id\": 208792,\n                    \"power\": 147.78,\n                    \"efficiency\": 98.52\n                }\n            ]\n        },\n        {\n            \"id\": 29411,\n            \"voltage\": 1200,\n            \"efficiencyPoints\": [\n                {\n                    \"id\": 208793,\n                    \"power\": 14.712,\n                    \"efficiency\": 98.08\n                },\n                {\n                    \"id\": 208794,\n                    \"power\": 29.589,\n                    \"efficiency\": 98.63\n                },\n                {\n                    \"id\": 208795,\n                    \"power\": 44.415,\n                    \"efficiency\": 98.7\n                },\n                {\n                    \"id\": 208796,\n                    \"power\": 74.0325,\n                    \"efficiency\": 98.71\n                },\n                {\n                    \"id\": 208797,\n                    \"power\": 110.9898,\n                    \"efficiency\": 98.57\n                },\n                {\n                    \"id\": 208798,\n                    \"power\": 147.48,\n                    \"efficiency\": 98.32\n                }\n            ]\n        }\n    ],\n    \"kVACurves\": [\n        {\n            \"id\": 10338,\n            \"elevation\": 100,\n            \"kVAPoints\": [\n                {\n                    \"id\": 54563,\n                    \"temperature\": -25,\n                    \"kVA\": 150\n                },\n                {\n                    \"id\": 54564,\n                    \"temperature\": 50,\n                    \"kVA\": 150\n                },\n                {\n                    \"id\": 54565,\n                    \"temperature\": 50,\n                    \"kVA\": 150\n                },\n                {\n                    \"id\": 54566,\n                    \"temperature\": 60,\n                    \"kVA\": 127\n                },\n                {\n                    \"id\": 54567,\n                    \"temperature\": 62,\n                    \"kVA\": 0\n                }\n            ]\n        }\n    ],\n    \"pqCurves\": [],\n    \"inverterType\": 1,\n    \"id\": 10373,\n    \"name\": \"SMA Sunny Highpower SHP150-US-20-PEAK3\",\n    \"description\": \"Sample test note\",\n    \"companyId\": 1042,\n    \"company\": null,\n    \"ownerId\": 8903\n    \"createdDate\": \"2026-02-03T12:39:07.753\",\n    \"lastModified\": \"2026-02-03T12:50:48.95\",\n    \"lastModifiedById\": 8903\n}"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags:
+      - Inverters
+      summary: Update an inverter
+      description: Updates an existing Inverter, where the target inverter to update is the ID provided in the URL.
+      operationId: updateInverter
+      x-doc-source: postman
+      parameters:
+      - name: inverterId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inverter'
+            examples:
+              postman-inverter-inverter:
+                value:
+                  status: 2
+                  model: Sunny Highpower SHP150-US-20-PEAK3 - Updated Name
+                  manufacturer: SMA
+                  powerRated: 150
+                  apparentPower: 150
+                  minDCPowerThreshold: 100
+                  minVoltage: 855
+                  maxMPPVoltage: 1450
+                  maxAbsoluteVoltage: 1500
+                  maxCurrent: 180
+                  maxElevation: 100
+                  outputVoltage: 600
+                  usekVACurves: true
+                  usePQCurves: false
+                  dataSource: 2
+                  efficiencyCurves:
+                  - id: 29406
+                    voltage: 880
+                    efficiencyPoints:
+                    - id: 208763
+                      power: 14.8065
+                      efficiency: 98.71
+                    - id: 208764
+                      power: 29.715
+                      efficiency: 99.05
+                    - id: 208765
+                      power: 44.541
+                      efficiency: 98.98
+                    - id: 208766
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 208767
+                      power: 111.2713
+                      efficiency: 98.82
+                    - id: 208768
+                      power: 147.87
+                      efficiency: 98.58
+                  - id: 29407
+                    voltage: 960
+                    efficiencyPoints:
+                    - id: 208769
+                      power: 14.808
+                      efficiency: 98.72
+                    - id: 208770
+                      power: 29.709
+                      efficiency: 99.03
+                    - id: 208771
+                      power: 44.559
+                      efficiency: 99.02
+                    - id: 208772
+                      power: 74.22
+                      efficiency: 98.96
+                    - id: 208773
+                      power: 111.2038
+                      efficiency: 98.76
+                    - id: 208774
+                      power: 147.78
+                      efficiency: 98.52
+                  - id: 29408
+                    voltage: 1200
+                    efficiencyPoints:
+                    - id: 208775
+                      power: 14.712
+                      efficiency: 98.08
+                    - id: 208776
+                      power: 29.589
+                      efficiency: 98.63
+                    - id: 208777
+                      power: 44.415
+                      efficiency: 98.7
+                    - id: 208778
+                      power: 74.0325
+                      efficiency: 98.71
+                    - id: 208779
+                      power: 110.9898
+                      efficiency: 98.57
+                    - id: 208780
+                      power: 147.48
+                      efficiency: 98.32
+                  kVACurves:
+                  - id: 10337
+                    elevation: 100
+                    kVAPoints:
+                    - id: 54558
+                      temperature: -25
+                      kVA: 150
+                    - id: 54559
+                      temperature: 50
+                      kVA: 150
+                    - id: 54560
+                      temperature: 50
+                      kVA: 150
+                    - id: 54561
+                      temperature: 60
+                      kVA: 127
+                    - id: 54562
+                      temperature: 62
+                      kVA: 0
+                  pqCurves: []
+                  inverterType: 1
+                  id: 10372
+                  name: SMA Sunny Highpower SHP150-US-20-PEAK3
+                  description: Sample description update
+                  companyId: 1042
+                  ownerId: 8903
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+      - Inverters
+      summary: Delete an inverter
+      description: Deletes an existing Inverter, where the target inverter to delete is the ID provided in the URL.
+      operationId: deleteInverter
+      x-doc-source: postman
+      parameters:
+      - name: inverterId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Inverter/{inverterId}/kVA:
+    get:
+      tags:
+      - Inverters
+      summary: Get stored kVA for an inverter
+      description: Get the kVA rating of an Inverter by Id.
+      operationId: getInverterkVA
+      x-doc-source: postman
+      parameters:
+      - name: inverterId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: kVA value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/kVAResponse'
+              examples:
+                postman-get-kva:
+                  value:
+                    kVa: 150
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    InverterOverview:
+      type: object
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: integer
+        name:
+          type: string
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Unknown
+          - DraftPrivate
+          - DraftShared
+          - Active
+          - Retired
+          - Global
+          - GlobalRetired
+          description: LibraryStatusEnum
+        lastModified:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModifiedBy:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        powerRated:
+          type: number
+        outputVoltage:
+          type: number
+        minVoltage:
+          type: number
+        maxMPPVoltage:
+          type: number
+        inverterType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Unspecified
+          - String
+          - Central
+          description: InverterType
+    Inverter:
+      type: object
+      required:
+      - name
+      - manufacturer
+      - model
+      - powerRated
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Unknown
+          - DraftPrivate
+          - DraftShared
+          - Active
+          - Retired
+          - Global
+          - GlobalRetired
+          description: LibraryStatusEnum
+        model:
+          type: string
+        manufacturer:
+          type: string
+        powerRated:
+          type: number
+          description: kW
+        apparentPower:
+          type: number
+        minDCPowerThreshold:
+          type: number
+        minVoltage:
+          type: number
+        maxMPPVoltage:
+          type: number
+        maxAbsoluteVoltage:
+          type: number
+        maxCurrent:
+          type: number
+        maxElevation:
+          type: number
+        outputVoltage:
+          type: number
+        usekVACurves:
+          type: boolean
+        usePQCurves:
+          type: boolean
+        dataSource:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          x-enum-varnames:
+          - Manufacturer
+          - PVsyst
+          - UniversityOfGeneva
+          - Photon
+          - SandiaDatabase
+          - Custom
+          - PlantPredict
+          description: DataSourceType
+        inverterType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Unspecified
+          - String
+          - Central
+          description: InverterType
+        efficiencyCurves:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+        kVACurves:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+        pqCurves:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+        companyId:
+          type: integer
+          readOnly: true
+        ownerId:
+          type: integer
+          readOnly: true
+        createdDate:
+          type: string
+          readOnly: true
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModified:
+          type: string
+          readOnly: true
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+    kVAResponse:
+      type: object
+      properties:
+        kVa:
+          type: number
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Forbidden:
+      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
+
+        for this operation (e.g. status-change endpoints require elevated
+
+        privileges that not every API client is granted). Response body is
+
+        typically empty.
+
+        '
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'

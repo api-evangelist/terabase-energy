@@ -1,0 +1,2105 @@
+{
+  "item": [
+    {
+      "id": "d8b15def-80b8-4606-a16d-25f302fd01f9",
+      "name": "ShadeEngine",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "1e92cb20-3475-4fe7-a4a3-c01e3dd7801d",
+          "name": "Get Shade Engine Run information",
+          "request": {
+            "name": "Get Shade Engine Run information",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "ProcessingStatus"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "4c908413-3b82-4936-ab82-f0c8382303a9",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "ProcessingStatus"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "24a4aa91-085e-4a94-a53f-836b9d0551c1",
+          "name": "Get PVC export",
+          "request": {
+            "name": "Get PVC export",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "ExportPVC"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a1ed0af0-0e5d-4c0e-ae9a-efd42f170e48",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "ExportPVC"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1ab8873f-8d08-40a3-9db8-1c890349f38f",
+          "name": "Get shade engine input data from blob storage using a prediction id, with optional include of geometry (PVJ) data.",
+          "request": {
+            "name": "Get shade engine input data from blob storage using a prediction id, with optional include of geometry (PVJ) data.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Properties",
+                ":month"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "includePVJGeoms",
+                  "value": "false"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "1",
+                  "key": "month",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "38095398-d12d-4a1a-a730-fb644c70e8a7",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Properties",
+                    ":month"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "includePVJGeoms",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "1",
+                      "key": "month",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "489f2026-9859-487e-a913-5ce9c8249708",
+          "name": "Get shade engine output data from blob storage using a prediction id",
+          "request": {
+            "name": "Get shade engine output data from blob storage using a prediction id",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Results"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "excludeEngineData",
+                  "value": "true"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f027ddd3-b431-4ec1-9c12-0456a8eab7e7",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Results"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "excludeEngineData",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"engineShadeData\": {\n    \"timestamps\": [\n      \"\",\n      \"\"\n    ]\n  },\n  \"uiShadeData\": {\n    \"averageBeamShade\": 7765.9803321648205,\n    \"averageShadingElectricalEffect\": 8572.41462797432,\n    \"averageTransposition\": 3132.329782720823,\n    \"averageCombined\": 2326.607403912626,\n    \"tables\": null,\n    \"inverterShadeResults\": [\n      \"\",\n      \"\"\n    ]\n  },\n  \"shadeTableData\": {\n    \"shadedFractions\": null\n  },\n  \"shadeEngineOutputTimestamp\": {\n    \"weatherIndex\": 8100,\n    \"averageShadePercentage\": 1291.656706060874,\n    \"averageShadeElectricalEffectPercentage\": 8044.455836495451,\n    \"inverterShadeResults\": [\n      \"\",\n      \"\"\n    ]\n  },\n  \"transpositionFactors\": null,\n  \"hasScheduledData\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f3975541-63e9-4e8b-a0ce-75d11e9b0e68",
+          "name": "Set shade engine output data in blob storage",
+          "request": {
+            "name": "Set shade engine output data in blob storage",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Results"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"engineShadeData\": {\n    \"timestamps\": \"<array,null>\"\n  },\n  \"uiShadeData\": {\n    \"averageBeamShade\": \"<double>\",\n    \"averageShadingElectricalEffect\": \"<double>\",\n    \"averageTransposition\": \"<double>\",\n    \"averageCombined\": \"<double>\",\n    \"tables\": \"<array,null>\",\n    \"inverterShadeResults\": \"<array,null>\"\n  },\n  \"shadeTableData\": {\n    \"shadedFractions\": \"<array,null>\"\n  },\n  \"shadeEngineOutputTimestamp\": {\n    \"weatherIndex\": \"<integer>\",\n    \"averageShadePercentage\": \"<double>\",\n    \"averageShadeElectricalEffectPercentage\": \"<double>\",\n    \"inverterShadeResults\": \"<array,null>\"\n  },\n  \"transpositionFactors\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "86676b45-d904-400a-befa-fcb0c8948f87",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Results"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"engineShadeData\": {\n    \"timestamps\": \"<array,null>\"\n  },\n  \"uiShadeData\": {\n    \"averageBeamShade\": \"<double>\",\n    \"averageShadingElectricalEffect\": \"<double>\",\n    \"averageTransposition\": \"<double>\",\n    \"averageCombined\": \"<double>\",\n    \"tables\": \"<array,null>\",\n    \"inverterShadeResults\": \"<array,null>\"\n  },\n  \"shadeTableData\": {\n    \"shadedFractions\": \"<array,null>\"\n  },\n  \"shadeEngineOutputTimestamp\": {\n    \"weatherIndex\": \"<integer>\",\n    \"averageShadePercentage\": \"<double>\",\n    \"averageShadeElectricalEffectPercentage\": \"<double>\",\n    \"inverterShadeResults\": \"<array,null>\"\n  },\n  \"transpositionFactors\": \"<array,null>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "22e5c889-2e85-40e4-9988-bd50be40784c",
+          "name": "Trigger the shade engine to run calculation using a prediction id",
+          "request": {
+            "name": "Trigger the shade engine to run calculation using a prediction id",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Run"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "singleInverterId",
+                  "value": ""
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "462ff924-ebfd-4c5b-a38d-59e82425395f",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Run"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "singleInverterId",
+                      "value": ""
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0b293225-6b34-4e42-afab-ddd4c0b95125",
+          "name": "Convert a PVC to PVJ using the HTTP request's query string parameters and streamed uploaded of file.",
+          "request": {
+            "name": "Convert a PVC to PVJ using the HTTP request's query string parameters and streamed uploaded of file.",
+            "description": {},
+            "url": {
+              "path": [
+                "ShadeScene",
+                "ConvertPVCtoPVJ"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "Latitude",
+                  "value": "<double>"
+                },
+                {
+                  "disabled": false,
+                  "key": "Longitude",
+                  "value": "<double>"
+                },
+                {
+                  "disabled": false,
+                  "key": "RotateShadingResult",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": ""
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2453aa4b-8e92-4932-899a-c6f44e05e3ae",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ShadeScene",
+                    "ConvertPVCtoPVJ"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "Latitude",
+                      "value": "<double>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<double>"
+                    },
+                    {
+                      "key": "RotateShadingResult",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"latitude\": 3833.88995277927,\n  \"longitude\": 2557.2097022029784,\n  \"originLatitude\": 6776.326851307361,\n  \"originLongitude\": 6705.33282948388,\n  \"shadeSceneSurfaceArea\": null,\n  \"shadingObjectCount\": 3235,\n  \"shadingTableCount\": 9232,\n  \"shadingElectricalEffectModel\": 0,\n  \"fractionalShadingPercent\": 6035.936110976041,\n  \"useRotationAngleSchedule\": false,\n  \"boundingBoxType\": 0,\n  \"numberOfModuleFractions\": 4717,\n  \"tables\": null,\n  \"objects\": null\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9e6bdaa7-d6d6-40ba-8c64-6975e9b4a2ad",
+          "name": "/ShadeScene/ConvertSHDtoPVJ",
+          "request": {
+            "name": "/ShadeScene/ConvertSHDtoPVJ",
+            "description": {},
+            "url": {
+              "path": [
+                "ShadeScene",
+                "ConvertSHDtoPVJ"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "Latitude",
+                  "value": "<double>"
+                },
+                {
+                  "disabled": false,
+                  "key": "Longitude",
+                  "value": "<double>"
+                },
+                {
+                  "disabled": false,
+                  "key": "RotateShadingResult",
+                  "value": "<boolean>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": ""
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "0c5f6381-79b8-4829-af1b-e758ae1a7d56",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ShadeScene",
+                    "ConvertSHDtoPVJ"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "Latitude",
+                      "value": "<double>"
+                    },
+                    {
+                      "key": "Longitude",
+                      "value": "<double>"
+                    },
+                    {
+                      "key": "RotateShadingResult",
+                      "value": "<boolean>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "type": "file"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"latitude\": 3833.88995277927,\n  \"longitude\": 2557.2097022029784,\n  \"originLatitude\": 6776.326851307361,\n  \"originLongitude\": 6705.33282948388,\n  \"shadeSceneSurfaceArea\": null,\n  \"shadingObjectCount\": 3235,\n  \"shadingTableCount\": 9232,\n  \"shadingElectricalEffectModel\": 0,\n  \"fractionalShadingPercent\": 6035.936110976041,\n  \"useRotationAngleSchedule\": false,\n  \"boundingBoxType\": 0,\n  \"numberOfModuleFractions\": 4717,\n  \"tables\": null,\n  \"objects\": null\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e763f8f6-3901-4eef-89e8-1262a581bc80",
+          "name": "Clones a shade scene from source to target",
+          "request": {
+            "name": "Clones a shade scene from source to target",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Import",
+                ":propertiesKey"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "propertiesKey",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"powerFactor\": \"<double>\",\n  \"id\": \"<long>\",\n  \"resultList\": \"<array,null>\",\n  \"blocks\": \"<array,null>\",\n  \"transformers\": \"<array,null>\",\n  \"transmissionLines\": \"<array,null>\",\n  \"ess\": {\n    \"essInputs\": {\n      \"chargeAlgorithm\": \"<integer>\",\n      \"factor\": \"<double>\",\n      \"hvacFullLoadLoss\": \"<double>\",\n      \"hvacNoLoadLoss\": \"<double>\",\n      \"inverterCapacity\": \"<double>\",\n      \"inverterEfficiency\": \"<double>\",\n      \"mvCapacity\": \"<double>\",\n      \"mvFullLoadLoss\": \"<double>\",\n      \"mvNoLoadLoss\": \"<double>\",\n      \"nameplateEnergyCapacity\": \"<double>\",\n      \"roundtripDCEfficiencyCalendarDeg\": \"<double>\",\n      \"roundtripDCEfficiencyCycleDeg\": \"<double>\",\n      \"roundtripDCEfficiencyYear1\": \"<double>\",\n      \"usableEnergyCapacityCalendarDeg\": \"<double>\",\n      \"usableEnergyCapacityCycleDeg\": \"<double>\",\n      \"usableEnergyCapacityYear1\": \"<double>\",\n      \"id\": \"<long>\",\n      \"dispatchTable\": {\n        \"april\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"august\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"december\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"february\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"january\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"july\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"june\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"march\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"may\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"november\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"october\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"september\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"id\": \"<long>\"\n      },\n      \"essDispatchCustomInfo\": {\n        \"id\": \"<long>\",\n        \"fileName\": \"<string,null>\",\n        \"uploadedTimeStamp\": \"<dateTime>\",\n        \"dispatchCustom\": \"<array,null>\"\n      }\n    },\n    \"id\": \"<long>\",\n    \"pvsCombinedOutput\": \"<double>\",\n    \"resultList\": \"<array,null>\"\n  },\n  \"esS_Id\": \"<integer,null-int64>\",\n  \"exportSystem\": \"<boolean>\",\n  \"exportESS\": \"<boolean>\",\n  \"lgiaLimitTimeSeriesId\": \"<integer,null-int64>\",\n  \"lgiaLimitTimeSeries\": {\n    \"id\": \"<long>\",\n    \"predictionId\": \"<long>\",\n    \"type\": \"<integer>\",\n    \"name\": \"<string,null>\",\n    \"detailsCount\": \"<integer>\",\n    \"details\": \"<array,null>\",\n    \"detailValues\": \"<array,null>\"\n  },\n  \"useLGIALimitTimeSeries\": \"<boolean>\",\n  \"lgiaLimitTimeSeriesDetails\": \"<array,null>\",\n  \"lgiaLimitation\": \"<number,null-double>\",\n  \"nighttimeDisconnect\": \"<boolean>\",\n  \"availabilityLoss\": \"<number,null-double>\",\n  \"useCoolingTemp\": \"<boolean>\",\n  \"desiredDCACRatio\": \"<number,null-double>\",\n  \"powerPlantDesignType\": \"<integer>\",\n  \"customArrayConfig\": \"<string,null>\",\n  \"useCustomArrayConfig\": \"<boolean>\",\n  \"totalModuleArea\": \"<double>\",\n  \"maxMVTransformerVoltage\": \"<double>\",\n  \"maximumPlantOutput\": \"<double>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "d7c0bce2-83a7-4009-a2f3-39b7bb1efad3",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Import",
+                    ":propertiesKey"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "propertiesKey",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"powerFactor\": \"<double>\",\n  \"id\": \"<long>\",\n  \"resultList\": \"<array,null>\",\n  \"blocks\": \"<array,null>\",\n  \"transformers\": \"<array,null>\",\n  \"transmissionLines\": \"<array,null>\",\n  \"ess\": {\n    \"essInputs\": {\n      \"chargeAlgorithm\": \"<integer>\",\n      \"factor\": \"<double>\",\n      \"hvacFullLoadLoss\": \"<double>\",\n      \"hvacNoLoadLoss\": \"<double>\",\n      \"inverterCapacity\": \"<double>\",\n      \"inverterEfficiency\": \"<double>\",\n      \"mvCapacity\": \"<double>\",\n      \"mvFullLoadLoss\": \"<double>\",\n      \"mvNoLoadLoss\": \"<double>\",\n      \"nameplateEnergyCapacity\": \"<double>\",\n      \"roundtripDCEfficiencyCalendarDeg\": \"<double>\",\n      \"roundtripDCEfficiencyCycleDeg\": \"<double>\",\n      \"roundtripDCEfficiencyYear1\": \"<double>\",\n      \"usableEnergyCapacityCalendarDeg\": \"<double>\",\n      \"usableEnergyCapacityCycleDeg\": \"<double>\",\n      \"usableEnergyCapacityYear1\": \"<double>\",\n      \"id\": \"<long>\",\n      \"dispatchTable\": {\n        \"april\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"august\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"december\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"february\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"january\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"july\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"june\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"march\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"may\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"november\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"october\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"september\": {\n          \"hour0\": \"<boolean>\",\n          \"hour1\": \"<boolean>\",\n          \"hour10\": \"<boolean>\",\n          \"hour11\": \"<boolean>\",\n          \"hour12\": \"<boolean>\",\n          \"hour13\": \"<boolean>\",\n          \"hour14\": \"<boolean>\",\n          \"hour15\": \"<boolean>\",\n          \"hour16\": \"<boolean>\",\n          \"hour17\": \"<boolean>\",\n          \"hour18\": \"<boolean>\",\n          \"hour19\": \"<boolean>\",\n          \"hour2\": \"<boolean>\",\n          \"hour20\": \"<boolean>\",\n          \"hour21\": \"<boolean>\",\n          \"hour22\": \"<boolean>\",\n          \"hour23\": \"<boolean>\",\n          \"hour3\": \"<boolean>\",\n          \"hour4\": \"<boolean>\",\n          \"hour5\": \"<boolean>\",\n          \"hour6\": \"<boolean>\",\n          \"hour7\": \"<boolean>\",\n          \"hour8\": \"<boolean>\",\n          \"hour9\": \"<boolean>\",\n          \"id\": \"<long>\"\n        },\n        \"id\": \"<long>\"\n      },\n      \"essDispatchCustomInfo\": {\n        \"id\": \"<long>\",\n        \"fileName\": \"<string,null>\",\n        \"uploadedTimeStamp\": \"<dateTime>\",\n        \"dispatchCustom\": \"<array,null>\"\n      }\n    },\n    \"id\": \"<long>\",\n    \"pvsCombinedOutput\": \"<double>\",\n    \"resultList\": \"<array,null>\"\n  },\n  \"esS_Id\": \"<integer,null-int64>\",\n  \"exportSystem\": \"<boolean>\",\n  \"exportESS\": \"<boolean>\",\n  \"lgiaLimitTimeSeriesId\": \"<integer,null-int64>\",\n  \"lgiaLimitTimeSeries\": {\n    \"id\": \"<long>\",\n    \"predictionId\": \"<long>\",\n    \"type\": \"<integer>\",\n    \"name\": \"<string,null>\",\n    \"detailsCount\": \"<integer>\",\n    \"details\": \"<array,null>\",\n    \"detailValues\": \"<array,null>\"\n  },\n  \"useLGIALimitTimeSeries\": \"<boolean>\",\n  \"lgiaLimitTimeSeriesDetails\": \"<array,null>\",\n  \"lgiaLimitation\": \"<number,null-double>\",\n  \"nighttimeDisconnect\": \"<boolean>\",\n  \"availabilityLoss\": \"<number,null-double>\",\n  \"useCoolingTemp\": \"<boolean>\",\n  \"desiredDCACRatio\": \"<number,null-double>\",\n  \"powerPlantDesignType\": \"<integer>\",\n  \"customArrayConfig\": \"<string,null>\",\n  \"useCustomArrayConfig\": \"<boolean>\",\n  \"totalModuleArea\": \"<double>\",\n  \"maxMVTransformerVoltage\": \"<double>\",\n  \"maximumPlantOutput\": \"<double>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "58256b22-76f6-4b5e-aa54-a5ef274f07d3",
+          "name": "This operation will update the Prediction shade scene properties without deleting any results that may exist.",
+          "request": {
+            "name": "This operation will update the Prediction shade scene properties without deleting any results that may exist.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"<integer>\",\n  \"name\": \"<string,null>\",\n  \"createdDateUTC\": \"<string,null-date-time>\",\n  \"createdById\": \"<integer,null-int32>\",\n  \"sceneSurfaceArea\": \"<number,null-double>\",\n  \"dcFieldSurfaceArea\": \"<number,null-double>\",\n  \"collectorCount\": \"<integer,null-int32>\",\n  \"objectCount\": \"<integer,null-int32>\",\n  \"orientationTargetDCField\": \"<integer,null-int64>\",\n  \"calculationSettingsTargetDCField\": \"<integer,null-int64>\",\n  \"siteTableCount\": \"<integer>\",\n  \"rotation\": \"<boolean>\",\n  \"customTableRotationScheduleName\": \"<string,null>\",\n  \"customTableRotationUploadDate\": \"<string,null-date-time>\",\n  \"binType\": \"<integer>\",\n  \"collectorType\": \"<integer>\",\n  \"trackerRotationModel\": \"<integer>\",\n  \"shadingModel\": \"<integer>\",\n  \"fractionalShadingPercentage\": \"<number,null-double>\",\n  \"numberOfModuleFractions\": \"<integer,null-int32>\",\n  \"shadeObjectType\": \"<integer>\",\n  \"siteExceedsTableLimit\": \"<boolean>\",\n  \"engineInputData\": {\n    \"pvjData\": {\n      \"latitude\": \"<double>\",\n      \"longitude\": \"<double>\",\n      \"originLatitude\": \"<number,null-double>\",\n      \"originLongitude\": \"<number,null-double>\",\n      \"shadeSceneSurfaceArea\": \"<number,null-double>\",\n      \"shadingObjectCount\": \"<integer>\",\n      \"shadingTableCount\": \"<integer>\",\n      \"shadingElectricalEffectModel\": \"<integer>\",\n      \"fractionalShadingPercent\": \"<double>\",\n      \"useRotationAngleSchedule\": \"<boolean>\",\n      \"boundingBoxType\": \"<integer>\",\n      \"numberOfModuleFractions\": \"<integer,null-int32>\",\n      \"tables\": \"<array,null>\",\n      \"objects\": \"<array,null>\"\n    },\n    \"engineInputs\": \"<array,null>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "664fec48-a5cb-4ae3-8d29-65bb571ebfd8",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"<integer>\",\n  \"name\": \"<string,null>\",\n  \"createdDateUTC\": \"<string,null-date-time>\",\n  \"createdById\": \"<integer,null-int32>\",\n  \"sceneSurfaceArea\": \"<number,null-double>\",\n  \"dcFieldSurfaceArea\": \"<number,null-double>\",\n  \"collectorCount\": \"<integer,null-int32>\",\n  \"objectCount\": \"<integer,null-int32>\",\n  \"orientationTargetDCField\": \"<integer,null-int64>\",\n  \"calculationSettingsTargetDCField\": \"<integer,null-int64>\",\n  \"siteTableCount\": \"<integer>\",\n  \"rotation\": \"<boolean>\",\n  \"customTableRotationScheduleName\": \"<string,null>\",\n  \"customTableRotationUploadDate\": \"<string,null-date-time>\",\n  \"binType\": \"<integer>\",\n  \"collectorType\": \"<integer>\",\n  \"trackerRotationModel\": \"<integer>\",\n  \"shadingModel\": \"<integer>\",\n  \"fractionalShadingPercentage\": \"<number,null-double>\",\n  \"numberOfModuleFractions\": \"<integer,null-int32>\",\n  \"shadeObjectType\": \"<integer>\",\n  \"siteExceedsTableLimit\": \"<boolean>\",\n  \"engineInputData\": {\n    \"pvjData\": {\n      \"latitude\": \"<double>\",\n      \"longitude\": \"<double>\",\n      \"originLatitude\": \"<number,null-double>\",\n      \"originLongitude\": \"<number,null-double>\",\n      \"shadeSceneSurfaceArea\": \"<number,null-double>\",\n      \"shadingObjectCount\": \"<integer>\",\n      \"shadingTableCount\": \"<integer>\",\n      \"shadingElectricalEffectModel\": \"<integer>\",\n      \"fractionalShadingPercent\": \"<double>\",\n      \"useRotationAngleSchedule\": \"<boolean>\",\n      \"boundingBoxType\": \"<integer>\",\n      \"numberOfModuleFractions\": \"<integer,null-int32>\",\n      \"tables\": \"<array,null>\",\n      \"objects\": \"<array,null>\"\n    },\n    \"engineInputs\": \"<array,null>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2c0b72d4-c17d-47a5-8587-a0142082ace5",
+          "name": "This operation will delete the Prediction shade scene properties.",
+          "request": {
+            "name": "This operation will delete the Prediction shade scene properties.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "0e88a528-9e9d-491d-80d8-23099bc5a69c",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "87339dce-34b6-4c57-9f7b-2261608b22a1",
+          "name": "Used to create a new 3D Scene from the supplied PVJData",
+          "request": {
+            "name": "Used to create a new 3D Scene from the supplied PVJData",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "PVJData"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": \"<double>\",\n  \"longitude\": \"<double>\",\n  \"originLatitude\": \"<number,null-double>\",\n  \"originLongitude\": \"<number,null-double>\",\n  \"shadeSceneSurfaceArea\": \"<number,null-double>\",\n  \"shadingObjectCount\": \"<integer>\",\n  \"shadingTableCount\": \"<integer>\",\n  \"shadingElectricalEffectModel\": \"<integer>\",\n  \"fractionalShadingPercent\": \"<double>\",\n  \"useRotationAngleSchedule\": \"<boolean>\",\n  \"boundingBoxType\": \"<integer>\",\n  \"numberOfModuleFractions\": \"<integer,null-int32>\",\n  \"tables\": \"<array,null>\",\n  \"objects\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "697a9c61-98e9-42e9-be09-3a4b5b639ff5",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "PVJData"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"latitude\": \"<double>\",\n  \"longitude\": \"<double>\",\n  \"originLatitude\": \"<number,null-double>\",\n  \"originLongitude\": \"<number,null-double>\",\n  \"shadeSceneSurfaceArea\": \"<number,null-double>\",\n  \"shadingObjectCount\": \"<integer>\",\n  \"shadingTableCount\": \"<integer>\",\n  \"shadingElectricalEffectModel\": \"<integer>\",\n  \"fractionalShadingPercent\": \"<double>\",\n  \"useRotationAngleSchedule\": \"<boolean>\",\n  \"boundingBoxType\": \"<integer>\",\n  \"numberOfModuleFractions\": \"<integer,null-int32>\",\n  \"tables\": \"<array,null>\",\n  \"objects\": \"<array,null>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3abb6f00-2620-4abf-bb2e-09cb4a695d00",
+          "name": "Update objects in an existing PVJData",
+          "request": {
+            "name": "Update objects in an existing PVJData",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "Objects"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objects\": \"<array,null>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "713763a7-f7c8-41ca-a69f-4d67e9b83964",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "Objects"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"objects\": \"<array,null>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5b50ed7b-0f0a-4b90-bcec-656abf46bb80",
+          "name": "This operation will set Inverter Transposition values.",
+          "request": {
+            "name": "This operation will set Inverter Transposition values.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "InverterTranspositionFactors"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": ""
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "990e513b-e189-40c7-860a-cd9be875aa2f",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "InverterTranspositionFactors"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "type": "file"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a4762325-09d5-4edf-94d2-571cbc329574",
+          "name": "Get a list of Inverter Transposition factors for a given prediction.",
+          "request": {
+            "name": "Get a list of Inverter Transposition factors for a given prediction.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "InverterTranspositionFactors"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ba47064a-1268-4e09-b53e-fd3bc4a26ecf",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "InverterTranspositionFactors"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ec476989-cb81-44cf-9f15-79d6cabae67f",
+          "name": "Used to get table rotation schedule template",
+          "request": {
+            "name": "Used to get table rotation schedule template",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "TableRotation",
+                "Template"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "329cfd89-cda1-4722-bed6-154b1871d0f5",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "TableRotation",
+                    "Template"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5160b0bb-542b-47ab-9897-5dac0abba3a7",
+          "name": "This operation will download the shade table in CSV format.",
+          "request": {
+            "name": "This operation will download the shade table in CSV format.",
+            "description": {},
+            "url": {
+              "path": [
+                "Project",
+                ":projectId",
+                "Prediction",
+                ":predictionId",
+                "ShadeScene",
+                "ShadeTableData"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "projectId",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<long>",
+                  "key": "predictionId",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c819fbf3-00ad-4465-b6d2-158110d50e69",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "Project",
+                    ":projectId",
+                    "Prediction",
+                    ":predictionId",
+                    "ShadeScene",
+                    "ShadeTableData"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "projectId",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<long>",
+                      "key": "predictionId",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "c3718c1f-914d-4e9f-ace0-eac17c92603e",
+    "name": "PlantPredict Shade Engine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The HTTP API used by the PlantPredict web application. This API can also be accessed directly by having your Company Admin generate API credentials. If you do not know your Company Admin, contact support@plantpredict.com for assistance.\n\nContact Support:\n Name: PlantPredict Support\n Email: support@plantpredict.com",
+      "type": "text/plain"
+    }
+  }
+}

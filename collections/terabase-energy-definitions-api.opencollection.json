@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "PlantPredict Definitions API",
+    "version": "12.13.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Definitions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all definitions or filter by enum type",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.plantpredict.terabase.energy/Definitions",
+            "params": [
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Enum type name (e.g. CellTechnologyTypeEnum). Omit to return all."
+              }
+            ]
+          },
+          "docs": "## Overview\n\nThis request calls the PlantPredict API **Definitions** endpoint to retrieve the list of available model definitions.\n\nEnsure these variables are correctly set in the active environment before sending the request.\n\n## Typical Use Cases\n\n- Retrieve available model definitions before **creating** a new project.\n    \n- Look up model definitions prior to **updating** an existing project.\n    \n- Inspect available model types and their identifiers for client-side validation or UI populati"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

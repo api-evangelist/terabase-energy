@@ -1,0 +1,349 @@
+openapi: 3.2.0
+info:
+  title: PlantPredict Financial Model API
+  version: 12.13.0
+  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+servers:
+- url: https://api.plantpredict.terabase.energy
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: FinancialModel
+  description: Financial model parameters and cashflow results
+paths:
+  /Project/{projectId}/Prediction/{predictionId}/FinancialModelParameters:
+    get:
+      tags:
+      - FinancialModel
+      summary: Get financial model parameters
+      description: "Returns the persisted financial model inputs and calculations for a prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: getFinancialModelParameters
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Financial model parameters
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                postman-get-parameters:
+                  value:
+                    id: 166274
+                    systemSizeAtPOI: 0.15
+                    systemInverterCapacity: 0.15
+                    systemSize: 0.195
+                    specificYieldUsedInAnalysis: 1504.9936308468727
+                    dcacAtPOI: 1.3
+                    dcacAtInverter: 1.3
+                    epcbosCost: 0.5
+                    epcCapitalCost: 0.0975
+                    developmentCostTotal: 0.03
+                    moduleCostTotal: 0.058499999999999996
+                    capitalCostTotalPreITC: 0.186
+                    capitalCostTotalPostITC: 0.13763999999999998
+                    yearOneEnergy: 293.4737580151402
+                    averageGCRPercentage: 40
+                    itcTotal: 0.04836
+                    basisForDepreciation: 0.15252
+                    bonusDepreciation: 0
+                    basisForMACRS: 0.15252
+                    salvageValue: 0.009300000000000001
+                    energyInput: 1504.9936308468727
+                    bosInput: 0.5
+                    developmentCostPerWatt: 0.2
+                    moduleCostPerWatt: 0.3
+                    itcPercentage: 26
+                    yearOneEnergyAdjustmentPercentage: 0
+                    annualSolarDegradationPercentage: 0.3
+                    ppaPrice: 25
+                    ppaEscalatorPercentage: 0
+                    omYearOne: 3.5
+                    omYearlyEscalatorPercentage: 2.5
+                    ppaDuration: 20
+                    postPPAPrice: 50
+                    postPPAPriceEscalationPercentage: 2
+                    projectLife: 35
+                    discountNPVPercentage: 6
+                    itcEligibilityPercentage: 100
+                    solarSalvageValuePercentage: 5
+                    insuranceCapitalCostPercentage: 0.15
+                    insuranceEscalatorPerYearPercentage: 0
+                    bonusDepreciationRate: 0
+                    stateTaxRate: 6
+                    federalTaxRate: 21
+                    solarLandLeaseCost: 0
+                    solarLandLeaseEscalationPercentage: 0
+                    solarPropertyTaxCost: 0
+                    solarPropertyTaxEscalationPercentage: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - FinancialModel
+      summary: Save financial model parameters
+      description: "Takes input parameters and calculates new financial model inputs. Does not persist; returns calculated values.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `modelInputs` (body, required): FinancialModelParameters with input values to calculate.\n"
+      operationId: saveFinancialModelParameters
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              postman-projects-financial-model-parameters:
+                value:
+                  id: 166274
+                  systemSizeAtPOI: 0.15
+                  systemInverterCapacity: 0.15
+                  systemSize: 0.195
+                  specificYieldUsedInAnalysis: 1504.9936308468727
+                  dcacAtPOI: 1.3
+                  dcacAtInverter: 1.3
+                  epcbosCost: 0.5
+                  epcCapitalCost: 0.0975
+                  developmentCostTotal: 0.03
+                  moduleCostTotal: 0.058499999999999996
+                  capitalCostTotalPreITC: 0.186
+                  capitalCostTotalPostITC: 0.13763999999999998
+                  yearOneEnergy: 293.4737580151402
+                  averageGCRPercentage: 40
+                  itcTotal: 0.04836
+                  basisForDepreciation: 0.15252
+                  bonusDepreciation: 0
+                  basisForMACRS: 0.15252
+                  salvageValue: 0.009300000000000001
+                  energyInput: 1504.9936308468727
+                  bosInput: 0.5
+                  developmentCostPerWatt: 0.2
+                  moduleCostPerWatt: 0.3
+                  itcPercentage: 26
+                  yearOneEnergyAdjustmentPercentage: 0
+                  annualSolarDegradationPercentage: 0.3
+                  ppaPrice: 25
+                  ppaEscalatorPercentage: 0
+                  omYearOne: 3.5
+                  omYearlyEscalatorPercentage: 2.5
+                  ppaDuration: 20
+                  postPPAPrice: 50
+                  postPPAPriceEscalationPercentage: 2
+                  projectLife: 35
+                  discountNPVPercentage: 6
+                  itcEligibilityPercentage: 100
+                  solarSalvageValuePercentage: 5
+                  insuranceCapitalCostPercentage: 0.15
+                  insuranceEscalatorPerYearPercentage: 0
+                  bonusDepreciationRate: 0
+                  stateTaxRate: 6
+                  federalTaxRate: 21
+                  solarLandLeaseCost: 0
+                  solarLandLeaseEscalationPercentage: 0
+                  solarPropertyTaxCost: 0
+                  solarPropertyTaxEscalationPercentage: 0
+      responses:
+        '200':
+          description: Saved parameters
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                postman-update-parameters:
+                  value:
+                    systemSizeAtPOI: 0.15
+                    systemInverterCapacity: 0.15
+                    systemSize: 0.195
+                    specificYieldUsedInAnalysis: 1504.9936308468727
+                    dcacAtPOI: 1.3
+                    dcacAtInverter: 1.3
+                    epcbosCost: 0.5
+                    epcCapitalCost: 0.0975
+                    developmentCostTotal: 0.03
+                    moduleCostTotal: 0.058499999999999996
+                    capitalCostTotalPreITC: 0.186
+                    capitalCostTotalPostITC: 0.13763999999999998
+                    yearOneEnergy: 293.4737580151402
+                    averageGCRPercentage: 40
+                    itcTotal: 0.04836
+                    basisForDepreciation: 0.15252
+                    bonusDepreciation: 0
+                    basisForMACRS: 0.15252
+                    salvageValue: 0.009300000000000001
+                    energyInput: 1504.9936308468727
+                    bosInput: 0.5
+                    developmentCostPerWatt: 0.2
+                    moduleCostPerWatt: 0.3
+                    itcPercentage: 26
+                    yearOneEnergyAdjustmentPercentage: 0
+                    annualSolarDegradationPercentage: 0.3
+                    ppaPrice: 25
+                    ppaEscalatorPercentage: 0
+                    omYearOne: 3.5
+                    omYearlyEscalatorPercentage: 2.5
+                    ppaDuration: 20
+                    postPPAPrice: 50
+                    postPPAPriceEscalationPercentage: 2
+                    projectLife: 35
+                    discountNPVPercentage: 6
+                    itcEligibilityPercentage: 100
+                    solarSalvageValuePercentage: 5
+                    insuranceCapitalCostPercentage: 0.15
+                    insuranceEscalatorPerYearPercentage: 0
+                    bonusDepreciationRate: 0
+                    stateTaxRate: 6
+                    federalTaxRate: 21
+                    solarLandLeaseCost: 0
+                    solarLandLeaseEscalationPercentage: 0
+                    solarPropertyTaxCost: 0
+                    solarPropertyTaxEscalationPercentage: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /Project/{projectId}/Prediction/{predictionId}/CalculateCashflowResults:
+    get:
+      tags:
+      - FinancialModel
+      summary: Calculate cashflow results
+      description: "Returns yearly cashflow results based on prediction results and stored financial model input parameters.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      operationId: calculateCashflowResults
+      x-doc-source: postman
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: predictionId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Cashflow results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  cumulativeCashflowSummary:
+                    type: object
+                  cashflowYearResults:
+                    type: array
+                    items:
+                      type: object
+                  cashflowGraphResults:
+                    type: array
+                    items:
+                      type: object
+                  projectOutputs:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'
