@@ -13,7 +13,7 @@ url: https://raw.githubusercontent.com/api-evangelist/terabase-energy/refs/heads
 image: https://www.terabase.energy/wp-content/uploads/cropped-favicon-192x192.png
 x-type: company
 x-source: harvest:secondary-market
-specificationVersion: '0.20'
+specificationVersion: '0.23'
 created: '2026-08-05'
 modified: '2026-08-05'
 tags:
