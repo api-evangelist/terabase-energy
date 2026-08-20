@@ -17,6 +17,19 @@ specificationVersion: '0.23'
 created: '2026-08-05'
 modified: '2026-08-05'
 tags:
+- Solar
+- Renewable Energy
+- Energy Modeling
+- utility-scale-solar
+- Simulation
+- Photovoltaics
+- Construction Technology
+- Geospatial
+- terrain-analysis
+- Climate Tech
+- MCP
+- Energy Storage
+tags_raw:
 - solar
 - renewable-energy
 - energy-modeling
@@ -40,6 +53,11 @@ apis:
   humanURL: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
   baseURL: https://mcp.plantpredict.terabase.energy
   tags:
+  - MCP
+  - agent-native
+  - Solar
+  - Energy Modeling
+  tags_raw:
   - mcp
   - agent-native
   - solar
@@ -66,6 +84,12 @@ apis:
   humanURL: https://terrain-pro-api-doc-app.s3.us-west-2.amazonaws.com/index.html
   baseURL: https://services.terabase.energy/tools/api/v1/terrain-pro
   tags:
+  - terrain-analysis
+  - Geospatial
+  - Solar
+  - utility-scale-solar
+  - Construction Technology
+  tags_raw:
   - terrain-analysis
   - geospatial
   - solar
@@ -273,6 +297,8 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
+  - Homes
+  tags_raw:
   - Home
   properties:
   - type: OpenAPI
@@ -363,6 +389,8 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
+  - module
+  tags_raw:
   - Module
   properties:
   - type: OpenAPI
@@ -513,6 +541,8 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
@@ -723,6 +753,8 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
+  - Time Series
+  tags_raw:
   - TimeSeries
   properties:
   - type: OpenAPI
