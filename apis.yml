@@ -10,6 +10,18 @@ description: >-
   documented REST API (OpenAPI 3.1, OAuth 2.0 client-credentials via AWS Cognito), an official Python SDK, a Postman
   collection, and a hosted, OAuth-protected Model Context Protocol (MCP) connector for Claude, ChatGPT and Cursor.
 url: https://raw.githubusercontent.com/api-evangelist/terabase-energy/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.terabase.energy/wp-content/uploads/cropped-favicon-192x192.png
 x-type: company
 x-source: harvest:secondary-market
