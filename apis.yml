@@ -30,17 +30,17 @@ created: '2026-08-05'
 modified: '2026-08-05'
 tags:
 - Solar
-- renewable-energy
-- energy-modeling
+- Renewable Energy
+- Energy Modeling
 - utility-scale-solar
-- simulation
-- photovoltaics
-- construction-technology
-- geospatial
+- Simulation
+- Photovoltaics
+- Construction Technology
+- Geospatial
 - terrain-analysis
-- climate-tech
+- Climate Tech
 - MCP
-- energy-storage
+- Energy Storage
 tags_raw:
 - solar
 - renewable-energy
@@ -68,7 +68,7 @@ apis:
   - MCP
   - agent-native
   - Solar
-  - energy-modeling
+  - Energy Modeling
   tags_raw:
   - mcp
   - agent-native
@@ -97,10 +97,10 @@ apis:
   baseURL: https://services.terabase.energy/tools/api/v1/terrain-pro
   tags:
   - terrain-analysis
-  - geospatial
+  - Geospatial
   - Solar
   - utility-scale-solar
-  - construction-technology
+  - Construction Technology
   tags_raw:
   - terrain-analysis
   - geospatial
@@ -765,7 +765,7 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
-  - TimeSeries
+  - Time Series
   tags_raw:
   - TimeSeries
   properties:
