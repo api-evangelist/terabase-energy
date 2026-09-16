@@ -47,7 +47,7 @@ tags:
 - Solar
 - Renewable Energy
 - Energy Modeling
-- utility-scale-solar
+- Utility-Scale Solar
 - Simulation
 - Photovoltaics
 - Construction Technology
@@ -114,7 +114,7 @@ apis:
   - terrain-analysis
   - Geospatial
   - Solar
-  - utility-scale-solar
+  - Utility-Scale Solar
   - Construction Technology
   tags_raw:
   - terrain-analysis
@@ -774,38 +774,6 @@ apis:
     url: data-model/terabase-energy-data-model.yml
   - type: SDKs
     url: https://github.com/plantpredict/python-sdk
-- aid: terabase-energy:terabase-energy-timeseries-api
-  name: Terabase Energy Time Series API
-  description: Custom time series data inputs
-  humanURL: https://docs.plantpredict.com/api-docs/intro
-  baseURL: https://api.plantpredict.terabase.energy
-  tags:
-  - Time Series
-  tags_raw:
-  - TimeSeries
-  properties:
-  - type: OpenAPI
-    url: openapi/terabase-energy-timeseries-api-openapi.yml
-  - type: Documentation
-    url: https://docs.plantpredict.com/api-docs/intro
-  - type: APIReference
-    url: https://docs.plantpredict.com/api-reference
-  - type: GettingStarted
-    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
-  - type: Postman
-    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
-  - type: Authentication
-    url: authentication/terabase-energy-authentication.yml
-  - type: OAuthScopes
-    url: scopes/terabase-energy-scopes.yml
-  - type: ErrorCatalog
-    url: errors/terabase-energy-problem-types.yml
-  - type: Conventions
-    url: conventions/terabase-energy-conventions.yml
-  - type: DataModel
-    url: data-model/terabase-energy-data-model.yml
-  - type: SDKs
-    url: https://github.com/plantpredict/python-sdk
 - aid: terabase-energy:terabase-energy-version-api
   name: Terabase Energy Version API
   description: The Version API from Terabase Energy — 1 operation(s) for version.
@@ -846,6 +814,36 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/terabase-energy-weather-api-openapi.yml
+  - type: Documentation
+    url: https://docs.plantpredict.com/api-docs/intro
+  - type: APIReference
+    url: https://docs.plantpredict.com/api-reference
+  - type: GettingStarted
+    url: https://docs.plantpredict.com/api-docs/api_quick_start_guide
+  - type: Postman
+    url: https://documenter.getpostman.com/view/3855302/UVsHUoHa
+  - type: Authentication
+    url: authentication/terabase-energy-authentication.yml
+  - type: OAuthScopes
+    url: scopes/terabase-energy-scopes.yml
+  - type: ErrorCatalog
+    url: errors/terabase-energy-problem-types.yml
+  - type: Conventions
+    url: conventions/terabase-energy-conventions.yml
+  - type: DataModel
+    url: data-model/terabase-energy-data-model.yml
+  - type: SDKs
+    url: https://github.com/plantpredict/python-sdk
+- aid: terabase-energy:terabase-energy-time-series-api
+  name: Terabase Energy Time Series API
+  description: Custom time series data inputs
+  humanURL: https://docs.plantpredict.com/user-guide/knowledge-base/connecting-mcp-connector
+  baseURL: https://mcp.plantpredict.terabase.energy
+  tags:
+  - Time Series
+  properties:
+  - type: OpenAPI
+    url: openapi/terabase-energy-time-series-api-openapi.yml
   - type: Documentation
     url: https://docs.plantpredict.com/api-docs/intro
   - type: APIReference
