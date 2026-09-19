@@ -356,6 +356,8 @@ apis:
   humanURL: https://docs.plantpredict.com/api-docs/intro
   baseURL: https://api.plantpredict.terabase.energy
   tags:
+  - Inverters
+  tags_raw:
   - Inverter
   properties:
   - type: OpenAPI
