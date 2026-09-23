@@ -11,9 +11,6 @@ tags:
   description: System version and maintenance status
 paths:
   /System/Version:
-    servers:
-    - url: https://api.plantpredict.terabase.energy
-      description: Production
     get:
       tags:
       - System
@@ -38,10 +35,10 @@ paths:
                     version: 11.16.0.30116
         '500':
           $ref: '#/components/responses/ServerError'
-  /System/MaintenanceMode:
     servers:
     - url: https://api.plantpredict.terabase.energy
       description: Production
+  /System/MaintenanceMode:
     get:
       tags:
       - System
@@ -66,6 +63,9 @@ paths:
                     maintenanceMode: false
         '500':
           $ref: '#/components/responses/ServerError'
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
 components:
   responses:
     ServerError:
@@ -85,6 +85,21 @@ components:
           schema:
             type: string
           example: An error has occurred.
+  schemas:
+    PlantPredict.Entities.DTO.MaintenanceModeResult:
+      type: object
+      properties:
+        maintenanceMode:
+          type: boolean
+      additionalProperties: false
+    PlantPredict.Entities.DTO.VersionInfo:
+      type: object
+      properties:
+        version:
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
   securitySchemes:
     bearerAuth:
       type: http

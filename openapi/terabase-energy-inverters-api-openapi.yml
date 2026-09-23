@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: PlantPredict Inverters API
   version: 12.13.0
-  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+  description: '## What is PlantPredict?'
 servers:
 - url: https://api.plantpredict.terabase.energy
   description: Production
@@ -17,7 +17,10 @@ paths:
       tags:
       - Inverters
       summary: List all accessible inverters
-      description: "# Get All Inverters\n\nReturns a list of all available Inverters in the system.\n\n## Overview\n\nThis endpoint retrieves a comprehensive list of all inverter configurations stored in the database. Each inverter entry contains detailed technical specifications, power ratings, voltage limits, efficiency curves, and metadata about ownership and modification history.\n\n## Response Fields\n\n### Status & Identification\n\n- **id** - Unique identifier for the inverter record\n    \n- **name** - Display name of the inverter (typically includes manufacturer, model, and specifications)\n    \n- **status** - Current status of the inverter record:\n    - `2` - Active/Published\n        \n    - `5` - Archived\n        \n    - `6` - Legacy/Deprecated\n        \n- **description** - Optional notes or additional information about the inverter configuration\n    \n\n### Manufacturer & Model Information\n\n- **manufacturer** - Inverter manufacturer name (e.g., \"ABB\")\n    \n- **model** - Specific model identifier (e.g., \"PVS800-57-1000kW-C\")\n    \n- **inverterType** - Classification of inverter type:\n    - `2` - Central inverter\n        \n    - Other values may represent string or micro inverters\n        \n\n### Power Specifications\n\n- **powerRated** - Rated AC power output in kilowatts (kW)\n    \n- **apparentPower** - Apparent power capacity in kilovolt-amperes (kVA)\n    \n- **minDCPowerThreshold** - Minimum DC power threshold in watts (W) for operation\n    \n- **outputVoltage** - AC output voltage in volts (V)\n    \n\n### Voltage & Current Limits\n\n- **minVoltage** - Minimum DC input voltage in volts (V)\n    \n- **maxMPPVoltage** - Maximum power point tracking voltage in volts (V)\n    \n- **maxAbsoluteVoltage** - Maximum absolute DC voltage limit in volts (V)\n    \n- **maxCurrent** - Maximum DC input current in amperes (A)\n    \n\n### Environmental & Physical Constraints\n\n- **maxElevation** - Maximum operating elevation in meters above sea level\n    \n\n### Curve Settings & Data Configuration\n\n- **usekVACurves** - Boolean flag indicating whether kVA derating curves are enabled\n    \n- **usePQCurves** - Boolean flag indicating whether power quality curves are enabled\n    \n- **dataSource** - Source identifier for the inverter data:\n    - `2` - Standard/manufacturer data\n        \n    - Other values may indicate custom or imported data\n        \n- **efficiencyCurves** - Array of efficiency curve data points (null if not configured)\n    \n- **kVACurves** - Array of kVA derating curve data (null if not configured)\n    \n- **pqCurves** - Array of power quality curve data (null if not configured)\n    \n\n### Ownership & Company Information\n\n- **companyId** - ID of the company that owns this inverter configuration\n    \n- **company** - Company object (typically null in list responses)\n    \n- **ownerId** - User ID of the inverter configuration owner\n    \n- **owner** - Owner user object (typically null in list responses)\n    \n\n### Audit & Modification Tracking\n\n- **createdDate** - ISO 8601 timestamp when the inverter was created\n    \n- **lastModified** - ISO 8601 timestamp of the most recent modification\n    \n- **lastModifiedById** - User ID of the person who last modified the record\n    \n- **lastModifiedBy** - Detailed user object containing:\n    - **id** - User ID\n        \n    - **email** - User email address\n        \n    - **firstName** / **lastName** - User's name\n        \n    - **jobTitle** - User's job title\n        \n    - **companyId** - User's company affiliation\n        \n    - **status** - User account status (0 = system account, 1 = active)\n        \n    - **createdDateUtc** - When the user account was created\n        \n    - **lastLoginDateUTC** - Most recent login timestamp\n        \n    - **uuid** - Unique user identifier\n        \n    - **migrationAgreementAcceptance** - Agreement acceptance flag\n        \n    - **clientCredentialsCreatedOnUTC** - API credentials creation timestamp\n        \n    - **roles** / **logins** - Arrays of user roles and login records\n        \n\n## Usage Notes\n\n- The response returns an array of inverter objects\n    \n- Inverters with `status: 3` are currently active and available for use\n    \n- Archived or deprecated inverters (`status: 5` or `6`) may still appear in results for historical reference\n    \n- Curve data (`efficiencyCurves`, `kVACurves`, `pqCurves`) is typically null in list responses and must be retrieved individually if needed\n    \n- User and company objects in the response are often null in list views to reduce payload size\n    \n- Multiple inverters may share the same model name but have different IDs and configurations\n    \n- The `lastModifiedBy` object provides full audit trail information for tracking changes\n"
+      description: '# Get All Inverters
+
+
+        Returns a list of all available Inverters in the system.'
       operationId: listInverters
       x-doc-source: postman
       responses:
@@ -706,7 +709,117 @@ paths:
       tags:
       - Inverters
       summary: Get inverter overview list
-      description: "# Inverter Overview\n\nReturns a list of all available Inverters however with simplified data properties.\n\n## Overview\n\nThis endpoint provides a lightweight version of the full inverter list, returning essential inverter information without the complete technical specifications and detailed configuration data. It's optimized for scenarios where you need a quick overview of available inverters without the overhead of fetching complete inverter records.\n\n## Response Fields\n\nThe simplified response includes the following fields for each inverter:\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `id` | integer | Unique identifier for the inverter |\n| `ownerId` | integer | ID of the user or organization that owns this inverter configuration |\n| `name` | string | Display name for the inverter |\n| `status` | integer | Current status of the inverter record (1=Draft, 2=In Review, 3=Active, 4=Archived) |\n| `lastModified` | string (ISO 8601) | Timestamp of the last modification to this inverter record |\n| `lastModifiedBy` | object | User who last modified the record |\n| `lastModifiedBy.firstName` | string | First name of the user who last modified the record |\n| `lastModifiedBy.lastName` | string | Last name of the user who last modified the record |\n| `model` | string | Manufacturer's model number/name for the inverter |\n| `manufacturer` | string | Name of the inverter manufacturer |\n| `powerRated` | number | Rated power output of the inverter in kW |\n| `outputVoltage` | number | Output voltage of the inverter in volts |\n| `minVoltage` | number | Minimum operating voltage in volts |\n| `maxMPPVoltage` | number | Maximum Power Point (MPP) voltage in volts |\n| `inverterType` | integer | Type classification of the inverter (1=String Inverter, 2=Central Inverter) |\n\n## Excluded Fields\n\nCompared to the full inverter endpoint, this simplified overview **excludes**:\n\n- Detailed efficiency curves and performance data\n    \n- Complete electrical specifications and ratings\n    \n- Thermal characteristics and derating factors\n    \n- Advanced configuration parameters\n    \n- Certification and compliance documentation\n    \n- Extended metadata and custom fields\n    \n\n## Use Cases\n\n### When to Use This Endpoint\n\n- **Dashboard displays** - Populating dropdown lists or selection menus\n    \n- **Quick searches** - Finding inverters by name or manufacturer without loading full details\n    \n- **List views** - Displaying tables of available inverters with basic information\n    \n- **Performance optimization** - Reducing payload size and response time for overview screens\n    \n- **Mobile applications** - Minimizing data transfer for bandwidth-constrained environments\n    \n\n### When to Use the Full Endpoint\n\n- **Detailed analysis** - When you need complete technical specifications for engineering calculations\n    \n- **Configuration management** - Setting up or modifying inverter parameters in a project\n    \n- **Reporting** - Generating comprehensive reports that require all inverter data\n    \n- **Data export** - Extracting complete inverter information for external systems\n"
+      description: '# Inverter Overview
+
+
+        Returns a list of all available Inverters however with simplified data properties.
+
+
+        ## Overview
+
+
+        This endpoint provides a lightweight version of the full inverter list, returning essential inverter information without the complete technical specifications and detailed configuration data. It''s optimized for scenarios where you need a quick overview of available inverters without the overhead of fetching complete inverter records.
+
+
+        ## Response Fields
+
+
+        The simplified response includes the following fields for each inverter:
+
+
+        | Field | Type | Description |
+
+        | --- | --- | --- |
+
+        | `id` | integer | Unique identifier for the inverter |
+
+        | `ownerId` | integer | ID of the user or organization that owns this inverter configuration |
+
+        | `name` | string | Display name for the inverter |
+
+        | `status` | integer | Current status of the inverter record (1=Draft, 2=In Review, 3=Active, 4=Archived) |
+
+        | `lastModified` | string (ISO 8601) | Timestamp of the last modification to this inverter record |
+
+        | `lastModifiedBy` | object | User who last modified the record |
+
+        | `lastModifiedBy.firstName` | string | First name of the user who last modified the record |
+
+        | `lastModifiedBy.lastName` | string | Last name of the user who last modified the record |
+
+        | `model` | string | Manufacturer''s model number/name for the inverter |
+
+        | `manufacturer` | string | Name of the inverter manufacturer |
+
+        | `powerRated` | number | Rated power output of the inverter in kW |
+
+        | `outputVoltage` | number | Output voltage of the inverter in volts |
+
+        | `minVoltage` | number | Minimum operating voltage in volts |
+
+        | `maxMPPVoltage` | number | Maximum Power Point (MPP) voltage in volts |
+
+        | `inverterType` | integer | Type classification of the inverter (1=String Inverter, 2=Central Inverter) |
+
+
+        ## Excluded Fields
+
+
+        Compared to the full inverter endpoint, this simplified overview **excludes**:
+
+
+        - Detailed efficiency curves and performance data
+
+
+        - Complete electrical specifications and ratings
+
+
+        - Thermal characteristics and derating factors
+
+
+        - Advanced configuration parameters
+
+
+        - Certification and compliance documentation
+
+
+        - Extended metadata and custom fields
+
+
+        ## Use Cases
+
+
+        ### When to Use This Endpoint
+
+
+        - **Dashboard displays** - Populating dropdown lists or selection menus
+
+
+        - **Quick searches** - Finding inverters by name or manufacturer without loading full details
+
+
+        - **List views** - Displaying tables of available inverters with basic information
+
+
+        - **Performance optimization** - Reducing payload size and response time for overview screens
+
+
+        - **Mobile applications** - Minimizing data transfer for bandwidth-constrained environments
+
+
+        ### When to Use the Full Endpoint
+
+
+        - **Detailed analysis** - When you need complete technical specifications for engineering calculations
+
+
+        - **Configuration management** - Setting up or modifying inverter parameters in a project
+
+
+        - **Reporting** - Generating comprehensive reports that require all inverter data
+
+
+        - **Data export** - Extracting complete inverter information for external systems'
       operationId: getInverterOverview
       x-doc-source: postman
       responses:
@@ -1544,90 +1657,6 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
-    StatusChangeItem:
-      type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: integer
-        status:
-          type: integer
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    InverterOverview:
-      type: object
-      properties:
-        id:
-          type: integer
-        ownerId:
-          type: integer
-        name:
-          type: string
-        status:
-          type: integer
-          enum:
-          - 0
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          x-enum-varnames:
-          - Unknown
-          - DraftPrivate
-          - DraftShared
-          - Active
-          - Retired
-          - Global
-          - GlobalRetired
-          description: LibraryStatusEnum
-        lastModified:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        lastModifiedBy:
-          type: string
-        model:
-          type: string
-        manufacturer:
-          type: string
-        powerRated:
-          type: number
-        outputVoltage:
-          type: number
-        minVoltage:
-          type: number
-        maxMPPVoltage:
-          type: number
-        inverterType:
-          type: integer
-          enum:
-          - 0
-          - 1
-          - 2
-          x-enum-varnames:
-          - Unspecified
-          - String
-          - Central
-          description: InverterType
     Inverter:
       type: object
       required:
@@ -1758,6 +1787,72 @@ components:
       properties:
         kVa:
           type: number
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    InverterOverview:
+      type: object
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: integer
+        name:
+          type: string
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Unknown
+          - DraftPrivate
+          - DraftShared
+          - Active
+          - Retired
+          - Global
+          - GlobalRetired
+          description: LibraryStatusEnum
+        lastModified:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModifiedBy:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        powerRated:
+          type: number
+        outputVoltage:
+          type: number
+        minVoltage:
+          type: number
+        maxMPPVoltage:
+          type: number
+        inverterType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Unspecified
+          - String
+          - Central
+          description: InverterType
     IdResponse:
       type: object
       properties:
@@ -1765,9 +1860,35 @@ components:
           type: integer
       required:
       - id
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
   responses:
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    Forbidden:
+      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
+
+        for this operation (e.g. status-change endpoints require elevated
+
+        privileges that not every API client is granted). Response body is
+
+        typically empty.
+
+        '
     BadRequest:
       description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
       content:
@@ -1783,16 +1904,6 @@ components:
           schema:
             type: string
           example: A successfully completed prediction cannot be cancelled.
-    Forbidden:
-      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
-
-        for this operation (e.g. status-change endpoints require elevated
-
-        privileges that not every API client is granted). Response body is
-
-        typically empty.
-
-        '
     NotFound:
       description: The referenced resource does not exist or is not accessible to the caller.
       content:
@@ -1800,6 +1911,8 @@ components:
           schema:
             type: string
           example: Project not found.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
     ServerError:
       description: 'Unexpected server-side error. The body is usually a plain-text message
 

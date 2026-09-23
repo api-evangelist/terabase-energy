@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: PlantPredict Power Plant API
   version: 12.13.0
-  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+  description: '## What is PlantPredict?'
 servers:
 - url: https://api.plantpredict.terabase.energy
   description: Production
@@ -17,7 +17,16 @@ paths:
       tags:
       - PowerPlant
       summary: Get power plant
-      description: "Retrieves the power plant configuration for a prediction. Returns full PVPlant entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      description: 'Retrieves the power plant configuration for a prediction. Returns full PVPlant entity.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.'
       operationId: getPowerPlant
       x-doc-source: postman
       parameters:
@@ -498,7 +507,19 @@ paths:
       tags:
       - PowerPlant
       summary: Create power plant
-      description: "Creates a power plant for a prediction. May attach X-Message header with configuration warnings.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The PVPlant entity to create.\n"
+      description: 'Creates a power plant for a prediction. May attach X-Message header with configuration warnings.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.
+
+
+        - `powerPlant` (body, required): The PVPlant entity to create.'
       operationId: createPowerPlant
       x-doc-source: postman
       parameters:
@@ -803,7 +824,19 @@ paths:
       tags:
       - PowerPlant
       summary: Update power plant
-      description: "Updates the power plant for a prediction. May attach X-Message header with warnings (e.g., energization date, 3D shading, post height).\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n    \n- `powerPlant` (body, required): The updated PVPlant entity.\n"
+      description: 'Updates the power plant for a prediction. May attach X-Message header with warnings (e.g., energization date, 3D shading, post height).
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.
+
+
+        - `powerPlant` (body, required): The updated PVPlant entity.'
       operationId: updatePowerPlant
       x-doc-source: postman
       parameters:
@@ -1115,29 +1148,59 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
-    ModelStateError:
+    PowerPlantInverter:
       type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
       properties:
-        message:
+        name:
           type: string
-        modelState:
+        resultList:
+          readOnly: true
+        dcFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCField'
+        inverterId:
+          type: integer
+        inverter:
           type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    PredictionUpdateResponse:
-      type: object
-      properties:
-        changesMade:
+        setpointkW:
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+        designDerate:
+          type: number
+          format: double
+        kVARating:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        derateTimeSeriesId: {}
+        derateTimeSeries: {}
+        useDerateTimeSeries:
           type: boolean
+        setPointTimeSeriesId: {}
+        setPointTimeSeries: {}
+        useSetPointTimeSeries:
+          type: boolean
+        vmppAdjustmentTimeSeriesId: {}
+        vmppAdjustmentTimeSeries: {}
+        useVMPPTimeSeriesAdjustment:
+          type: boolean
+        imppAdjustmentTimeSeriesId: {}
+        imppAdjustmentTimeSeries: {}
+        useIMPPTimeSeriesAdjustment:
+          type: boolean
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
     PowerPlant:
       type: object
       properties:
@@ -1231,59 +1294,6 @@ components:
           items:
             type: object
           readOnly: true
-    PowerPlantInverter:
-      type: object
-      properties:
-        name:
-          type: string
-        resultList:
-          readOnly: true
-        dcFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/DCField'
-        inverterId:
-          type: integer
-        inverter:
-          type: object
-        setpointkW:
-          type: number
-          format: double
-        powerFactor:
-          type: number
-          format: double
-        designDerate:
-          type: number
-          format: double
-        kVARating:
-          type: number
-          format: double
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        derateTimeSeriesId: {}
-        derateTimeSeries: {}
-        useDerateTimeSeries:
-          type: boolean
-        setPointTimeSeriesId: {}
-        setPointTimeSeries: {}
-        useSetPointTimeSeries:
-          type: boolean
-        vmppAdjustmentTimeSeriesId: {}
-        vmppAdjustmentTimeSeries: {}
-        useVMPPTimeSeriesAdjustment:
-          type: boolean
-        imppAdjustmentTimeSeriesId: {}
-        imppAdjustmentTimeSeries: {}
-        useIMPPTimeSeriesAdjustment:
-          type: boolean
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
     Block:
       type: object
       properties:
@@ -1307,61 +1317,6 @@ components:
           type: number
           format: double
           readOnly: true
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
-    PowerPlantArray:
-      type: object
-      properties:
-        name:
-          type: integer
-        resultList:
-          readOnly: true
-        inverters:
-          type: array
-          items:
-            $ref: '#/components/schemas/PowerPlantInverter'
-        acCollectionLoss:
-          type: number
-          format: double
-        dasLoad:
-          type: number
-          format: double
-        coolingLoad:
-          type: number
-          format: double
-        additionalLosses:
-          type: number
-          format: double
-        matchTotalInverterkVA:
-          type: boolean
-        transformerEnabled:
-          type: boolean
-        transformerkVARating:
-          type: number
-          format: double
-        transformerHighSideVoltage:
-          type: number
-          format: double
-        transformerNoLoadLoss:
-          type: number
-          format: double
-        transformerFullLoadLoss:
-          type: number
-          format: double
-        totalModules:
-          type: integer
-          readOnly: true
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        trackerMotorLosses:
-          type: number
-          format: double
         repeater:
           type: integer
         id:
@@ -1678,6 +1633,84 @@ components:
           type: integer
           readOnly: true
         description: {}
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PowerPlantArray:
+      type: object
+      properties:
+        name:
+          type: integer
+        resultList:
+          readOnly: true
+        inverters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantInverter'
+        acCollectionLoss:
+          type: number
+          format: double
+        dasLoad:
+          type: number
+          format: double
+        coolingLoad:
+          type: number
+          format: double
+        additionalLosses:
+          type: number
+          format: double
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          type: number
+          format: double
+        totalModules:
+          type: integer
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        trackerMotorLosses:
+          type: number
+          format: double
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
   responses:
     TooManyRequests:
       description: 'The caller has exceeded the per-account rate limit for this operation.
@@ -1689,8 +1722,6 @@ components:
         Response body is typically empty.
 
         '
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
     BadRequest:
       description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
       content:
@@ -1713,6 +1744,8 @@ components:
           schema:
             type: string
           example: Project not found.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
     ServerError:
       description: 'Unexpected server-side error. The body is usually a plain-text message
 

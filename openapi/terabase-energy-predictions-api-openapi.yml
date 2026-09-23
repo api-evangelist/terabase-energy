@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: PlantPredict Predictions API
   version: 12.13.0
-  description: "## What is PlantPredict?\n\nPlantPredict is an industry-leading performance modeling platform for utility-scale\nsolar power plants. It predicts energy yield across the full project lifecycle —\nfrom early-stage site prospecting through detailed engineering and operational\nmonitoring. The same engine that powers the PlantPredict web UI is fully exposed\nvia this REST API, enabling automation of complex, high-time-resolution energy\npredictions without any UI interaction.\n\n## Domain Model — read this first\n\nUnderstanding the object hierarchy is essential before calling the API:\n\n- **Weather** — A weather file (hourly irradiance, temperature, wind, etc.) for a\n  geographic location. Imported from a provider (e.g. SolarAnywhere, Meteonorm) or\n  uploaded manually. Weather files live in a company-wide library and are referenced\n  by Predictions.\n\n- **Module** — A PV module definition parameterized with electrical characteristics\n  (STC power, temperature coefficients, single-diode model parameters, IAM curves,\n  etc.). Modules live in a company-wide library.\n\n- **Inverter** — An inverter definition with efficiency curves, voltage/power ratings,\n  and optional kVA derating curves. Inverters live in a company-wide library.\n\n- **Project** — A named location (lat/lon) that acts as a container for one or more\n  Predictions. Holds geographic metadata (country, elevation, UTC offset) and a status.\n\n- **Prediction** — The core simulation configuration nested under a Project. Defines\n  the simulation period, model selections (transposition, air mass, degradation,\n  soiling, shading, spectral shift models), uncertainty error terms, and references\n  to a Weather file. A Prediction must be linked to a PowerPlant before it can be run.\n  Status values: 0 = Draft, 1 = Active, 2 = Issued, 3 = Archived.\n\n- **PowerPlant** — The physical plant design attached to a Prediction. Describes the\n  electrical topology: Blocks → Arrays → Inverters → DC Fields (strings of modules).\n  Also includes transformers, transmission lines, energy storage (ESS), availability\n  losses, and LGIA export limits.\n\n- **Shade Scene** — An optional 3D shading model (PVJ format) attached to a\n  Prediction's DC Fields. Supports import from PVC or SHD files. Shade and TABT\n  (Tracker Angle Back-Tracking) calculations are queued and run asynchronously.\n\n## Typical workflow to run a prediction\n\n1. Ensure a **Weather** file exists (search, download, or import one).\n2. Ensure a **Module** and **Inverter** exist in the library.\n3. **POST /Project** — create a project at the site location.\n4. **POST /Project/{projectId}/Prediction** — create a prediction with model settings.\n5. **POST /Project/{projectId}/Prediction/{predictionId}/PowerPlant** — attach a plant\n   design referencing your module and inverter.\n6. **POST /Project/{projectId}/Prediction/{predictionId}/Run** — queue the simulation.\n7. Poll **GET /Project/{projectId}/Prediction/{predictionId}/Overview** until\n   `status` reaches 2 (complete), then retrieve results via `/ResultSummary`,\n   `/ResultDetails`, or `/NodalJson`.\n\n## Authentication\n\nOAuth 2.0 **Client Credentials** flow via AWS Cognito. The spec advertises\na single `bearerAuth` scheme — fetch a token yourself with the snippet\nbelow, then either paste it into the in-browser playground or pass it on\nevery request as `Authorization: Bearer <token>`.\n\n> **Why not advertise OAuth2 directly?** Most users have access to the\n> production tenant only, and we don't want to invite anyone to enter\n> long-lived `client_id` / `client_secret` credentials into a third-party\n> documentation site. Keep credentials in your own environment; ship\n> short-lived bearer tokens to wherever they are needed.\n\n- Token URL: `https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token`\n- Scopes: `transactions/get` (read), `transactions/post` (write) — request\n  both to access the entire surface.\n- Send credentials as **Basic Auth** in the token request header.\n\nExample:\n\n```bash\ncurl -X POST 'https://terabase-prd.auth.us-west-2.amazoncognito.com/oauth2/token' \\\n  -u \"$PP_CLIENT_ID:$PP_CLIENT_SECRET\" \\\n  -d 'grant_type=client_credentials&scope=transactions/get transactions/post'\n```\n\nAPI credentials (Client ID + Secret) are generated per user by a company admin\ninside the PlantPredict UI (gear icon → user profile → Generate API Credentials).\nStore them securely — they are shown only once.\n\n## Notes\n\n- All request/response bodies are JSON (`Content-Type: application/json`).\n- The API is stateless — every request must supply complete inputs; there is no session.\n- POST operations that create entities return `{\"id\": <integer>}`.\n- Many integer fields (model types, status codes) map to named enums — use\n  `GET /Definitions` to retrieve the full enum catalog at runtime.\n- Long-running operations (Run, Shade calculations, TABT) are asynchronous; poll\n  the corresponding `ProcessingStatus` endpoint to track progress.\n- Responses may include an `X-Message` header with non-blocking warnings (e.g.\n  duplicate project name).\n"
+  description: '## What is PlantPredict?'
 servers:
 - url: https://api.plantpredict.terabase.energy
   description: Production
@@ -23,9 +23,7 @@ paths:
         **Parameters:**
 
 
-        - `projectId` (path, required): The project ID.
-
-        '
+        - `projectId` (path, required): The project ID.'
       operationId: listPredictions
       x-doc-source: postman
       parameters:
@@ -567,7 +565,16 @@ paths:
       tags:
       - Predictions
       summary: Update a prediction
-      description: "Updates an existing prediction. May attach an X-Message header with a non-blocking warning about the updated entity.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `prediction` (body, required): The updated prediction entity.\n"
+      description: 'Updates an existing prediction. May attach an X-Message header with a non-blocking warning about the updated entity.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `prediction` (body, required): The updated prediction entity.'
       operationId: updatePrediction
       x-doc-source: postman
       parameters:
@@ -744,7 +751,16 @@ paths:
       tags:
       - Predictions
       summary: Get a prediction
-      description: "Retrieves a single prediction by project and prediction ID. Does not include the power plant; use the Power Plant endpoint for that.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      description: 'Retrieves a single prediction by project and prediction ID. Does not include the power plant; use the Power Plant endpoint for that.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.'
       operationId: getPrediction
       x-doc-source: postman
       parameters:
@@ -1040,7 +1056,16 @@ paths:
       tags:
       - Predictions
       summary: Delete a prediction
-      description: "Deletes a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to delete.\n"
+      description: 'Deletes a prediction by project and prediction ID.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID to delete.'
       operationId: deletePrediction
       x-doc-source: postman
       parameters:
@@ -1068,7 +1093,16 @@ paths:
       tags:
       - Predictions
       summary: Get prediction overview
-      description: "Returns a summary overview of a prediction by project and prediction ID.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      description: 'Returns a summary overview of a prediction by project and prediction ID.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.'
       operationId: getPredictionOverview
       x-doc-source: postman
       parameters:
@@ -1165,7 +1199,19 @@ paths:
       tags:
       - Predictions
       summary: Run a prediction
-      description: "Queues a prediction to run. Validates weather data and queue status before queuing. Export options can be customized.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to run.\n    \n- `expOptions` (body, optional): ExportOptions to customize export behavior. If omitted, stored options are used.\n"
+      description: 'Queues a prediction to run. Validates weather data and queue status before queuing. Export options can be customized.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID to run.
+
+
+        - `expOptions` (body, optional): ExportOptions to customize export behavior. If omitted, stored options are used.'
       operationId: runPrediction
       x-doc-source: postman
       parameters:
@@ -1195,7 +1241,16 @@ paths:
       tags:
       - Predictions
       summary: Cancel a running prediction
-      description: "Cancels a running or queued prediction. Returns success message when cancellation completes.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to cancel.\n"
+      description: 'Cancels a running or queued prediction. Returns success message when cancellation completes.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID to cancel.'
       operationId: cancelPrediction
       x-doc-source: postman
       parameters:
@@ -1235,7 +1290,16 @@ paths:
       tags:
       - Predictions
       summary: Change status of one or more predictions
-      description: "Updates the status of one or more predictions for a project. May trigger report regeneration for completed predictions.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `assets` (body, required): List of Asset objects with prediction IDs and new status values.\n"
+      description: 'Updates the status of one or more predictions for a project. May trigger report regeneration for completed predictions.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `assets` (body, required): List of Asset objects with prediction IDs and new status values.'
       operationId: changePredictionStatus
       x-doc-source: postman
       parameters:
@@ -1275,7 +1339,16 @@ paths:
       tags:
       - Predictions
       summary: Export a prediction
-      description: "Exports a prediction as JSON. Returns the full project/prediction data for the specified prediction.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID to export.\n"
+      description: 'Exports a prediction as JSON. Returns the full project/prediction data for the specified prediction.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID to export.'
       operationId: exportPrediction
       x-doc-source: postman
       parameters:
@@ -1307,7 +1380,22 @@ paths:
       tags:
       - Predictions
       summary: Export and compare multiple predictions
-      description: "Exports a comparison report file for a comma-separated list of prediction IDs. Returns an octet-stream file.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionIds` (path, required): Comma-separated list of prediction IDs.\n    \n- `includeNightTimeLosses` (query, optional): Include nighttime losses in export. Default: false.\n    \n- `includeDetails` (query, optional): Include detailed data. Default: true.\n"
+      description: 'Exports a comparison report file for a comma-separated list of prediction IDs. Returns an octet-stream file.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionIds` (path, required): Comma-separated list of prediction IDs.
+
+
+        - `includeNightTimeLosses` (query, optional): Include nighttime losses in export. Default: false.
+
+
+        - `includeDetails` (query, optional): Include detailed data. Default: true.'
       operationId: exportPredictionComparison
       x-doc-source: postman
       parameters:
@@ -1340,7 +1428,16 @@ paths:
       tags:
       - Predictions
       summary: Get albedo data for a prediction
-      description: "Retrieves monthly albedo data for the prediction from NSRDB/NASA. Used for bifacial calculations.\n\n**Parameters:**\n\n- `projectId` (path, required): The project ID.\n    \n- `predictionId` (path, required): The prediction ID.\n"
+      description: 'Retrieves monthly albedo data for the prediction from NSRDB/NASA. Used for bifacial calculations.
+
+
+        **Parameters:**
+
+
+        - `projectId` (path, required): The project ID.
+
+
+        - `predictionId` (path, required): The prediction ID.'
       operationId: getPredictionAlbedoData
       x-doc-source: postman
       parameters:
@@ -1498,57 +1595,6 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
-    StatusChangeItem:
-      type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: integer
-        status:
-          type: integer
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    PredictionUpdateResponse:
-      type: object
-      properties:
-        changesMade:
-          type: boolean
-    ExportOptions:
-      type: object
-      properties:
-        exportSystem:
-          type: boolean
-        exportESS:
-          type: boolean
-        nodalExportOptions:
-          type: object
-          description: The System Details page allows you to specify interconnection-related parameters including system availability, power plant output limits, and high-voltage (HV) transformation and transmission line details. These settings affect losses between the plant collection point and the energy meter (point of interconnection).
-          x-doc-source: docs-only:user-guide/ui/system-details.mdx
-    IdResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-      required:
-      - id
     Prediction:
       type: object
       required:
@@ -1872,6 +1918,57 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MonthlyFactor'
+    ExportOptions:
+      type: object
+      properties:
+        exportSystem:
+          type: boolean
+        exportESS:
+          type: boolean
+        nodalExportOptions:
+          type: object
+          description: The System Details page allows you to specify interconnection-related parameters including system availability, power plant output limits, and high-voltage (HV) transformation and transmission line details. These settings affect losses between the plant collection point and the energy meter (point of interconnection).
+          x-doc-source: docs-only:user-guide/ui/system-details.mdx
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
     MonthlyFactor:
       type: object
       properties:
@@ -1892,6 +1989,50 @@ components:
           - number
           - 'null'
   responses:
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
+
+        Wait and retry. The PlantPredict API does not currently emit
+
+        `Retry-After`; back off with an exponential schedule (start at 30s).
+
+        Response body is typically empty.
+
+        '
+    Forbidden:
+      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
+
+        for this operation (e.g. status-change endpoints require elevated
+
+        privileges that not every API client is granted). Response body is
+
+        typically empty.
+
+        '
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
     ServerError:
       description: 'Unexpected server-side error. The body is usually a plain-text message
 
@@ -1909,50 +2050,6 @@ components:
           schema:
             type: string
           example: An error has occurred.
-    BadRequest:
-      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ModelStateError'
-          example:
-            message: The request is invalid.
-            modelState:
-              latitude:
-              - The field Latitude must be between -90 and 90.
-        text/plain:
-          schema:
-            type: string
-          example: A successfully completed prediction cannot be cancelled.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    Forbidden:
-      description: 'The bearer token is valid but lacks the OAuth2 scope or role required
-
-        for this operation (e.g. status-change endpoints require elevated
-
-        privileges that not every API client is granted). Response body is
-
-        typically empty.
-
-        '
-    TooManyRequests:
-      description: 'The caller has exceeded the per-account rate limit for this operation.
-
-        Wait and retry. The PlantPredict API does not currently emit
-
-        `Retry-After`; back off with an exponential schedule (start at 30s).
-
-        Response body is typically empty.
-
-        '
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
   securitySchemes:
     bearerAuth:
       type: http

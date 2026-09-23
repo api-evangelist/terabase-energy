@@ -1,9 +1,7 @@
 openapi: 3.2.0
 info:
   title: PlantPredict TABT Engine API
-  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly
-    by having your Company Admin generate API credentials. If you do not know your Company Admin, contact
-    support@plantpredict.com for assistance.
+  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly by having your Company Admin generate API credentials. If you do not know your Company Admin, contact support@plantpredict.com for assistance.
   contact:
     name: PlantPredict Support
     url: https://plantpredict.com/contact/
@@ -37,6 +35,8 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdTABTProcessingStatus
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/TABT/Run:
     post:
       tags:
@@ -60,6 +60,8 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: postProjectByProjectIdPredictionByPredictionIdTABTRun
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/TerrainAwareEngineInputs:
     get:
       tags:
@@ -81,6 +83,8 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdTerrainAwareEngineInputs
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TableRotation:
     get:
       tags:
@@ -106,6 +110,8 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdShadeSceneTableRotation
+      x-operation-id-source: derived
     put:
       tags:
       - TABTEngine
@@ -138,10 +144,12 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: putProjectByProjectIdPredictionByPredictionIdShadeSceneTableRotation
+      x-operation-id-source: derived
     delete:
       tags:
       - TABTEngine
-      summary: This operation will delete the table rotation schedule for the specified prediction.
+      summary: This operation will delete the table rotation schedule for the specified…
       parameters:
       - name: projectId
         in: path
@@ -158,11 +166,13 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: deleteProjectByProjectIdPredictionByPredictionIdShadeSceneTableRotation
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TableRotation/Download:
     get:
       tags:
       - TABTEngine
-      summary: This operation will download the table rotation schedule.
+      summary: This operation will download the table rotation schedule
       parameters:
       - name: projectId
         in: path
@@ -179,11 +189,13 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdShadeSceneTableRotationDownload
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/ShadeScene/TranspositionFactors:
     get:
       tags:
       - TABTEngine
-      summary: This operation will get Transposition values.
+      summary: This operation will get Transposition values
       parameters:
       - name: projectId
         in: path
@@ -200,11 +212,13 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdShadeSceneTranspositionFactors
+      x-operation-id-source: derived
   /Project/{projectId}/Prediction/{predictionId}/TABT/TranspositionTimeSeries:
     get:
       tags:
       - TABTEngine
-      summary: This operation will get Transposition values.
+      summary: This operation will get Transposition values
       parameters:
       - name: projectId
         in: path
@@ -221,11 +235,12 @@ paths:
       responses:
         '200':
           description: OK
+      operationId: getProjectByProjectIdPredictionByPredictionIdTABTTranspositionTimeSeries
+      x-operation-id-source: derived
 components:
   securitySchemes:
     Bearer:
       type: apiKey
-      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer
-        {token}"'
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
       name: Authorization
       in: header

@@ -11,9 +11,6 @@ tags:
   description: ASHRAE climate station lookup
 paths:
   /ASHRAE:
-    servers:
-    - url: https://api.plantpredict.terabase.energy
-      description: Production
     get:
       tags:
       - ASHRAE
@@ -30,9 +27,7 @@ paths:
 
         - `Longitude` (query, required): Longitude coordinate.
 
-        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.
-
-        '
+        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.'
       operationId: getASHRAE
       x-doc-source: postman
       parameters:
@@ -74,10 +69,10 @@ paths:
           $ref: '#/components/responses/ServerError'
       security:
       - bearerAuth: []
-  /ASHRAE/GetStation:
     servers:
     - url: https://api.plantpredict.terabase.energy
       description: Production
+  /ASHRAE/GetStation:
     get:
       tags:
       - ASHRAE
@@ -96,9 +91,7 @@ paths:
 
         - `Longitude` (query, required): Longitude coordinate.
 
-        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.
-
-        '
+        - `Version` (query, optional): ASHRAE version (AshraeVersionEnum). Default: Version_2021.'
       operationId: getASHRAEStation
       x-doc-source: postman
       parameters:
@@ -156,7 +149,52 @@ paths:
           $ref: '#/components/responses/ServerError'
       security:
       - bearerAuth: []
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
 components:
+  responses:
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
   schemas:
     ModelStateError:
       type: object
@@ -204,48 +242,66 @@ components:
           type: number
         timeZone:
           type: number
-  responses:
-    BadRequest:
-      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ModelStateError'
-          example:
-            message: The request is invalid.
-            modelState:
-              latitude:
-              - The field Latitude must be between -90 and 90.
-        text/plain:
-          schema:
-            type: string
-          example: A successfully completed prediction cannot be cancelled.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
+    PlantPredict.Entities.Enums.AshraeVersionEnum:
+      enum:
+      - 0
+      - 1
+      type: integer
+      format: int32
+    PlantPredict.Entities.DTO.Ashrae:
+      type: object
+      properties:
+        stationName:
+          type:
+          - string
+          - 'null'
+        wmo:
+          type:
+          - string
+          - 'null'
+        cool996:
+          type: number
+          format: double
+        min50Year:
+          type: number
+          format: double
+        max50Year:
+          type: number
+          format: double
+        distance:
+          type:
+          - number
+          - 'null'
+          format: double
+        latitude:
+          type:
+          - number
+          - 'null'
+          format: double
+        longitude:
+          type:
+          - number
+          - 'null'
+          format: double
+        minAnnualMeanDBTemp:
+          type:
+          - number
+          - 'null'
+          format: double
+        version:
+          type: integer
+          format: int32
+        elevation:
+          type:
+          - number
+          - 'null'
+          format: double
+        timeZone:
+          type:
+          - number
+          - 'null'
+          format: double
+      additionalProperties: false
   securitySchemes:
     bearerAuth:
       type: http

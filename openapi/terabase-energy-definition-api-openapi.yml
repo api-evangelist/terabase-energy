@@ -1,9 +1,7 @@
 openapi: 3.2.0
 info:
   title: PlantPredict Definition API
-  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly
-    by having your Company Admin generate API credentials. If you do not know your Company Admin, contact
-    support@plantpredict.com for assistance.
+  description: The HTTP API used by the PlantPredict web application. This API can also be accessed directly by having your Company Admin generate API credentials. If you do not know your Company Admin, contact support@plantpredict.com for assistance.
   contact:
     name: PlantPredict Support
     url: https://plantpredict.com/contact/
@@ -18,7 +16,7 @@ paths:
     get:
       tags:
       - Definition
-      summary: Get the list of all system defined enumeration definitions.
+      summary: Get the list of all system defined enumeration definitions
       parameters:
       - name: type
         in: query
@@ -43,6 +41,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PlantPredict.Entities.DTO.Definitions'
+      operationId: getDefinitions
+      x-operation-id-source: derived
 components:
   schemas:
     PlantPredict.Entities.DTO.Definitions:
@@ -73,7 +73,6 @@ components:
   securitySchemes:
     Bearer:
       type: apiKey
-      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer
-        {token}"'
+      description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
       name: Authorization
       in: header

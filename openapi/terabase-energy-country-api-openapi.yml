@@ -11,14 +11,40 @@ tags:
   description: Reference country data
 paths:
   /Country:
-    servers:
-    - url: https://api.plantpredict.terabase.energy
-      description: Production
     get:
       tags:
       - Country
       summary: List all countries
-      description: "### Overview\n\nRetrieves the list of all supported countries.\n\n### Response\n\nOn success, the endpoint returns HTTP `200 OK` with a JSON array of country objects. Each object has the following fields:\n\n- `id` _(integer)_  \n    Internal identifier for the country.\n    \n- `name` _(string)_  \n    Human-readable country name (e.g., `\"Afghanistan\"`, `\"Åland Islands\"`).\n    \n- `numeric` _(integer)_  \n    Numeric country code, typically aligned with ISO 3166-1 numeric codes (e.g., `4`, `248`).\n    \n- `alpha` _(string)_  \n    Alphabetic country code, typically aligned with ISO 3166-1 alpha-3 codes (e.g., `\"AFG\"`, `\"ALA\"`).\n"
+      description: '### Overview
+
+
+        Retrieves the list of all supported countries.
+
+
+        ### Response
+
+
+        On success, the endpoint returns HTTP `200 OK` with a JSON array of country objects. Each object has the following fields:
+
+
+        - `id` _(integer)_
+
+        Internal identifier for the country.
+
+
+        - `name` _(string)_
+
+        Human-readable country name (e.g., `"Afghanistan"`, `"Åland Islands"`).
+
+
+        - `numeric` _(integer)_
+
+        Numeric country code, typically aligned with ISO 3166-1 numeric codes (e.g., `4`, `248`).
+
+
+        - `alpha` _(string)_
+
+        Alphabetic country code, typically aligned with ISO 3166-1 alpha-3 codes (e.g., `"AFG"`, `"ALA"`).'
       operationId: listCountries
       x-doc-source: postman
       security: []
@@ -1032,6 +1058,9 @@ paths:
                     alpha: ZWE
         '500':
           $ref: '#/components/responses/ServerError'
+    servers:
+    - url: https://api.plantpredict.terabase.energy
+      description: Production
 components:
   schemas:
     Country:
@@ -1045,6 +1074,27 @@ components:
           type: integer
         alpha:
           type: string
+    PlantPredict.Entities.Country:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          maxLength: 250
+          minLength: 1
+          type: string
+        numeric:
+          type: integer
+          format: int32
+        alpha:
+          maxLength: 10
+          type:
+          - string
+          - 'null'
+      additionalProperties: false
   responses:
     ServerError:
       description: 'Unexpected server-side error. The body is usually a plain-text message
