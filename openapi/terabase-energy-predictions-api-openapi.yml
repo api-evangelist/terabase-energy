@@ -1595,6 +1595,60 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
+    MonthlyFactor:
+      type: object
+      properties:
+        id:
+          type: integer
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        monthName:
+          type: string
+        soilingLoss:
+          type: number
+        albedo:
+          type: number
+        spectralShift:
+          type:
+          - number
+          - 'null'
+    StatusChangeItem:
+      type: object
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
     Prediction:
       type: object
       required:
@@ -1929,76 +1983,29 @@ components:
           type: object
           description: The System Details page allows you to specify interconnection-related parameters including system availability, power plant output limits, and high-voltage (HV) transformation and transmission line details. These settings affect losses between the plant collection point and the energy meter (point of interconnection).
           x-doc-source: docs-only:user-guide/ui/system-details.mdx
-    StatusChangeItem:
-      type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: integer
-        status:
-          type: integer
-    IdResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-      required:
-      - id
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
     PredictionUpdateResponse:
       type: object
       properties:
         changesMade:
           type: boolean
-    MonthlyFactor:
-      type: object
-      properties:
-        id:
-          type: integer
-        month:
-          type: integer
-          minimum: 1
-          maximum: 12
-        monthName:
-          type: string
-        soilingLoss:
-          type: number
-        albedo:
-          type: number
-        spectralShift:
-          type:
-          - number
-          - 'null'
   responses:
-    TooManyRequests:
-      description: 'The caller has exceeded the per-account rate limit for this operation.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
 
-        Wait and retry. The PlantPredict API does not currently emit
+        but its structure is not guaranteed — treat it as opaque diagnostic
 
-        `Retry-After`; back off with an exponential schedule (start at 30s).
+        text. Common causes: database constraint violation, downstream
 
-        Response body is typically empty.
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
 
         '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
     Forbidden:
       description: 'The bearer token is valid but lacks the OAuth2 scope or role required
 
@@ -2031,25 +2038,18 @@ components:
           schema:
             type: string
           example: Project not found.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
 
-        but its structure is not guaranteed — treat it as opaque diagnostic
+        Wait and retry. The PlantPredict API does not currently emit
 
-        text. Common causes: database constraint violation, downstream
+        `Retry-After`; back off with an exponential schedule (start at 30s).
 
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
+        Response body is typically empty.
 
         '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
   securitySchemes:
     bearerAuth:
       type: http

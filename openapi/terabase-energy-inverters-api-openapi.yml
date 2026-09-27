@@ -1797,6 +1797,31 @@ components:
           type: integer
         status:
           type: integer
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
     InverterOverview:
       type: object
       properties:
@@ -1853,32 +1878,24 @@ components:
           - String
           - Central
           description: InverterType
-    IdResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-      required:
-      - id
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+  responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
 
-        field name (or `request`) to a list of human-readable messages.
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
 
         '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-  responses:
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
     Forbidden:
       description: 'The bearer token is valid but lacks the OAuth2 scope or role required
 
@@ -1913,23 +1930,6 @@ components:
           example: Project not found.
     Unauthorized:
       description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
   securitySchemes:
     bearerAuth:
       type: http

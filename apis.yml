@@ -56,6 +56,7 @@ tags:
 - Climate Tech
 - MCP
 - Energy Storage
+- A2A
 tags_raw:
 - solar
 - renewable-energy
@@ -69,6 +70,7 @@ tags_raw:
 - climate-tech
 - mcp
 - energy-storage
+- A2A
 apis:
 - name: PlantPredict MCP Connector
   description: >-
@@ -81,7 +83,7 @@ apis:
   baseURL: https://mcp.plantpredict.terabase.energy
   tags:
   - MCP
-  - agent-native
+  - Agent-Native
   - Solar
   - Energy Modeling
   tags_raw:
@@ -947,3 +949,10 @@ maintainers:
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://docs.plantpredict.com/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "0.3"
+  control: 404

@@ -883,33 +883,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 components:
-  schemas:
-    Definition:
-      type: object
-      properties:
-        type:
-          type: string
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/DefinitionValue'
-    DefinitionValue:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
   responses:
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
     ServerError:
       description: 'Unexpected server-side error. The body is usually a plain-text message
 
@@ -927,6 +901,32 @@ components:
           schema:
             type: string
           example: An error has occurred.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+  schemas:
+    DefinitionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Definition:
+      type: object
+      properties:
+        type:
+          type: string
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/DefinitionValue'
   securitySchemes:
     bearerAuth:
       type: http

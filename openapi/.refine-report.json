@@ -34,7 +34,9 @@
     "deleted 1 superseded output(s) from the previous generation"
   ],
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    "apis.yml register failed: TypeError: cannot use 'dict' as a set element (unhashable type: 'dict')"
+  ],
   "notes": [
     "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "terabase-energy-plantpredict-openapi-original.yaml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
@@ -53,8 +55,7 @@
     "tag 'ASHRAE' spans 2 source specs (terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json): per-path servers applied",
     "tag 'Country' spans 2 source specs (terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json): per-path servers applied",
     "tag 'System' spans 2 source specs (terabase-energy-plantpredict-openapi-original.yaml, terabase-energy-plantpredict-swagger-v1-original.json): per-path servers applied",
-    "superseded outputs removed: terabase-energy-time-series-api-openapi.yml",
-    "apis.yml register: written (+1 apis, 26 total)"
+    "superseded outputs removed: terabase-energy-time-series-api-openapi.yml"
   ],
   "skipped": [
     "terabase-energy-ashrae-api-openapi.yml: previously refined output, superseded by openapi/_original/",

@@ -2148,70 +2148,72 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
-    Note:
+    PVsystSkippedVariant:
       type: object
-      properties:
-        id:
-          type: integer
-        date:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        contents:
-          type: string
-        ownerId:
-          type: integer
-        entityType:
-          type: integer
-          enum:
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          x-enum-varnames:
-          - Project
-          - Module
-          - Inverter
-          - Weather
-          - Prediction
-          - MultiJunction
-          description: EntityType
-        entityID:
-          type: integer
-    PVsystFailedVariant:
-      type: object
-      description: A PVsyst variant that errored while the prediction was being created.
+      description: 'A PVsyst variant that was not imported because one or more of the files it
+
+        references could not be used.
+
+        '
       properties:
         variantFile:
           type:
           - string
           - 'null'
-        error:
+        reason:
           type:
           - string
           - 'null'
-    PVsystImportStartResult:
+          description: Plain-language explanation, suitable to show to a person.
+        blockedBy:
+          type:
+          - array
+          - 'null'
+          description: The specific file references that blocked this variant.
+          items:
+            $ref: '#/components/schemas/PVsystBlockingReference'
+    StatusChangeItem:
       type: object
-      description: 'Returned when a PVsyst import is accepted. No project exists yet — poll `statusUrl`
+      required:
+      - id
+      - status
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+    IdResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required:
+      - id
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
 
-        until the job reaches a terminal status.
+        field name (or `request`) to a list of human-readable messages.
 
         '
       properties:
-        jobId:
-          type: integer
-          format: int64
-          description: 'Identifier for this import. Worth logging: it is the fastest way for support to
-
-            find a specific import.
-
-            '
-        statusUrl:
+        message:
           type: string
-          description: Relative URL to poll for the import status.
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
       required:
-      - jobId
+      - message
+    NoteCreate:
+      type: object
+      required:
+      - contents
+      properties:
+        contents:
+          type: string
     PVsystImportStatusResult:
       type: object
       description: The state and outcome of a PVsyst import job.
@@ -2294,6 +2296,141 @@ components:
       required:
       - jobId
       - status
+    PVsystBlockingReference:
+      type: object
+      description: A file a variant references that could not be used.
+      properties:
+        category:
+          type:
+          - string
+          - 'null'
+          description: The kind of file, e.g. `module`, `inverter`, `weather`.
+        fileName:
+          type:
+          - string
+          - 'null'
+          description: The referenced filename, e.g. `CS7N-695TB-AG.PAN`.
+        problem:
+          type:
+          - string
+          - 'null'
+          description: Why it could not be used, e.g. `Not included in the ZIP.`
+    PVsystImportedVariant:
+      type: object
+      description: A PVsyst variant that was imported as a prediction.
+      properties:
+        variantFile:
+          type:
+          - string
+          - 'null'
+          description: The PVsyst variant file, e.g. `Desert Ridge.VC0`.
+        predictionId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: The prediction created from this variant.
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        contents:
+          type: string
+        ownerId:
+          type: integer
+        entityType:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Project
+          - Module
+          - Inverter
+          - Weather
+          - Prediction
+          - MultiJunction
+          description: EntityType
+        entityID:
+          type: integer
+    PVsystImportStartResult:
+      type: object
+      description: 'Returned when a PVsyst import is accepted. No project exists yet — poll `statusUrl`
+
+        until the job reaches a terminal status.
+
+        '
+      properties:
+        jobId:
+          type: integer
+          format: int64
+          description: 'Identifier for this import. Worth logging: it is the fastest way for support to
+
+            find a specific import.
+
+            '
+        statusUrl:
+          type: string
+          description: Relative URL to poll for the import status.
+      required:
+      - jobId
+    ProjectOverview:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        countryCode:
+          type: string
+        createdDate:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModified:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        elevation:
+          type: number
+          format: double
+        region:
+          type: string
+        standardOffsetFromUTC:
+          type: number
+        locality:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        stateProvinceCode:
+          type: string
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          x-enum-varnames:
+          - Active
+          - Archived
+          - VoltagePro
+          description: ProjectStatusEnum
+        predictions:
+          type: array
+          items:
+            type: object
     Project:
       type: object
       required:
@@ -2357,156 +2494,36 @@ components:
           type: string
           readOnly: true
           description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-    StatusChangeItem:
+    PVsystFailedVariant:
       type: object
-      required:
-      - id
-      - status
-      properties:
-        id:
-          type: integer
-        status:
-          type: integer
-    NoteCreate:
-      type: object
-      required:
-      - contents
-      properties:
-        contents:
-          type: string
-    IdResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-      required:
-      - id
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    PVsystBlockingReference:
-      type: object
-      description: A file a variant references that could not be used.
-      properties:
-        category:
-          type:
-          - string
-          - 'null'
-          description: The kind of file, e.g. `module`, `inverter`, `weather`.
-        fileName:
-          type:
-          - string
-          - 'null'
-          description: The referenced filename, e.g. `CS7N-695TB-AG.PAN`.
-        problem:
-          type:
-          - string
-          - 'null'
-          description: Why it could not be used, e.g. `Not included in the ZIP.`
-    PVsystImportedVariant:
-      type: object
-      description: A PVsyst variant that was imported as a prediction.
+      description: A PVsyst variant that errored while the prediction was being created.
       properties:
         variantFile:
           type:
           - string
           - 'null'
-          description: The PVsyst variant file, e.g. `Desert Ridge.VC0`.
-        predictionId:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          description: The prediction created from this variant.
-    PVsystSkippedVariant:
-      type: object
-      description: 'A PVsyst variant that was not imported because one or more of the files it
-
-        references could not be used.
-
-        '
-      properties:
-        variantFile:
+        error:
           type:
           - string
           - 'null'
-        reason:
-          type:
-          - string
-          - 'null'
-          description: Plain-language explanation, suitable to show to a person.
-        blockedBy:
-          type:
-          - array
-          - 'null'
-          description: The specific file references that blocked this variant.
-          items:
-            $ref: '#/components/schemas/PVsystBlockingReference'
-    ProjectOverview:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        country:
-          type: string
-        countryCode:
-          type: string
-        createdDate:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        lastModified:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        elevation:
-          type: number
-          format: double
-        region:
-          type: string
-        standardOffsetFromUTC:
-          type: number
-        locality:
-          type: string
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
-        stateProvinceCode:
-          type: string
-        status:
-          type: integer
-          enum:
-          - 0
-          - 1
-          - 2
-          x-enum-varnames:
-          - Active
-          - Archived
-          - VoltagePro
-          description: ProjectStatusEnum
-        predictions:
-          type: array
-          items:
-            type: object
   responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
     Forbidden:
       description: 'The bearer token is valid but lacks the OAuth2 scope or role required
 
@@ -2541,23 +2558,6 @@ components:
           example: Project not found.
     Unauthorized:
       description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
   securitySchemes:
     bearerAuth:
       type: http

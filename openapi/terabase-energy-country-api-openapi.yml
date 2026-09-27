@@ -1062,6 +1062,24 @@ paths:
     - url: https://api.plantpredict.terabase.energy
       description: Production
 components:
+  responses:
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
   schemas:
     Country:
       type: object
@@ -1095,24 +1113,6 @@ components:
           - string
           - 'null'
       additionalProperties: false
-  responses:
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
   securitySchemes:
     bearerAuth:
       type: http

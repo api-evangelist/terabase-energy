@@ -1148,6 +1148,61 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
+    PowerPlantArray:
+      type: object
+      properties:
+        name:
+          type: integer
+        resultList:
+          readOnly: true
+        inverters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantInverter'
+        acCollectionLoss:
+          type: number
+          format: double
+        dasLoad:
+          type: number
+          format: double
+        coolingLoad:
+          type: number
+          format: double
+        additionalLosses:
+          type: number
+          format: double
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          type: number
+          format: double
+        totalModules:
+          type: integer
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        trackerMotorLosses:
+          type: number
+          format: double
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
     PowerPlantInverter:
       type: object
       properties:
@@ -1201,128 +1256,24 @@ components:
           type: integer
           readOnly: true
         description: {}
-    PowerPlant:
+    ModelStateError:
       type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
       properties:
-        id:
-          type: integer
-        blocks:
-          type: array
-          items:
-            $ref: '#/components/schemas/Block'
-        transformers:
-          type: array
-          items:
-            type: object
-        transmissionLines:
-          type: array
-          items:
-            type: object
-        ess:
-          type:
-          - object
-          - 'null'
-          description: 'The Energy Storage System page allows you to configure an optional AC-coupled battery energy storage system (BESS) for your prediction. To enable energy storage, enter a Nameplate capacity value (input #1) and an Inverter Real Power rating (input #9). The Dispatch Algorithm should also be configured to ensure the...'
-          x-doc-source: docs-only:user-guide/ui/energy-storage-system.mdx
-        esS_Id:
-          type:
-          - integer
-          - 'null'
-        exportSystem:
-          type:
-          - object
-          - 'null'
-          description: The 3D View provides tools for analyzing terrain and racking placement within your map-based power plant design. This interface enables terrain slope analysis, table slope constraint identification, and post height calculations.
-          x-doc-source: docs-only:user-guide/ui/power-plant-builder-3d-view.mdx
-        exportESS:
-          type: boolean
-        lgiaLimitTimeSeriesId:
-          type:
-          - integer
-          - 'null'
-        lgiaLimitTimeSeries:
-          type:
-          - object
-          - 'null'
-          description: The Simulation Settings page allows you to configure the prediction timeframe and select the sub-models used for irradiance calculation, module performance, shading analysis, and degradation. These settings control the algorithms applied during the energy prediction simulation.
-          x-doc-source: docs-only:user-guide/ui/simulation-settings.mdx
-        useLGIALimitTimeSeries:
-          type: boolean
-        powerFactor:
-          type: number
-        lgiaLimitation:
-          type:
-          - number
-          - 'null'
-        nighttimeDisconnect:
-          type: boolean
-        availabilityLoss:
-          type: number
-        useCoolingTemp:
-          type: boolean
-        desiredDCACRatio:
-          type:
-          - number
-          - 'null'
-        powerPlantDesignType:
-          type: integer
-          enum:
-          - 0
-          - 1
-          x-enum-varnames:
-          - Simple
-          - Advanced
-          description: PowerPlantDesignType
-        customArrayConfig:
-          type:
-          - object
-          - 'null'
-          description: The Array page allows you to configure the medium-voltage (MV) transformer, AC collection circuit losses, and define the number of equivalent arrays within a Block. An Array aggregates multiple inverters and their associated DC Fields. Similar to the Inverter page, the Array supports a multiplier to model multiple...
-          x-doc-source: docs-only:user-guide/ui/power-plant-builder-array.mdx
-        useCustomArrayConfig:
-          type: boolean
-        totalModuleArea:
-          type: number
-        maxMVTransformerVoltage:
-          type: number
-        maximumPlantOutput:
-          type: number
-        resultList:
-          type:
-          - array
-          - 'null'
-          items:
-            type: object
-          readOnly: true
-    Block:
-      type: object
-      properties:
-        name:
-          type: integer
-        nodalExportOptions: {}
-        resultList:
-          readOnly: true
-        arrays:
-          type: array
-          items:
-            $ref: '#/components/schemas/PowerPlantArray'
-        energizationDate: {}
-        useEnergizationDate:
-          type: boolean
-        numberOfModules:
-          type: number
-          format: double
-          readOnly: true
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
     DCField:
       type: object
       properties:
@@ -1633,95 +1584,151 @@ components:
           type: integer
           readOnly: true
         description: {}
-    ModelStateError:
+    PredictionUpdateResponse:
       type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
       properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    PowerPlantArray:
+        changesMade:
+          type: boolean
+    PowerPlant:
+      type: object
+      properties:
+        id:
+          type: integer
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+        transformers:
+          type: array
+          items:
+            type: object
+        transmissionLines:
+          type: array
+          items:
+            type: object
+        ess:
+          type:
+          - object
+          - 'null'
+          description: 'The Energy Storage System page allows you to configure an optional AC-coupled battery energy storage system (BESS) for your prediction. To enable energy storage, enter a Nameplate capacity value (input #1) and an Inverter Real Power rating (input #9). The Dispatch Algorithm should also be configured to ensure the...'
+          x-doc-source: docs-only:user-guide/ui/energy-storage-system.mdx
+        esS_Id:
+          type:
+          - integer
+          - 'null'
+        exportSystem:
+          type:
+          - object
+          - 'null'
+          description: The 3D View provides tools for analyzing terrain and racking placement within your map-based power plant design. This interface enables terrain slope analysis, table slope constraint identification, and post height calculations.
+          x-doc-source: docs-only:user-guide/ui/power-plant-builder-3d-view.mdx
+        exportESS:
+          type: boolean
+        lgiaLimitTimeSeriesId:
+          type:
+          - integer
+          - 'null'
+        lgiaLimitTimeSeries:
+          type:
+          - object
+          - 'null'
+          description: The Simulation Settings page allows you to configure the prediction timeframe and select the sub-models used for irradiance calculation, module performance, shading analysis, and degradation. These settings control the algorithms applied during the energy prediction simulation.
+          x-doc-source: docs-only:user-guide/ui/simulation-settings.mdx
+        useLGIALimitTimeSeries:
+          type: boolean
+        powerFactor:
+          type: number
+        lgiaLimitation:
+          type:
+          - number
+          - 'null'
+        nighttimeDisconnect:
+          type: boolean
+        availabilityLoss:
+          type: number
+        useCoolingTemp:
+          type: boolean
+        desiredDCACRatio:
+          type:
+          - number
+          - 'null'
+        powerPlantDesignType:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Simple
+          - Advanced
+          description: PowerPlantDesignType
+        customArrayConfig:
+          type:
+          - object
+          - 'null'
+          description: The Array page allows you to configure the medium-voltage (MV) transformer, AC collection circuit losses, and define the number of equivalent arrays within a Block. An Array aggregates multiple inverters and their associated DC Fields. Similar to the Inverter page, the Array supports a multiplier to model multiple...
+          x-doc-source: docs-only:user-guide/ui/power-plant-builder-array.mdx
+        useCustomArrayConfig:
+          type: boolean
+        totalModuleArea:
+          type: number
+        maxMVTransformerVoltage:
+          type: number
+        maximumPlantOutput:
+          type: number
+        resultList:
+          type:
+          - array
+          - 'null'
+          items:
+            type: object
+          readOnly: true
+    Block:
       type: object
       properties:
         name:
           type: integer
+        nodalExportOptions: {}
         resultList:
           readOnly: true
-        inverters:
+        arrays:
           type: array
           items:
-            $ref: '#/components/schemas/PowerPlantInverter'
-        acCollectionLoss:
-          type: number
-          format: double
-        dasLoad:
-          type: number
-          format: double
-        coolingLoad:
-          type: number
-          format: double
-        additionalLosses:
-          type: number
-          format: double
-        matchTotalInverterkVA:
+            $ref: '#/components/schemas/PowerPlantArray'
+        energizationDate: {}
+        useEnergizationDate:
           type: boolean
-        transformerEnabled:
-          type: boolean
-        transformerkVARating:
+        numberOfModules:
           type: number
           format: double
-        transformerHighSideVoltage:
-          type: number
-          format: double
-        transformerNoLoadLoss:
-          type: number
-          format: double
-        transformerFullLoadLoss:
-          type: number
-          format: double
-        totalModules:
-          type: integer
           readOnly: true
         totalModuleArea:
           type: number
           format: double
           readOnly: true
-        trackerMotorLosses:
-          type: number
-          format: double
         repeater:
           type: integer
         id:
           type: integer
           readOnly: true
         description: {}
-    PredictionUpdateResponse:
-      type: object
-      properties:
-        changesMade:
-          type: boolean
   responses:
-    TooManyRequests:
-      description: 'The caller has exceeded the per-account rate limit for this operation.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
 
-        Wait and retry. The PlantPredict API does not currently emit
+        but its structure is not guaranteed — treat it as opaque diagnostic
 
-        `Retry-After`; back off with an exponential schedule (start at 30s).
+        text. Common causes: database constraint violation, downstream
 
-        Response body is typically empty.
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
 
         '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
     BadRequest:
       description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
       content:
@@ -1744,25 +1751,18 @@ components:
           schema:
             type: string
           example: Project not found.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
 
-        but its structure is not guaranteed — treat it as opaque diagnostic
+        Wait and retry. The PlantPredict API does not currently emit
 
-        text. Common causes: database constraint violation, downstream
+        `Retry-After`; back off with an exponential schedule (start at 30s).
 
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
+        Response body is typically empty.
 
         '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
   securitySchemes:
     bearerAuth:
       type: http
