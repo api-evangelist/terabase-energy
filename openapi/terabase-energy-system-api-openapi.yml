@@ -86,12 +86,6 @@ components:
             type: string
           example: An error has occurred.
   schemas:
-    PlantPredict.Entities.DTO.MaintenanceModeResult:
-      type: object
-      properties:
-        maintenanceMode:
-          type: boolean
-      additionalProperties: false
     PlantPredict.Entities.DTO.VersionInfo:
       type: object
       properties:
@@ -99,6 +93,12 @@ components:
           type:
           - string
           - 'null'
+      additionalProperties: false
+    PlantPredict.Entities.DTO.MaintenanceModeResult:
+      type: object
+      properties:
+        maintenanceMode:
+          type: boolean
       additionalProperties: false
   securitySchemes:
     bearerAuth:

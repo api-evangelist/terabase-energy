@@ -1147,115 +1147,59 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 components:
+  responses:
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    TooManyRequests:
+      description: 'The caller has exceeded the per-account rate limit for this operation.
+
+        Wait and retry. The PlantPredict API does not currently emit
+
+        `Retry-After`; back off with an exponential schedule (start at 30s).
+
+        Response body is typically empty.
+
+        '
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
   schemas:
-    PowerPlantArray:
-      type: object
-      properties:
-        name:
-          type: integer
-        resultList:
-          readOnly: true
-        inverters:
-          type: array
-          items:
-            $ref: '#/components/schemas/PowerPlantInverter'
-        acCollectionLoss:
-          type: number
-          format: double
-        dasLoad:
-          type: number
-          format: double
-        coolingLoad:
-          type: number
-          format: double
-        additionalLosses:
-          type: number
-          format: double
-        matchTotalInverterkVA:
-          type: boolean
-        transformerEnabled:
-          type: boolean
-        transformerkVARating:
-          type: number
-          format: double
-        transformerHighSideVoltage:
-          type: number
-          format: double
-        transformerNoLoadLoss:
-          type: number
-          format: double
-        transformerFullLoadLoss:
-          type: number
-          format: double
-        totalModules:
-          type: integer
-          readOnly: true
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        trackerMotorLosses:
-          type: number
-          format: double
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
-    PowerPlantInverter:
-      type: object
-      properties:
-        name:
-          type: string
-        resultList:
-          readOnly: true
-        dcFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/DCField'
-        inverterId:
-          type: integer
-        inverter:
-          type: object
-        setpointkW:
-          type: number
-          format: double
-        powerFactor:
-          type: number
-          format: double
-        designDerate:
-          type: number
-          format: double
-        kVARating:
-          type: number
-          format: double
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        derateTimeSeriesId: {}
-        derateTimeSeries: {}
-        useDerateTimeSeries:
-          type: boolean
-        setPointTimeSeriesId: {}
-        setPointTimeSeries: {}
-        useSetPointTimeSeries:
-          type: boolean
-        vmppAdjustmentTimeSeriesId: {}
-        vmppAdjustmentTimeSeries: {}
-        useVMPPTimeSeriesAdjustment:
-          type: boolean
-        imppAdjustmentTimeSeriesId: {}
-        imppAdjustmentTimeSeries: {}
-        useIMPPTimeSeriesAdjustment:
-          type: boolean
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
     ModelStateError:
       type: object
       description: 'ASP.NET Web API validation error. `modelState` maps the offending
@@ -1584,11 +1528,35 @@ components:
           type: integer
           readOnly: true
         description: {}
-    PredictionUpdateResponse:
+    Block:
       type: object
       properties:
-        changesMade:
+        name:
+          type: integer
+        nodalExportOptions: {}
+        resultList:
+          readOnly: true
+        arrays:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantArray'
+        energizationDate: {}
+        useEnergizationDate:
           type: boolean
+        numberOfModules:
+          type: number
+          format: double
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
     PowerPlant:
       type: object
       properties:
@@ -1682,87 +1650,119 @@ components:
           items:
             type: object
           readOnly: true
-    Block:
+    PowerPlantArray:
       type: object
       properties:
         name:
           type: integer
-        nodalExportOptions: {}
         resultList:
           readOnly: true
-        arrays:
+        inverters:
           type: array
           items:
-            $ref: '#/components/schemas/PowerPlantArray'
-        energizationDate: {}
-        useEnergizationDate:
-          type: boolean
-        numberOfModules:
+            $ref: '#/components/schemas/PowerPlantInverter'
+        acCollectionLoss:
           type: number
           format: double
+        dasLoad:
+          type: number
+          format: double
+        coolingLoad:
+          type: number
+          format: double
+        additionalLosses:
+          type: number
+          format: double
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          type: number
+          format: double
+        totalModules:
+          type: integer
           readOnly: true
         totalModuleArea:
           type: number
           format: double
           readOnly: true
+        trackerMotorLosses:
+          type: number
+          format: double
         repeater:
           type: integer
         id:
           type: integer
           readOnly: true
         description: {}
-  responses:
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
-    BadRequest:
-      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ModelStateError'
-          example:
-            message: The request is invalid.
-            modelState:
-              latitude:
-              - The field Latitude must be between -90 and 90.
-        text/plain:
-          schema:
-            type: string
-          example: A successfully completed prediction cannot be cancelled.
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
-    TooManyRequests:
-      description: 'The caller has exceeded the per-account rate limit for this operation.
-
-        Wait and retry. The PlantPredict API does not currently emit
-
-        `Retry-After`; back off with an exponential schedule (start at 30s).
-
-        Response body is typically empty.
-
-        '
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+    PowerPlantInverter:
+      type: object
+      properties:
+        name:
+          type: string
+        resultList:
+          readOnly: true
+        dcFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCField'
+        inverterId:
+          type: integer
+        inverter:
+          type: object
+        setpointkW:
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+        designDerate:
+          type: number
+          format: double
+        kVARating:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        derateTimeSeriesId: {}
+        derateTimeSeries: {}
+        useDerateTimeSeries:
+          type: boolean
+        setPointTimeSeriesId: {}
+        setPointTimeSeries: {}
+        useSetPointTimeSeries:
+          type: boolean
+        vmppAdjustmentTimeSeriesId: {}
+        vmppAdjustmentTimeSeries: {}
+        useVMPPTimeSeriesAdjustment:
+          type: boolean
+        imppAdjustmentTimeSeriesId: {}
+        imppAdjustmentTimeSeries: {}
+        useIMPPTimeSeriesAdjustment:
+          type: boolean
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
   securitySchemes:
     bearerAuth:
       type: http

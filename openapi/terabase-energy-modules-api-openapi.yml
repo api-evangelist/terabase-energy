@@ -4553,40 +4553,114 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 components:
+  responses:
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
+    BadRequest:
+      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelStateError'
+          example:
+            message: The request is invalid.
+            modelState:
+              latitude:
+              - The field Latitude must be between -90 and 90.
+        text/plain:
+          schema:
+            type: string
+          example: A successfully completed prediction cannot be cancelled.
+    ServerError:
+      description: 'Unexpected server-side error. The body is usually a plain-text message
+
+        but its structure is not guaranteed — treat it as opaque diagnostic
+
+        text. Common causes: database constraint violation, downstream
+
+        service timeout, internal exception. Retry-safe for idempotent
+
+        requests; for non-idempotent ones, verify state before retrying.
+
+        '
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: An error has occurred.
+    Unauthorized:
+      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
   schemas:
-    SingleDiodeDefaultRequest:
+    ModelStateError:
       type: object
-      required:
-      - numberOfCellsInSeries
-      - stcMaxPower
-      - stcmppCurrent
-      - stcmppVoltage
-      - stcOpenCircuitVoltage
-      - stcShortCircuitCurrent
-      - cellTechnologyType
-      - pvModel
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
       properties:
-        numberOfCellsInSeries:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    IdResponse:
+      type: object
+      properties:
+        id:
           type: integer
-        referenceIrradiance:
-          type: number
-        referenceTemperature:
-          type: number
+      required:
+      - id
+    ModuleOverview:
+      type: object
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: integer
+        name:
+          type: string
+        status:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Unknown
+          - DraftPrivate
+          - DraftShared
+          - Active
+          - Retired
+          - Global
+          - GlobalRetired
+          description: LibraryStatusEnum
+        lastModified:
+          type: string
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        lastModifiedBy:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
         stcMaxPower:
           type: number
-        stcmppCurrent:
-          type: number
-        stcmppVoltage:
-          type: number
-        stcOpenCircuitVoltage:
-          type: number
-        stcOpenCircuitVoltageTempCoef:
-          type: number
         stcPowerTempCoef:
-          type: number
-        stcShortCircuitCurrent:
-          type: number
-        stcShortCircuitCurrentTempCoef:
           type: number
         cellTechnologyType:
           type: integer
@@ -4609,42 +4683,67 @@ components:
           - CIGS
           - Mixed
           description: CellTechnologyTypeEnum
-        pvModel:
+        cellDesignType:
           type: integer
           enum:
           - 0
           - 1
+          - 2
           - 3
           x-enum-varnames:
-          - V1DiodeRecombination
-          - V1Diode
-          - V1DiodeRecombinationNonLinearTemp
-          description: PvModelType
-    IdResponse:
+          - FullCellTechnology
+          - HalfCellTechnology
+          - NA
+          - NoneSpecified
+          description: CellDesignType
+        faciality:
+          type: integer
+          enum:
+          - 0
+          - 1
+          x-enum-varnames:
+          - Monofacial
+          - Bifacial
+          description: FacialityEnum
+        isMultiJunction:
+          type: boolean
+        isLargeFormat:
+          type: boolean
+        isShingledMonoPerc:
+          type: boolean
+        isThinFilm:
+          type: boolean
+    Note:
       type: object
       properties:
         id:
           type: integer
-      required:
-      - id
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
+        date:
           type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
+          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
+        contents:
+          type: string
+        ownerId:
+          type: integer
+        entityType:
+          type: integer
+          enum:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          x-enum-varnames:
+          - Project
+          - Module
+          - Inverter
+          - Weather
+          - Prediction
+          - MultiJunction
+          description: EntityType
+        entityID:
+          type: integer
     Module:
       type: object
       required:
@@ -4873,46 +4972,39 @@ components:
           type: array
           items:
             type: object
-    ModuleOverview:
+    SingleDiodeDefaultRequest:
       type: object
+      required:
+      - numberOfCellsInSeries
+      - stcMaxPower
+      - stcmppCurrent
+      - stcmppVoltage
+      - stcOpenCircuitVoltage
+      - stcShortCircuitCurrent
+      - cellTechnologyType
+      - pvModel
       properties:
-        id:
+        numberOfCellsInSeries:
           type: integer
-        ownerId:
-          type: integer
-        name:
-          type: string
-        status:
-          type: integer
-          enum:
-          - 0
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          x-enum-varnames:
-          - Unknown
-          - DraftPrivate
-          - DraftShared
-          - Active
-          - Retired
-          - Global
-          - GlobalRetired
-          description: LibraryStatusEnum
-        lastModified:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        lastModifiedBy:
-          type: string
-        model:
-          type: string
-        manufacturer:
-          type: string
+        referenceIrradiance:
+          type: number
+        referenceTemperature:
+          type: number
         stcMaxPower:
           type: number
+        stcmppCurrent:
+          type: number
+        stcmppVoltage:
+          type: number
+        stcOpenCircuitVoltage:
+          type: number
+        stcOpenCircuitVoltageTempCoef:
+          type: number
         stcPowerTempCoef:
+          type: number
+        stcShortCircuitCurrent:
+          type: number
+        stcShortCircuitCurrentTempCoef:
           type: number
         cellTechnologyType:
           type: integer
@@ -4935,109 +5027,17 @@ components:
           - CIGS
           - Mixed
           description: CellTechnologyTypeEnum
-        cellDesignType:
+        pvModel:
           type: integer
           enum:
           - 0
           - 1
-          - 2
           - 3
           x-enum-varnames:
-          - FullCellTechnology
-          - HalfCellTechnology
-          - NA
-          - NoneSpecified
-          description: CellDesignType
-        faciality:
-          type: integer
-          enum:
-          - 0
-          - 1
-          x-enum-varnames:
-          - Monofacial
-          - Bifacial
-          description: FacialityEnum
-        isMultiJunction:
-          type: boolean
-        isLargeFormat:
-          type: boolean
-        isShingledMonoPerc:
-          type: boolean
-        isThinFilm:
-          type: boolean
-    Note:
-      type: object
-      properties:
-        id:
-          type: integer
-        date:
-          type: string
-          description: ISO-8601 datetime as returned by the PlantPredict API. May or may not include a timezone offset; treat as server-local when no offset is present.
-        contents:
-          type: string
-        ownerId:
-          type: integer
-        entityType:
-          type: integer
-          enum:
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          x-enum-varnames:
-          - Project
-          - Module
-          - Inverter
-          - Weather
-          - Prediction
-          - MultiJunction
-          description: EntityType
-        entityID:
-          type: integer
-  responses:
-    ServerError:
-      description: 'Unexpected server-side error. The body is usually a plain-text message
-
-        but its structure is not guaranteed — treat it as opaque diagnostic
-
-        text. Common causes: database constraint violation, downstream
-
-        service timeout, internal exception. Retry-safe for idempotent
-
-        requests; for non-idempotent ones, verify state before retrying.
-
-        '
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: An error has occurred.
-    BadRequest:
-      description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ModelStateError'
-          example:
-            message: The request is invalid.
-            modelState:
-              latitude:
-              - The field Latitude must be between -90 and 90.
-        text/plain:
-          schema:
-            type: string
-          example: A successfully completed prediction cannot be cancelled.
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
-    Unauthorized:
-      description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
+          - V1DiodeRecombination
+          - V1Diode
+          - V1DiodeRecombinationNonLinearTemp
+          description: PvModelType
   securitySchemes:
     bearerAuth:
       type: http
