@@ -1,0 +1,12 @@
+{
+ "url": "https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml",
+ "requested_url": "https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml",
+ "status": 200,
+ "content_type": "text/yaml",
+ "bytes": 1456028,
+ "sha256": "32484ee32e2e25ca92e75f04f029f1b21d3f7692357ff3bad6474fdf50e993f1",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "equivalent",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the provider's current document describes the same operations (Jaccard 0.983), but the bytes differ, so the archive is an earlier or reformatted copy."
+}
