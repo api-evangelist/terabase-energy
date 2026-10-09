@@ -72,3 +72,17 @@ deployment:
   probe: gated
   checked: '2026-08-12'
   source: catalog MCP census
+rfc9728:
+  endpoint: https://mcp.plantpredict.terabase.energy
+  metadata_url: https://mcp.plantpredict.terabase.energy/.well-known/oauth-protected-resource
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://mcp.plantpredict.terabase.energy/
+    authorization_servers:
+    - https://mcp.plantpredict.terabase.energy/
+    scopes_supported: []
+    bearer_methods_supported:
+    - header
