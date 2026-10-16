@@ -1,21 +1,19 @@
-# Kin Score artifact — terabase-energy — 2026-09-07T213054
+# Kin Score artifact — terabase-energy — 2026-10-11T110117
 # The API Evangelist rating (https://github.com/api-evangelist/kin-score). Generated; do not edit.
 ---
 kin_score:
   slug: terabase-energy
-  schema_version: 0.20.0
-  scored_at: '2026-09-07'
-  run_ts: 2026-09-07T213054
-  composite: 57.6
-  band: strong
+  schema_version: 0.23.0
+  scored_at: '2026-10-11'
+  run_ts: 2026-10-11T110117
+  composite: 53.6
+  band: developing
   facets:
-    discoverability: 70.4
-    contract_quality: 57.2
-    governance: 18.2
+    discoverability: 75.0
+    contract_quality: 50.8
+    contract_governance: 18.2
     operational_transparency: 18.4
     developer_ergonomics: 76.2
-    commercial_clarity: 52.6
-    contract_governance: 18.2
     access_clarity: 52.6
   agent_readiness:
     score: 58.9
@@ -45,7 +43,7 @@ kin_score:
     applies: true
     regime: Energy & Utilities
     regime_id: energy_utilities
-    score: 63.5
+    score: 38.5
     matched_via: tags
   provenance:
     mcp: first-party
@@ -55,4 +53,4 @@ kin_score:
       total: 24
       derived: 0
       coverage: 0.0
-      callable: 100.0
+      callable: 66.7
