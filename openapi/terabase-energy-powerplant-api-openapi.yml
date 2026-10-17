@@ -1148,137 +1148,6 @@ paths:
           $ref: '#/components/responses/ServerError'
 components:
   schemas:
-    PowerPlantArray:
-      type: object
-      properties:
-        name:
-          type: integer
-        resultList:
-          readOnly: true
-        inverters:
-          type: array
-          items:
-            $ref: '#/components/schemas/PowerPlantInverter'
-        acCollectionLoss:
-          type: number
-          format: double
-        dasLoad:
-          type: number
-          format: double
-        coolingLoad:
-          type: number
-          format: double
-        additionalLosses:
-          type: number
-          format: double
-        matchTotalInverterkVA:
-          type: boolean
-        transformerEnabled:
-          type: boolean
-        transformerkVARating:
-          type: number
-          format: double
-        transformerHighSideVoltage:
-          type: number
-          format: double
-        transformerNoLoadLoss:
-          type: number
-          format: double
-        transformerFullLoadLoss:
-          type: number
-          format: double
-        totalModules:
-          type: integer
-          readOnly: true
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        trackerMotorLosses:
-          type: number
-          format: double
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
-    ModelStateError:
-      type: object
-      description: 'ASP.NET Web API validation error. `modelState` maps the offending
-
-        field name (or `request`) to a list of human-readable messages.
-
-        '
-      properties:
-        message:
-          type: string
-        modelState:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-      required:
-      - message
-    PredictionUpdateResponse:
-      type: object
-      properties:
-        changesMade:
-          type: boolean
-    PowerPlantInverter:
-      type: object
-      properties:
-        name:
-          type: string
-        resultList:
-          readOnly: true
-        dcFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/DCField'
-        inverterId:
-          type: integer
-        inverter:
-          type: object
-        setpointkW:
-          type: number
-          format: double
-        powerFactor:
-          type: number
-          format: double
-        designDerate:
-          type: number
-          format: double
-        kVARating:
-          type: number
-          format: double
-        totalModuleArea:
-          type: number
-          format: double
-          readOnly: true
-        derateTimeSeriesId: {}
-        derateTimeSeries: {}
-        useDerateTimeSeries:
-          type: boolean
-        setPointTimeSeriesId: {}
-        setPointTimeSeries: {}
-        useSetPointTimeSeries:
-          type: boolean
-        vmppAdjustmentTimeSeriesId: {}
-        vmppAdjustmentTimeSeries: {}
-        useVMPPTimeSeriesAdjustment:
-          type: boolean
-        imppAdjustmentTimeSeriesId: {}
-        imppAdjustmentTimeSeries: {}
-        useIMPPTimeSeriesAdjustment:
-          type: boolean
-        repeater:
-          type: integer
-        id:
-          type: integer
-          readOnly: true
-        description: {}
     DCField:
       type: object
       properties:
@@ -1589,6 +1458,64 @@ components:
           type: integer
           readOnly: true
         description: {}
+    PredictionUpdateResponse:
+      type: object
+      properties:
+        changesMade:
+          type: boolean
+    PowerPlantInverter:
+      type: object
+      properties:
+        name:
+          type: string
+        resultList:
+          readOnly: true
+        dcFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DCField'
+        inverterId:
+          type: integer
+        inverter:
+          type: object
+        setpointkW:
+          type: number
+          format: double
+        powerFactor:
+          type: number
+          format: double
+        designDerate:
+          type: number
+          format: double
+        kVARating:
+          type: number
+          format: double
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        derateTimeSeriesId: {}
+        derateTimeSeries: {}
+        useDerateTimeSeries:
+          type: boolean
+        setPointTimeSeriesId: {}
+        setPointTimeSeries: {}
+        useSetPointTimeSeries:
+          type: boolean
+        vmppAdjustmentTimeSeriesId: {}
+        vmppAdjustmentTimeSeries: {}
+        useVMPPTimeSeriesAdjustment:
+          type: boolean
+        imppAdjustmentTimeSeriesId: {}
+        imppAdjustmentTimeSeries: {}
+        useIMPPTimeSeriesAdjustment:
+          type: boolean
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
     PowerPlant:
       type: object
       properties:
@@ -1711,6 +1638,79 @@ components:
           type: integer
           readOnly: true
         description: {}
+    ModelStateError:
+      type: object
+      description: 'ASP.NET Web API validation error. `modelState` maps the offending
+
+        field name (or `request`) to a list of human-readable messages.
+
+        '
+      properties:
+        message:
+          type: string
+        modelState:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - message
+    PowerPlantArray:
+      type: object
+      properties:
+        name:
+          type: integer
+        resultList:
+          readOnly: true
+        inverters:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerPlantInverter'
+        acCollectionLoss:
+          type: number
+          format: double
+        dasLoad:
+          type: number
+          format: double
+        coolingLoad:
+          type: number
+          format: double
+        additionalLosses:
+          type: number
+          format: double
+        matchTotalInverterkVA:
+          type: boolean
+        transformerEnabled:
+          type: boolean
+        transformerkVARating:
+          type: number
+          format: double
+        transformerHighSideVoltage:
+          type: number
+          format: double
+        transformerNoLoadLoss:
+          type: number
+          format: double
+        transformerFullLoadLoss:
+          type: number
+          format: double
+        totalModules:
+          type: integer
+          readOnly: true
+        totalModuleArea:
+          type: number
+          format: double
+          readOnly: true
+        trackerMotorLosses:
+          type: number
+          format: double
+        repeater:
+          type: integer
+        id:
+          type: integer
+          readOnly: true
+        description: {}
   responses:
     TooManyRequests:
       description: 'The caller has exceeded the per-account rate limit for this operation.
@@ -1741,13 +1741,6 @@ components:
           example: An error has occurred.
     Unauthorized:
       description: Missing or invalid bearer token. The response body is empty and no `Content-Type` header is set; the 401 status code is the only signal. Fetch a fresh token (see the **Authentication** section of the API description) and retry.
-    NotFound:
-      description: The referenced resource does not exist or is not accessible to the caller.
-      content:
-        text/plain:
-          schema:
-            type: string
-          example: Project not found.
     BadRequest:
       description: "The request was rejected. PlantPredict returns one of two shapes:\n\n* `application/json` with `{message, modelState}` for input\n  validation errors (ASP.NET Web API model-state). The `modelState`\n  map keys field names to lists of human-readable error messages.\n* `text/plain` with a free-form message for runtime / database\n  errors that bubble up before validation completes.\n\nClients should branch on the `Content-Type` header.\n"
       content:
@@ -1763,6 +1756,13 @@ components:
           schema:
             type: string
           example: A successfully completed prediction cannot be cancelled.
+    NotFound:
+      description: The referenced resource does not exist or is not accessible to the caller.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Project not found.
   securitySchemes:
     bearerAuth:
       type: http

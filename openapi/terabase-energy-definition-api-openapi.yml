@@ -45,17 +45,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PlantPredict.Entities.DTO.Definition:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type:
-          - string
-          - 'null'
-      additionalProperties: false
     PlantPredict.Entities.DTO.Definitions:
       type: object
       properties:
@@ -69,6 +58,17 @@ components:
           - 'null'
           items:
             $ref: '#/components/schemas/PlantPredict.Entities.DTO.Definition'
+      additionalProperties: false
+    PlantPredict.Entities.DTO.Definition:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type:
+          - string
+          - 'null'
       additionalProperties: false
   securitySchemes:
     Bearer:
