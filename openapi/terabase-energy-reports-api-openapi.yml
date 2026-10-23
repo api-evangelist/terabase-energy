@@ -764,3 +764,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: 'Pass `Authorization: Bearer <token>` on every request. See the **Authentication** section of the API description for how to fetch a token.'
+x-provenance:
+  method: harvested
+  publisher: Terabase Energy
+  source: https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)

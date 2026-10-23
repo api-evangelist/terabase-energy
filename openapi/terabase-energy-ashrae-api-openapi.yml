@@ -316,3 +316,9 @@ components:
 x-refined-from:
 - terabase-energy-plantpredict-openapi-original.yaml
 - terabase-energy-plantpredict-swagger-v1-original.json
+x-provenance:
+  method: harvested
+  publisher: Terabase Energy
+  source: https://docs.plantpredict.com/api-docs/api-reference/plantpredict-api.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
